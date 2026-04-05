@@ -1,155 +1,170 @@
 #!/usr/bin/env bash
-# ╔══════════════════════════════════════════════════════════╗
-# ║    install.sh — SwayFX Dotfiles                          ║
-# ║    Ryzen 5 7430U · Pop!_OS base · Caelestia-inspired     ║
-# ╚══════════════════════════════════════════════════════════╝
-set -e
+set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; NC='\033[0m'
+BACKUP_ROOT="$HOME/.local/share/swayfx-dotfile-backups"
+TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
+BACKUP_DIR="$BACKUP_ROOT/$TIMESTAMP"
 
-info()    { echo -e "${CYAN}[·]${NC} $*"; }
-success() { echo -e "${GREEN}[✓]${NC} $*"; }
-warn()    { echo -e "${YELLOW}[!]${NC} $*"; }
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-echo ""
-echo -e "${CYAN}══════════════════════════════════════════${NC}"
-echo -e "${CYAN}  SwayFX Dotfiles · Instalación            ${NC}"
-echo -e "${CYAN}══════════════════════════════════════════${NC}"
-echo ""
+info() { printf "${CYAN}[info]${NC} %s\n" "$*"; }
+success() { printf "${GREEN}[ok]${NC} %s\n" "$*"; }
+warn() { printf "${YELLOW}[warn]${NC} %s\n" "$*"; }
 
-# ── 0. Verificar que somos en Arch / Pop!_OS con pacman ──
-if ! command -v pacman &>/dev/null; then
-  warn "Este script está diseñado para Arch Linux o distribuciones basadas en él."
-  warn "Adapta los comandos si usas otro gestor de paquetes."
-fi
+PACMAN_PACKAGES=(
+  foot
+  zellij
+  waybar
+  swaybg
+  swayidle
+  fuzzel
+  mako
+  thunar
+  gvfs
+  tumbler
+  pipewire
+  pipewire-pulse
+  wireplumber
+  pavucontrol
+  networkmanager
+  nm-connection-editor
+  brightnessctl
+  grim
+  slurp
+  wl-clipboard
+  libnotify
+  polkit
+  polkit-gnome
+  xdg-user-dirs
+  xdg-utils
+  xdg-desktop-portal-wlr
+  xdg-desktop-portal-gtk
+  qt5-wayland
+  qt6-wayland
+  ttf-jetbrains-mono-nerd
+  noto-fonts
+  noto-fonts-emoji
+  papirus-icon-theme
+  adw-gtk3
+)
 
-# ── 1. Actualizar sistema ────────────────────────────────
-info "Actualizando sistema..."
-sudo pacman -Syu --noconfirm
-
-# ── 2. Dependencias base ─────────────────────────────────
-info "Instalando dependencias base..."
-sudo pacman -S --needed --noconfirm \
-  base-devel git curl \
-  zsh starship \
-  foot zellij \
-  waybar swaybg swaylock \
-  fuzzel mako \
-  thunar gvfs tumbler \
-  pipewire pipewire-pulse wireplumber pavucontrol \
-  network-manager-applet nm-connection-editor \
-  brightnessctl \
-  grim slurp \
-  polkit-gnome \
-  ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji \
-  papirus-icon-theme \
-  xdg-user-dirs xdg-utils \
-  qt5-wayland qt6-wayland \
-  vulkan-radeon libva-mesa-driver mesa \
-  wl-clipboard \
-  swayidle \
-  adw-gtk3 \
+AUR_PACKAGES=(
+  swayfx
+  nwg-dock
   bibata-cursor-theme
+)
 
-# ── 3. Instalar paru (helper AUR) ────────────────────────
-if ! command -v paru &>/dev/null; then
-  info "Instalando paru (helper AUR)..."
-  cd /tmp
-  git clone https://aur.archlinux.org/paru.git
-  cd paru
-  makepkg -si --noconfirm
-  cd "$DOTFILES"
-  success "paru instalado"
-else
-  success "paru ya está instalado"
+backup_path() {
+  local target="$1"
+  local relative="${target#$HOME/}"
+  local backup_target="$BACKUP_DIR/$relative"
+
+  [ -e "$target" ] || [ -L "$target" ] || return 0
+
+  mkdir -p "$(dirname "$backup_target")"
+  cp -a "$target" "$backup_target"
+}
+
+copy_file() {
+  local src="$1"
+  local dest="$2"
+
+  mkdir -p "$(dirname "$dest")"
+  backup_path "$dest"
+  cp -a "$src" "$dest"
+}
+
+copy_dir_contents() {
+  local src="$1"
+  local dest="$2"
+
+  mkdir -p "$dest"
+  backup_path "$dest"
+  cp -a "$src/." "$dest/"
+}
+
+remove_managed_file() {
+  local target="$1"
+
+  if [ -e "$target" ] || [ -L "$target" ]; then
+    backup_path "$target"
+    rm -f "$target"
+  fi
+}
+
+printf "\n${CYAN}SwayFX dotfiles${NC}\n\n"
+
+if ! command -v pacman >/dev/null 2>&1; then
+  warn "Este instalador es para Arch Linux o derivadas con pacman y AUR."
+  warn "Si sigues en Pop!_OS, usa este repo como referencia y adapta los paquetes."
+  exit 1
 fi
 
-# ── 4. Instalar SwayFX desde AUR ─────────────────────────
-info "Instalando SwayFX, nwg-dock, swaylock-effects y cursor desde AUR..."
-paru -S --noconfirm swayfx nwg-dock swaylock-effects bibata-cursor-theme
+info "Actualizando sistema"
+sudo pacman -Syu
 
-# ── 5. ZSH como shell por defecto ────────────────────────
-if [ "$SHELL" != "$(which zsh)" ]; then
-  info "Cambiando shell por defecto a zsh..."
-  chsh -s "$(which zsh)"
-  success "Shell cambiado a zsh (efectivo en próximo login)"
+info "Instalando dependencias base para AUR"
+sudo pacman -S --needed base-devel git
+
+info "Instalando zsh y starship primero"
+sudo pacman -S --needed zsh starship
+
+if [ "${SHELL:-}" != "$(command -v zsh)" ]; then
+  info "Cambiando el shell por defecto a zsh"
+  chsh -s "$(command -v zsh)"
 fi
 
-# ── 6. Crear directorios necesarios ──────────────────────
-info "Creando directorios..."
-mkdir -p \
-  ~/.config/sway \
-  ~/.config/waybar/scripts \
-  ~/.config/foot \
-  ~/.config/zellij \
-  ~/.config/fuzzel \
-  ~/.config/swaylock \
-  ~/.config/mako \
-  ~/.config/nwg-dock \
-  ~/Pictures \
-  ~/Wallpapers
-
-# ── 7. Copiar dotfiles ───────────────────────────────────
-info "Copiando configuraciones..."
-
-cp -v "$DOTFILES/.zshrc"            ~/
-cp -v "$DOTFILES/.zprofile"         ~/
-cp -v "$DOTFILES/starship.toml"     ~/.config/
-
-cp -rv "$DOTFILES/.config/sway/"        ~/.config/
-cp -rv "$DOTFILES/.config/waybar/"      ~/.config/
-cp -rv "$DOTFILES/.config/foot/"        ~/.config/
-cp -rv "$DOTFILES/.config/zellij/"      ~/.config/
-cp -rv "$DOTFILES/.config/fuzzel/"      ~/.config/
-cp -rv "$DOTFILES/.config/swaylock/"    ~/.config/
-cp -rv "$DOTFILES/.config/mako/"        ~/.config/
-cp -rv "$DOTFILES/.config/nwg-dock/"        ~/.config/
-cp -rv "$DOTFILES/.config/swayidle/"        ~/.config/
-cp -rv "$DOTFILES/.config/gtk-3.0/"         ~/.config/
-cp -rv "$DOTFILES/.config/gtk-4.0/"         ~/.config/
-cp -rv "$DOTFILES/.config/environment.d/"   ~/.config/
-
-# ── 8. Hacer ejecutables los scripts de waybar ──────────
-chmod +x ~/.config/waybar/scripts/*.sh
-success "Scripts de waybar marcados como ejecutables"
-
-# ── 9. Descargar wallpaper por defecto ───────────────────
-if [ ! -f ~/.config/sway/wallpaper.jpg ]; then
-  info "Descargando wallpaper de ejemplo..."
-  # Wallpaper oscuro neutro como placeholder
-  curl -sL "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=2560&q=80" \
-    -o ~/.config/sway/wallpaper.jpg 2>/dev/null \
-    || warn "No se pudo descargar el wallpaper. Coloca manualmente ~/.config/sway/wallpaper.jpg"
+if ! command -v paru >/dev/null 2>&1; then
+  info "Instalando paru"
+  tmpdir="$(mktemp -d)"
+  git clone https://aur.archlinux.org/paru.git "$tmpdir/paru"
+  (
+    cd "$tmpdir/paru"
+    makepkg -si
+  )
 fi
 
-# ── 10. xdg-user-dirs ────────────────────────────────────
+info "Instalando paquetes principales"
+sudo pacman -S --needed "${PACMAN_PACKAGES[@]}"
+
+info "Instalando paquetes AUR"
+paru -S --needed "${AUR_PACKAGES[@]}"
+if ! paru -S --needed swaylock-effects; then
+  warn "No se encontró swaylock-effects estable; intentando swaylock-effects-git"
+  paru -S --needed swaylock-effects-git
+fi
+
+mkdir -p "$BACKUP_ROOT"
+info "Respaldando configuraciones existentes en $BACKUP_DIR"
+
+copy_file "$DOTFILES/.zshrc" "$HOME/.zshrc"
+copy_file "$DOTFILES/.zprofile" "$HOME/.zprofile"
+copy_file "$DOTFILES/starship.toml" "$HOME/.config/starship.toml"
+
+copy_dir_contents "$DOTFILES/.config/sway" "$HOME/.config/sway"
+copy_dir_contents "$DOTFILES/.config/waybar" "$HOME/.config/waybar"
+copy_dir_contents "$DOTFILES/.config/foot" "$HOME/.config/foot"
+copy_dir_contents "$DOTFILES/.config/fuzzel" "$HOME/.config/fuzzel"
+copy_dir_contents "$DOTFILES/.config/zellij" "$HOME/.config/zellij"
+copy_dir_contents "$DOTFILES/.config/mako" "$HOME/.config/mako"
+copy_dir_contents "$DOTFILES/.config/nwg-dock" "$HOME/.config/nwg-dock"
+copy_dir_contents "$DOTFILES/.config/swayidle" "$HOME/.config/swayidle"
+copy_dir_contents "$DOTFILES/.config/environment.d" "$HOME/.config/environment.d"
+copy_dir_contents "$DOTFILES/.config/gtk-3.0" "$HOME/.config/gtk-3.0"
+copy_dir_contents "$DOTFILES/.config/gtk-4.0" "$HOME/.config/gtk-4.0"
+
+remove_managed_file "$HOME/.config/swaylock/config"
+remove_managed_file "$HOME/.config/nwg-dock/dock.json"
+
+chmod +x "$HOME/.config/sway/scripts/"*.sh
+chmod +x "$HOME/.config/waybar/scripts/"*.sh
+
 xdg-user-dirs-update
+sudo systemctl enable --now NetworkManager.service
 
-# ── 11. Habilitar servicios ──────────────────────────────
-info "Habilitando servicios de usuario..."
-systemctl --user enable --now pipewire.service 2>/dev/null || true
-systemctl --user enable --now pipewire-pulse.service 2>/dev/null || true
-systemctl --user enable --now wireplumber.service 2>/dev/null || true
-
-echo ""
-echo -e "${GREEN}══════════════════════════════════════════${NC}"
-echo -e "${GREEN}  ✓ Instalación completada                 ${NC}"
-echo -e "${GREEN}══════════════════════════════════════════${NC}"
-echo ""
-echo -e "  ${CYAN}Próximos pasos:${NC}"
-echo "  1. Cierra sesión y vuelve a iniciar en TTY1"
-echo "  2. SwayFX iniciará automáticamente"
-echo "  3. Coloca tu wallpaper en: ~/.config/sway/wallpaper.jpg"
-echo ""
-echo -e "  ${YELLOW}Atajos esenciales:${NC}"
-echo "  Super+Return   → Terminal (foot + zellij)"
-echo "  Super+D        → Lanzador (fuzzel)"
-echo "  Super+Shift+E  → Gestor de archivos (thunar)"
-echo "  Super+Q        → Cerrar ventana"
-echo "  Super+F        → Pantalla completa"
-echo "  Super+M        → Minimizar (a scratchpad)"
-echo "  Super+Shift+M  → Restaurar minimizada"
-echo "  Super+Ctrl+L   → Bloquear pantalla"
-echo "  Super+Ctrl+R   → Recargar configuración"
-echo ""
+success "Dotfiles instalados"
+printf "\n1. Cierra sesión.\n2. Entra por TTY1.\n3. SwayFX arrancará desde ~/.zprofile.\n4. Coloca tu fondo en ~/.config/sway/wallpaper.jpg si quieres usar imagen.\n\n"

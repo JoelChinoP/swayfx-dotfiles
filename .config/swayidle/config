@@ -1,14 +1,14 @@
-# ════════════════════════════════════════════════
-#  swayidle · gestión de inactividad
-#  Apaga pantalla a los 5 min, bloquea a los 10 min
-# ════════════════════════════════════════════════
+# swayidle
+# 5 min: baja brillo
+# 10 min: bloquea
+# 11 min: apaga panel
+
 timeout 300 'brightnessctl -s set 20%' \
-        resume 'brightnessctl -r'
+  resume 'brightnessctl -r'
 
-timeout 600 'swaylock' \
-        resume 'swaymsg "output * dpms on"'
+timeout 600 '~/.config/sway/scripts/lock.sh'
 
-timeout 610 'swaymsg "output * dpms off"' \
-        resume 'swaymsg "output * dpms on"'
+timeout 660 'swaymsg "output * dpms off"' \
+  resume 'swaymsg "output * dpms on"'
 
-before-sleep 'swaylock'
+before-sleep '~/.config/sway/scripts/lock.sh'

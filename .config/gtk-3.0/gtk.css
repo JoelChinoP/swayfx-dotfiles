@@ -1,0 +1,28 @@
+window,
+.background,
+window.background,
+dialog,
+messagedialog {
+  background-color: #000000;
+  color: #e8e8e8;
+}
+
+headerbar,
+.titlebar,
+headerbar.titlebar {
+  background: #000000;
+  color: #e8e8e8;
+  box-shadow: none;
+  border-bottom: 1px solid rgba(243, 226, 167, 0.14);
+}
+
+*:selected {
+  background-color: #f3e2a7;
+  color: #111111;
+}
+
+tooltip {
+  background: #0c0c0c;
+  color: #e8e8e8;
+  border: 1px solid rgba(243, 226, 167, 0.18);
+}

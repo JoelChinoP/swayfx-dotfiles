@@ -1,28 +1,10 @@
-// ════════════════════════════════════════════════
-//  zellij · config.kdl — Minimalista
-// ════════════════════════════════════════════════
-
-// Tema integrado que respeta los colores de la terminal
-theme "catppuccin-mocha"
-
-// Sin UI extra para mayor eficiencia
+theme "catppuccin-macchiato"
+default_shell "zsh"
 default_layout "compact"
 pane_frames false
-simplified_ui false
+simplified_ui true
 mouse_mode true
 scroll_buffer_size 5000
-
-// Iniciar en modo normal (no en modo lock)
-default_mode "normal"
-
-// Serializar sesiones para restaurarlas
 session_serialization true
-serialize_pane_viewport true
-
-// Desactivar el banner de bienvenida
-ui {
-  pane_frames {
-    hide_session_name false
-    rounded_corners true
-  }
-}
+pane_viewport_serialization true
+serialization_interval 60

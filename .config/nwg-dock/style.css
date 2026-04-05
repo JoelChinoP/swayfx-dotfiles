@@ -1,36 +1,36 @@
-/* ════════════════════════════════════════════════
-   nwg-dock · style.css — Caelestia-inspired
-   Barra inferior minimalista de aplicaciones
-   ════════════════════════════════════════════════ */
-
 window {
-  background:   rgba(30, 30, 46, 0.80);
+  background: rgba(0, 0, 0, 0.92);
   border-radius: 16px;
-  border:        1px solid rgba(249, 226, 175, 0.12);
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgba(243, 226, 167, 0.14);
 }
 
 #box {
-  padding:    4px 8px;
-  margin:     0;
-  spacing:    4px;
+  padding: 6px 10px;
 }
 
-#item {
-  padding:       4px;
-  border-radius: 10px;
-  transition:    all 0.15s ease;
-}
-
-#item:hover {
-  background: rgba(203, 166, 247, 0.18);
-}
-
-#item:active,
-#item:focus {
-  background: rgba(249, 226, 175, 0.18);
-  border:     1px solid rgba(249, 226, 175, 0.40);
-}
-
+button,
 image {
-  -gtk-icon-effect: none;
+  background: none;
+  border-style: none;
+  box-shadow: none;
+}
+
+button {
+  padding: 6px;
+  margin-left: 3px;
+  margin-right: 3px;
+  border-radius: 12px;
+  color: #e8e8e8;
+  font-size: 12px;
+}
+
+button:hover {
+  background: rgba(243, 226, 167, 0.10);
+}
+
+button:focus,
+button:active {
+  background: rgba(243, 226, 167, 0.16);
 }

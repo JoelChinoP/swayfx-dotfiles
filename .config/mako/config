@@ -1,47 +1,33 @@
-# ════════════════════════════════════════════════
-#  mako · notificaciones — Caelestia-inspired
-# ════════════════════════════════════════════════
-
-# Posición
 anchor=top-right
 margin=10
 
-# Tamaño
 width=320
-height=120
+height=110
 padding=12
 
-# Estilo
-background-color=#1e1e2eee
-text-color=#cdd6f4
+background-color=#000000ee
+text-color=#e8e8e8
 border-size=1
-border-color=#f9e2af44
-border-radius=10
+border-color=#f3e2a744
+border-radius=12
 
-# Fuente e íconos
 font=JetBrainsMono Nerd Font 11
 icons=1
 icon-path=/usr/share/icons/Papirus-Dark
 max-icon-size=36
 
-# Tiempo
 default-timeout=5000
 ignore-timeout=0
 
-# Formato
 format=<b>%s</b>\n%b
 markup=1
 
-# Urgencia baja
 [urgency=low]
-background-color=#1e1e2edd
-border-color=#45475a88
+background-color=#000000dd
+border-color=#2b2b2b
 
-# Urgencia normal (ya definida arriba)
-
-# Urgencia alta
 [urgency=high]
-background-color=#1e1e2eee
+background-color=#000000ee
 border-color=#f38ba8cc
 text-color=#f38ba8
 default-timeout=0

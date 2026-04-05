@@ -1,22 +1,16 @@
-// ╔═══════════════════════════════════════════════════╗
-// ║      Waybar · Barra superior — SwayFX             ║
-// ║  izq: ventanas  |  centro: hora  |  der: sistema  ║
-// ╚═══════════════════════════════════════════════════╝
 [
   {
     "layer": "top",
     "position": "top",
     "height": 34,
-    "spacing": 4,
-    "margin-top": 6,
+    "spacing": 6,
+    "margin-top": 8,
     "margin-left": 10,
     "margin-right": 10,
     "exclusive": true,
-
-    // ── Módulos ──────────────────────────────────────
-    "modules-left":   ["wlr/taskbar"],
+    "modules-left": ["wlr/taskbar"],
     "modules-center": ["clock"],
-    "modules-right":  [
+    "modules-right": [
       "battery",
       "pulseaudio",
       "network",
@@ -24,50 +18,51 @@
       "custom/power"
     ],
 
-    // ── wlr/taskbar — ventanas abiertas ──────────────
     "wlr/taskbar": {
       "format": "{icon}",
       "icon-size": 18,
-      "tooltip-format": "{title}",
-      "on-click": "activate",
+      "all-outputs": false,
+      "active-first": true,
+      "icon-theme": ["Papirus-Dark", "Papirus"],
+      "tooltip-format": "{name}: {title}",
+      "on-click": "minimize-raise",
       "on-click-middle": "close",
+      "on-click-right": "maximize",
       "sort-by-app-id": false
     },
 
-    // ── Clock ─────────────────────────────────────────
     "clock": {
-      "format": " {:%H:%M}",
-      "format-alt": " {:%a %d %b · %H:%M}",
+      "interval": 60,
+      "format": "{:%H:%M}",
+      "format-alt": "{:%a %d %b  %H:%M}",
       "tooltip-format": "<tt>{calendar}</tt>",
       "calendar": {
         "mode": "month",
         "weeks-pos": "left",
         "format": {
-          "today": "<span color='#f9e2af'><b>{}</b></span>"
+          "today": "<span color='#f3e2a7'><b>{}</b></span>"
         }
       }
     },
 
-    // ── Battery ───────────────────────────────────────
     "battery": {
       "interval": 30,
       "format": "{icon} {capacity}%",
       "format-charging": "󰂄 {capacity}%",
       "format-full": "󰁹 {capacity}%",
-      "format-icons": ["󰁺","󰁻","󰁼","󰁽","󰁾","󰁿","󰂀","󰂁","󰂂","󰁹"],
+      "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
       "states": {
         "warning": 30,
         "critical": 15
       },
-      "tooltip-format": "{timeTo} · {power:.1f}W"
+      "tooltip-format": "{time}  {power:.1f}W"
     },
 
-    // ── Audio ─────────────────────────────────────────
     "pulseaudio": {
       "format": "{icon} {volume}%",
       "format-muted": "󰝟",
       "format-icons": {
-        "default": ["󰕿","󰖀","󰕾"]
+        "default": ["󰕿", "󰖀", "󰕾"]
       },
       "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
       "on-click-right": "pavucontrol",
@@ -75,19 +70,17 @@
       "tooltip-format": "{desc}"
     },
 
-    // ── Network / Wi-Fi ───────────────────────────────
     "network": {
       "format-wifi": "󰤨 {essid}",
       "format-ethernet": "󰈀 Ethernet",
       "format-disconnected": "󰤭 Sin red",
-      "tooltip-format-wifi": "{essid} · {signalStrength}% · {ipaddr}",
-      "tooltip-format-ethernet": "{ifname} · {ipaddr}",
+      "tooltip-format-wifi": "{essid}  {signalStrength}%  {ipaddr}",
+      "tooltip-format-ethernet": "{ifname}  {ipaddr}",
       "on-click": "nm-connection-editor"
     },
 
-    // ── Notificaciones (mako) ─────────────────────────
     "custom/notifications": {
-      "exec": "~/.config/waybar/scripts/notifications.sh",
+      "exec": "$HOME/.config/waybar/scripts/notifications.sh",
       "interval": 2,
       "format": "{}",
       "on-click": "makoctl dismiss --all",
@@ -95,10 +88,9 @@
       "tooltip": false
     },
 
-    // ── Power menu ────────────────────────────────────
     "custom/power": {
       "format": "󰐥",
-      "on-click": "~/.config/waybar/scripts/power-menu.sh",
+      "on-click": "$HOME/.config/waybar/scripts/power-menu.sh",
       "tooltip": false
     }
   }

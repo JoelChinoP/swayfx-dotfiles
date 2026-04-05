@@ -1,5 +1,0 @@
-[{"exec": "foot", "icon": "foot"},
- {"exec": "thunar", "icon": "thunar"},
- {"exec": "firefox", "icon": "firefox"},
- {"exec": "code", "icon": "code"},
- {"exec": "pavucontrol", "icon": "pavucontrol"}]

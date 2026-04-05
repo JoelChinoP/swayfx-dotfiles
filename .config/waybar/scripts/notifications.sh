@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
-# Muestra ícono de notificaciones para waybar
-# Requiere: mako
+set -euo pipefail
 
-if makoctl mode | grep -q "do-not-disturb"; then
-  echo "󰂛"   # DND activo
+if ! command -v makoctl >/dev/null 2>&1; then
+  echo "󰂚"
+  exit 0
+fi
+
+if makoctl mode 2>/dev/null | grep -Fxq "do-not-disturb"; then
+  echo "󰂛"
 else
-  echo "󰂚"   # Normal
+  echo "󰂚"
 fi

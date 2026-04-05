@@ -1,33 +1,35 @@
 #!/usr/bin/env bash
-# Menú de energía con fuzzel
-# Opciones: Apagar · Reiniciar · Suspender · Cerrar sesión · Cancelar
+set -euo pipefail
 
-declare -A opciones=(
-  ["󰐥  Apagar"]="systemctl poweroff"
-  ["󰑓  Reiniciar"]="systemctl reboot"
-  ["󰒲  Suspender"]="systemctl suspend"
-  ["󰍃  Cerrar sesión"]="swaymsg exit"
-)
-
-orden=(
-  "󰐥  Apagar"
-  "󰑓  Reiniciar"
-  "󰒲  Suspender"
-  "󰍃  Cerrar sesión"
-)
-
-seleccion=$(printf '%s\n' "${orden[@]}" | fuzzel --dmenu \
-  --prompt "  " \
-  --width 22 \
+selection=$(printf '%s\n' \
+  "󰍃  Bloquear" \
+  "󰒲  Suspender" \
+  "󰑓  Reiniciar" \
+  "󰐥  Apagar" | fuzzel --dmenu \
+  --prompt "power> " \
+  --width 24 \
   --lines 4 \
   --font "JetBrainsMono Nerd Font:size=13" \
-  --background-color=1e1e2edd \
+  --background-color=11111bee \
   --text-color=cdd6f4ff \
-  --match-color=f9e2afff \
-  --selection-color=313244ff \
-  --selection-text-color=f9e2afff \
-  --border-color=f9e2af44 \
+  --match-color=f3e2a7ff \
+  --selection-color=181825ff \
+  --selection-text-color=f3e2a7ff \
+  --border-color=f3e2a744 \
   --border-width=1 \
   --border-radius=10)
 
-[[ -n "$seleccion" ]] && eval "${opciones[$seleccion]}"
+case "${selection:-}" in
+  "󰍃  Bloquear")
+    exec "$HOME/.config/sway/scripts/lock.sh"
+    ;;
+  "󰒲  Suspender")
+    exec systemctl suspend
+    ;;
+  "󰑓  Reiniciar")
+    exec systemctl reboot
+    ;;
+  "󰐥  Apagar")
+    exec systemctl poweroff
+    ;;
+esac

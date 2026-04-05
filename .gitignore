@@ -1,0 +1,20 @@
+# Archivos personales / sensibles
+.config/sway/wallpaper.*
+.config/mimeapps.list
+.config/pulse/
+.local/
+.cache/
+
+# SSH y GPG — NUNCA subir al repositorio
+.ssh/
+.gnupg/
+
+# Historiales de shell
+.zsh_history
+.bash_history
+
+# Temporales
+*.swp
+*.swo
+*~
+.DS_Store

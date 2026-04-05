@@ -1,0 +1,197 @@
+# ╔══════════════════════════════════════════════════════╗
+# ║         SwayFX · Config — Caelestia-inspired         ║
+# ║      Ryzen 5 7430U · iGPU · Pop!_OS → Wayland        ║
+# ╚══════════════════════════════════════════════════════╝
+
+# ── Variables ───────────────────────────────────────────
+set $mod       Mod4
+set $term      foot
+set $menu      fuzzel
+set $files     thunar
+set $locker    swaylock
+
+# ── Monitor ─────────────────────────────────────────────
+output * {
+    bg ~/.config/sway/wallpaper.jpg fill
+    adaptive_sync on
+}
+
+# ── Font ────────────────────────────────────────────────
+font pango:JetBrainsMono Nerd Font 10
+
+# ── Borders & Gaps ──────────────────────────────────────
+default_border          normal 2
+default_floating_border normal 2
+titlebar_padding        6 4
+titlebar_border_thickness 1
+
+gaps inner 10
+gaps outer 4
+smart_gaps  on
+smart_borders on
+
+# ── SwayFX: Rounded corners ─────────────────────────────
+corner_radius       10
+smart_corner_radius on
+
+# ── SwayFX: Dim inactive ────────────────────────────────
+default_dim_inactive 0.07
+
+# ── SwayFX: Shadows ─────────────────────────────────────
+shadows           enable
+shadow_blur_radius 20
+shadow_color       #00000055
+shadows_on_csd     enable
+
+# ── SwayFX: Blur — solo terminal y gestor de archivos ───
+# El blur global está desactivado para máxima eficiencia.
+# Solo se activa para foot y thunar con 85 % de opacidad.
+blur disable
+
+for_window [app_id="foot"]   blur enable, opacity 0.85
+for_window [app_id="thunar"] blur enable, opacity 0.85
+
+# ── Minimize via scratchpad (nwg-dock compatible) ───────
+scratchpad_minimize enable
+
+# ── Colores (Caelestia × Pop!_OS) ───────────────────────
+#                       border    bg        text      indicator child_border
+client.focused          #f9e2af   #1e1e2e   #cdd6f4   #cba6f7   #f9e2af
+client.focused_inactive #313244   #1e1e2e   #a6adc8   #313244   #313244
+client.unfocused        #181825   #181825   #585b70   #181825   #181825
+client.urgent           #f38ba8   #1e1e2e   #cdd6f4   #f38ba8   #f38ba8
+
+# ── Input ────────────────────────────────────────────────
+input type:touchpad {
+    tap             enabled
+    natural_scroll  enabled
+    dwt             enabled
+    scroll_method   two_finger
+}
+
+input type:keyboard {
+    xkb_layout  latam
+    xkb_options caps:escape
+    repeat_delay  300
+    repeat_rate   50
+}
+
+# ── Keybindings — Aplicaciones ──────────────────────────
+bindsym $mod+Return        exec $term
+bindsym $mod+d             exec $menu
+bindsym $mod+Shift+e       exec $files
+bindsym $mod+Ctrl+l        exec $locker
+bindsym $mod+Ctrl+r        exec swaymsg reload
+bindsym $mod+Shift+q       exec swaynag -t warning \
+    -m '¿Salir de SwayFX?' \
+    -b 'Sí' 'swaymsg exit'
+
+# ── Keybindings — Ventanas ──────────────────────────────
+bindsym $mod+q             kill
+bindsym $mod+f             fullscreen toggle
+bindsym $mod+Shift+f       floating toggle
+bindsym $mod+space         focus mode_toggle
+bindsym $mod+a             focus parent
+
+# Minimizar → scratchpad / Restaurar
+bindsym $mod+m             move scratchpad
+bindsym $mod+Shift+m       scratchpad show
+
+# ── Keybindings — Foco (hjkl + flechas) ─────────────────
+bindsym $mod+h             focus left
+bindsym $mod+j             focus down
+bindsym $mod+k             focus up
+bindsym $mod+l             focus right
+bindsym $mod+Left          focus left
+bindsym $mod+Down          focus down
+bindsym $mod+Up            focus up
+bindsym $mod+Right         focus right
+
+# ── Keybindings — Mover ventanas ────────────────────────
+bindsym $mod+Shift+h       move left
+bindsym $mod+Shift+j       move down
+bindsym $mod+Shift+k       move up
+bindsym $mod+Shift+l       move right
+bindsym $mod+Shift+Left    move left
+bindsym $mod+Shift+Down    move down
+bindsym $mod+Shift+Up      move up
+bindsym $mod+Shift+Right   move right
+
+# ── Keybindings — Layout ────────────────────────────────
+bindsym $mod+s             layout stacking
+bindsym $mod+w             layout tabbed
+bindsym $mod+e             layout toggle split
+bindsym $mod+b             splith
+bindsym $mod+v             splitv
+
+# ── Keybindings — Workspaces ────────────────────────────
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+
+# ── Resize mode ─────────────────────────────────────────
+mode "resize" {
+    bindsym h      resize shrink width  20px
+    bindsym j      resize grow   height 20px
+    bindsym k      resize shrink height 20px
+    bindsym l      resize grow   width  20px
+    bindsym Left   resize shrink width  20px
+    bindsym Down   resize grow   height 20px
+    bindsym Up     resize shrink height 20px
+    bindsym Right  resize grow   width  20px
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $mod+r mode "default"
+}
+bindsym $mod+r mode "resize"
+
+# ── Media & hardware ────────────────────────────────────
+bindsym XF86AudioRaiseVolume  exec pactl set-sink-volume @DEFAULT_SINK@  +5%
+bindsym XF86AudioLowerVolume  exec pactl set-sink-volume @DEFAULT_SINK@  -5%
+bindsym XF86AudioMute         exec pactl set-sink-mute   @DEFAULT_SINK@  toggle
+bindsym XF86AudioMicMute      exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+bindsym XF86MonBrightnessUp   exec brightnessctl set +5%
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+
+# ── Screenshot ──────────────────────────────────────────
+bindsym Print      exec grim ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png
+bindsym $mod+Print exec grim -g "$(slurp)" ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png
+
+# ── Floating exceptions ─────────────────────────────────
+for_window [window_role="pop-up"]      floating enable
+for_window [window_role="dialog"]      floating enable
+for_window [app_id="pavucontrol"]      floating enable, resize set 600 400
+for_window [app_id="nm-connection-editor"] floating enable
+
+# ── Waybar: layer_effects ────────────────────────────────
+layer_effects "waybar" {
+    blur enable
+    blur_xray enable
+    blur_ignore_transparent enable
+    corner_radius 0
+}
+
+# ── Autostart ────────────────────────────────────────────
+exec_always {
+    pkill waybar; waybar
+    pkill mako;   mako
+    pkill nwg-dock
+    nwg-dock -d -i 40 -mb 6 -ml 60 -mr 60 \
+        -s ~/.config/nwg-dock/style.css
+    swaybg -m fill -i ~/.config/sway/wallpaper.jpg
+    pkill swayidle; swayidle -w -C ~/.config/swayidle/config
+}
+
+exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+
+include /etc/sway/config.d/*

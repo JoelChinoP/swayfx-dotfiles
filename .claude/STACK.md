@@ -283,7 +283,11 @@ Not part of stages 00–10 by default. Install manually when needed.
 
 ---
 
-## 6. Idle RAM budget (target)
+## 6. Idle RAM budget
+
+**Target: < 600 MB.** Estimated baseline: ~470 MB. The 130 MB headroom
+between the estimate and the ceiling exists so we never have to trade
+stability or convenience for a few MB.
 
 | Component                       | Estimated  |
 |---------------------------------|-----------:|
@@ -298,10 +302,63 @@ Not part of stages 00–10 by default. Install manually when needed.
 | nm-applet + blueman-applet      | ~40 MB     |
 | cliphist watchers               | ~10 MB     |
 | polkit-gnome                    | ~20 MB     |
-| gammastep                       | ~5 MB     |
+| gammastep                       | ~5 MB      |
 | **Total estimated**             | **~470 MB**|
 
-If the measurement after stage 10 exceeds 500 MB, suspects in order:
-two waybar instances (drop the bottom modules count), nm-applet (replace
-with waybar's `network` module clicks), polkit-gnome (replace with
-`polkit-kde-agent` or none if no polkit dialogs ever happen).
+### 6.1. RAM is not performance
+
+These components are **idle most of the time**: pollers run every 1–30 s
+and DBus listeners are passive. CPU at idle is effectively 0 % and they
+do not show up in latency or battery in normal use. The only resource
+they consume meaningfully is RAM. Do **not** remove anything from the
+list under the assumption that it will make the desktop "feel faster" —
+it will not, and you will lose features.
+
+### 6.2. If `free -m` exceeds 600 MB
+
+Do **not** start cutting features. First investigate the cause:
+
+```bash
+ps_mem 2>/dev/null || sudo pacman -S --needed ps_mem
+ps_mem | tail -30           # top consumers
+systemd-cgtop -m            # by cgroup
+```
+
+Common real causes (fix these first, before touching the stack):
+
+- A leaking app (Brave with many tabs, Electron app) is still running.
+- `tracker3` indexer running its first scan after Nautilus install.
+- A waybar custom module re-spawning on every interval (check the
+  `exec:` field is not forking).
+
+### 6.3. Last-resort cuts (only if a real overshoot is confirmed)
+
+Ordered from "least painful to remove" to "do not touch unless cornered":
+
+1. **`asusctl`** (if installed) — only useful for ASUS Fn keys.
+2. **`blueman-applet`** — replace with `bluetoothctl` from a terminal
+   keybind. Saves ~20 MB. Loses tray icon for quick toggle.
+3. **`nm-applet`** — replace with waybar's `network` module
+   (`on-click: nm-connection-editor`, `on-click-right: nmtui`). Saves
+   ~25 MB. Loses tray icon and quick connection menu.
+4. **`gammastep`** — only meaningful at night. Saves ~5 MB.
+5. **`cliphist` watchers** — saves ~10 MB. Loses clipboard history.
+
+**Do NOT remove these even under pressure** — they are stability and
+core UX:
+
+- The **bottom waybar**: it is the taskbar (minimize / maximize / close
+  semantics). Removing it breaks the "desktop-style" goal entirely.
+- **`polkit-gnome`**: GUI apps that need authorization (mounting,
+  `nm-connection-editor`, software installers) silently fail without a
+  polkit agent.
+- **`pipewire-pulse` / `wireplumber`**: audio.
+- **`mako`**: notifications. Without it, `notify-send` is a no-op.
+
+### 6.4. Changing the ceiling
+
+If you genuinely need to keep the bigger pieces and the measured idle
+sits around 550–600 MB, **leave it**. Stability and ergonomics beat
+shaving 50 MB on a 12 GB machine. Update [CONTEXT §1](CONTEXT.md) and
+this section if the ceiling needs to move; do not silently start
+removing components.

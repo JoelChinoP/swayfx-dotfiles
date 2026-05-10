@@ -14,7 +14,11 @@
 - **User**: Joel.
 - **Hardware**: ASUS laptop · AMD Ryzen 7 7730U · iGPU Vega 8 · 12 GB RAM.
 - **Distro**: Arch Linux (with AUR).
-- **Idle RAM target**: < 500 MB after login, no apps running.
+- **Idle RAM target**: < 600 MB after login, no apps running. The
+  estimated baseline (see [STACK §6](STACK.md)) is ~470 MB; the 130 MB
+  headroom exists on purpose so that we never trade off
+  stability/functionality (the bottom waybar, `nm-applet`,
+  `polkit-gnome`) just to shave a few MB.
 - **Language policy**:
   - Repository-level docs (this file, `PLAN.md`, `AGENTS.md`, `README.md`,
     code comments, commit messages, scripts) → **English**.
@@ -411,7 +415,8 @@ Grouped so a failure points to the responsible stage.
 
 ### 10.5. Resources (stage 09 / 10)
 
-- [ ] `free -m` 30 s after login with no apps → < 500 MB used.
+- [ ] `free -m` 30 s after login with no apps → < 600 MB used (target
+      ~470 MB; ceiling 600 MB).
 - [ ] `zramctl` shows `/dev/zram0` 4 GB zstd.
 - [ ] `~/swayfx-dotfiles-install.log` has no `[ERROR]` / `[FATAL]` lines.
 

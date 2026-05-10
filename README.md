@@ -18,7 +18,8 @@ two-bar layout with pinned launchers and an active-windows taskbar.
   + a `wlr/taskbar` of open windows.
 - Dark **only**. Pure black `#000000` background, neutral grays, a small
   accent palette. No Catppuccin.
-- Idle RAM under 500 MB.
+- Idle RAM under 600 MB (estimated ~470 MB after login, with 130 MB
+  headroom kept on purpose so we never sacrifice stability for a few MB).
 - Reproducible, staged install — every step validates before the next
   one runs.
 

@@ -262,7 +262,8 @@ for_window [app_id="com.obsproject.Studio"]      blur disable
 
 - **Eww widgets** for the bar/dock: 4 of 5 references use them, but Eww
   pulls in GTK + custom Lua and easily adds 80–120 MB to idle RAM. Our
-  budget is < 500 MB total; spending a quarter on chrome is not viable.
+  budget is < 600 MB total (target ~470 MB); spending a quarter on
+  chrome is not viable.
 - **Catppuccin Mocha** (Mocha or any variant): the pure-black design is
   intentionally neutral. Catppuccin-style purples would clash with the
   bar reference image.

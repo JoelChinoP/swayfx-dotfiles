@@ -8,7 +8,8 @@
 
 Hardware: ASUS · Ryzen 7 7730U · Vega 8 · 12 GB RAM · Arch Linux.
 Goal: SwayFX desktop usable as a conventional desktop, dark-only,
-pure-black palette, RAM idle < 500 MB.
+pure-black palette, RAM idle < 600 MB (target ~470 MB; see
+[STACK §6](STACK.md)).
 
 ---
 

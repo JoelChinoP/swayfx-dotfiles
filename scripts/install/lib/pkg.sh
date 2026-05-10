@@ -7,6 +7,7 @@
 # Install one or more packages from official repos. Idempotent.
 pacman_install() {
     (( $# > 0 )) || { log_warn "pacman_install: nothing to install"; return 0; }
+    local IFS=' '
     log_info "pacman -S --needed $*"
     run sudo pacman -S --needed --noconfirm "$@"
 }
@@ -15,6 +16,7 @@ pacman_install() {
 paru_install() {
     (( $# > 0 )) || { log_warn "paru_install: nothing to install"; return 0; }
     require paru
+    local IFS=' '
     log_info "paru -S --needed $*"
     run paru -S --needed --noconfirm "$@"
 }
@@ -24,6 +26,7 @@ paru_install() {
 paru_install_optional() {
     (( $# > 0 )) || return 0
     require paru
+    local IFS=' '
     log_info "paru -S --needed (optional) $*"
     if ! run paru -S --needed --noconfirm "$@"; then
         log_warn "optional AUR package(s) failed to install: $*"

@@ -1,0 +1,307 @@
+# STACK.md — Package Manifest and Tool Choices
+
+> Derived from [CONTEXT.md §5](CONTEXT.md). When a package decision
+> changes, update CONTEXT first, then mirror it here. Stages in
+> [PLAN.md](PLAN.md) install from these lists.
+>
+> Last reviewed: 2026-05-10.
+
+---
+
+## 1. Pre-repo: Arch minimal `pacstrap`
+
+This is the baseline the user installs from the Arch ISO **before**
+cloning this repo. It satisfies all premises in CONTEXT §2.
+
+```bash
+pacstrap -K /mnt \
+  base linux linux-firmware sof-firmware amd-ucode \
+  networkmanager sudo git base-devel \
+  zsh starship stow \
+  power-profiles-daemon lm_sensors jq \
+  nano man-db man-pages texinfo \
+  efibootmgr dosfstools \
+  btrfs-progs exfatprogs ntfs-3g \
+  pciutils usbutils lshw hwinfo inxi \
+  reflector pacman-contrib openssh \
+  curl wget rsync unzip zip p7zip
+```
+
+After `arch-chroot /mnt`:
+
+```bash
+ln -sf /usr/share/zoneinfo/<Region>/<City> /etc/localtime
+hwclock --systohc
+# Edit /etc/locale.gen, run: locale-gen
+# Edit /etc/locale.conf, /etc/hostname, /etc/hosts
+# Edit /etc/vconsole.conf (KEYMAP=...)
+useradd -m -G wheel,video,input,audio,storage,power joel
+passwd joel
+EDITOR=nano visudo                # uncomment %wheel ALL=(ALL:ALL) ALL
+systemctl enable NetworkManager.service systemd-timesyncd.service
+# Install bootloader (systemd-boot or GRUB) — see ArchWiki
+# IMPORTANT: ensure amd-ucode.img is loaded BEFORE initramfs in the
+#            bootloader entry, e.g.:
+#              initrd /amd-ucode.img
+#              initrd /initramfs-linux.img
+```
+
+---
+
+## 2. Per stage — what each script installs
+
+The full per-stage breakdown lives in [PLAN.md §2](PLAN.md). This is the
+flat manifest grouped by repo source for review.
+
+### 2.1. Official repos (`pacman -S --needed`)
+
+#### Stage 01 — shell
+```
+zsh starship
+zsh-completions zsh-syntax-highlighting zsh-autosuggestions
+ttf-jetbrains-mono-nerd inter-font
+```
+
+#### Stage 02 — base
+```
+sway swaybg foot
+mesa vulkan-radeon libva-mesa-driver mesa-vdpau libva-utils
+pipewire wireplumber pipewire-pulse pipewire-jack
+sof-firmware alsa-ucm-conf
+xorg-xwayland qt5-wayland qt6-wayland
+xdg-utils xdg-user-dirs polkit polkit-gnome
+lm_sensors power-profiles-daemon
+```
+
+#### Stage 04 — session
+```
+fuzzel mako
+xdg-desktop-portal xdg-desktop-portal-wlr xdg-desktop-portal-gtk
+```
+
+#### Stage 05 — bars
+```
+waybar ttf-font-awesome
+```
+
+#### Stage 06 — utils
+```
+wl-clipboard cliphist
+grim slurp
+brightnessctl gammastep
+wdisplays pavucontrol playerctl
+networkmanager network-manager-applet
+bluez bluez-utils blueman
+swayidle libnotify
+jq ufw
+```
+
+#### Stage 07 — apps
+```
+nautilus loupe papers gnome-text-editor gnome-calculator
+file-roller mpv
+btop tree htop
+unzip zip p7zip tar
+```
+
+> Lighter alternative for stage 07 if RAM is tight: replace `nautilus`
+> with `thunar gvfs tumbler thunar-volman thunar-archive-plugin`.
+
+#### Stage 08 — theming
+```
+adw-gtk-theme papirus-icon-theme
+qt6ct kvantum nwg-look
+ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji inter-font
+```
+
+#### Stage 09 — lock & power
+```
+zram-generator
+```
+
+#### Stage 99 — greetd (optional)
+```
+greetd greetd-regreet cage
+```
+
+### 2.2. AUR (`paru -S --needed`)
+
+#### Stage 00 — preflight bootstrap
+```
+paru                  # AUR helper itself, only if not present
+```
+
+#### Stage 03 — SwayFX
+```
+swayfx
+```
+
+#### Stage 06 — utils (optional)
+```
+satty                 # screenshot annotation
+asusctl               # ASUS Fn keys (optional, WARN on failure)
+```
+
+#### Stage 07 — apps
+```
+brave-bin
+mission-center
+```
+
+#### Stage 08 — theming
+```
+bibata-cursor-theme
+```
+
+#### Stage 09 — lock & power
+```
+swaylock-effects
+wlogout
+```
+
+---
+
+## 3. Why each tool and not another
+
+Justifications for non-obvious choices. Update only with CONTEXT first.
+
+### 3.1. Compositor: SwayFX (not Sway, not Hyprland)
+
+- **Sway**: lacks blur, opacity, corner-radius, shadows. We want those.
+- **Hyprland**: heavier on Vega 8, different config language, different
+  IPC. The user explicitly chose SwayFX.
+- **SwayFX**: drop-in replacement for Sway with the visual extras we
+  need; same `.config/sway/config` syntax with extra directives.
+
+### 3.2. Bars: two waybars (not nwg-dock, not Eww)
+
+- **nwg-dock**: GTK launcher dock. Different CSS dialect. Default click
+  is "launch/focus", not "minimize". Forces extra scripting.
+- **Eww**: powerful but expensive (~80–120 MB idle). Breaks our budget.
+- **Two waybar instances**: same engine, same CSS, same icons. Pinned
+  apps via `custom/*` modules; active windows via `wlr/taskbar`. This
+  matches the visual reference in one binary.
+
+### 3.3. Notifications: mako (not Dunst, not SwayNC)
+
+- **Dunst**: X-first; on Wayland it works through xdg-desktop-portal but
+  feels less native and weighs more.
+- **SwayNC**: heavy (notification panel + control center). We just want
+  popups.
+- **mako**: layer-shell native, ~6–10 MB, scriptable via `makoctl`.
+
+### 3.4. Power management: power-profiles-daemon (not TLP)
+
+- **TLP**: aggressive defaults, more config, conflicts with PPD.
+- **PPD**: lighter, GNOME-aware, integrates with `powerprofilesctl`,
+  exposes three profiles waybar can switch via custom module.
+
+### 3.5. Display: TTY1 + `.zprofile` (greetd as optional)
+
+- **No DM**: lowest RAM cost, simplest. Login on TTY1 fires Sway via
+  `.zprofile`. Ideal until the rest of the desktop is stable.
+- **greetd + ReGreet on cage**: optional stage 99. Run when the user
+  wants a graphical login experience.
+- **SDDM/GDM**: pulls in Qt or GTK + their dependencies; overkill for a
+  single-user laptop.
+
+### 3.6. Browser: Brave (not Firefox / not Chromium)
+
+- **Brave**: ad-blocking by default; works well with VAAPI on Wayland;
+  the user explicitly chose it. Pulls some Chromium dependencies.
+- **Firefox**: viable, but the user has no preference between the two
+  and Brave handles VAAPI + Wayland with simpler flags than Chromium.
+- Flags live in `brave/.config/brave-flags.conf`:
+  ```
+  --ozone-platform-hint=auto
+  --enable-features=AcceleratedVideoDecodeLinuxGL,AcceleratedVideoDecodeLinuxZeroCopyGL,AcceleratedVideoEncoder,WaylandWindowDecorations,VaapiIgnoreDriverChecks
+  --enable-wayland-ime
+  --password-store=basic
+  --force-dark-mode
+  --enable-features=WebUIDarkMode
+  ```
+
+### 3.7. Terminal: Ghostty preferred, foot fallback
+
+- **foot** is in stage 02 because it has zero deps beyond Wayland and
+  works the moment Sway is up — perfect for verifying the session.
+- **Ghostty** is the daily driver once stage 04+ lands. Reasons: GPU
+  rendering, theme support, `gtk-single-instance = true`, mature config
+  format.
+- Both are kept; `$mod+Return` binds to whichever the user prefers in
+  `sway/config`.
+
+### 3.8. File manager: Nautilus (preferred), Thunar (lighter alt)
+
+- **Nautilus**: matches the user's stated preference; integrates well
+  with GNOME apps (gnome-text-editor, papers, loupe).
+- **Thunar**: ~1/3 the memory; honors CSD on SwayFX more cleanly. Swap
+  in stage 07 if RAM becomes tight.
+
+### 3.9. Lock: swaylock-effects (AUR), not swaylock
+
+- Official `swaylock` works but does not blur. swaylock-effects adds
+  `--screenshots`, `--effect-blur`, `--effect-pixelate`,
+  `--effect-vignette`, and is what every reference uses.
+- The two packages **conflict**. Install only `swaylock-effects`.
+
+### 3.10. Resource monitors: mission-center + btop
+
+- **mission-center**: GUI, GNOME-native, replaces gnome-system-monitor
+  with a lighter footprint.
+- **btop**: TUI bound to the cpu/memory waybar pills via
+  `on-click: ghostty -e btop`.
+
+---
+
+## 4. Optional / deferred packages
+
+Not part of stages 00–10 by default. Install manually when needed.
+
+| Package           | Reason to install                                     |
+|-------------------|-------------------------------------------------------|
+| `docker`/-buildx  | container workflows                                   |
+| `obs-studio`      | screen recording with VAAPI                           |
+| `code`            | VS Code with `--ozone-platform=wayland`               |
+| `bruno-bin` (AUR) | Postman replacement (~150 MB vs ~450 MB)              |
+| `helvum`          | PipeWire patchbay GUI                                 |
+| `playerctl`       | already in stage 06; mentioned for completeness       |
+| `gnome-disk-utility` | partition / disk GUI                              |
+
+---
+
+## 5. Conflict matrix (do **not** install together)
+
+| Group A             | Conflicts with             | Resolution                  |
+|---------------------|----------------------------|-----------------------------|
+| `swayfx`            | `sway` (official)          | Let paru replace `sway`.    |
+| `swaylock-effects`  | `swaylock` (official)      | Install only the AUR one.   |
+| `power-profiles-daemon` | `tlp`                  | Pick one. We pick PPD.      |
+| `pipewire-pulse`    | `pulseaudio`               | We use the pipewire stack.  |
+| `pipewire-jack`     | `jack2`                    | We use pipewire's JACK.     |
+| `wireplumber`       | `pipewire-media-session`   | wireplumber is current.     |
+
+---
+
+## 6. Idle RAM budget (target)
+
+| Component                       | Estimated  |
+|---------------------------------|-----------:|
+| Kernel + base userland          | ~250 MB    |
+| swayfx                          | ~25 MB     |
+| waybar (top)                    | ~35 MB     |
+| waybar (bottom)                 | ~30 MB     |
+| mako                            | ~8 MB      |
+| swayidle                        | ~5 MB      |
+| swaybg                          | ~10 MB     |
+| pipewire + wireplumber          | ~30 MB     |
+| nm-applet + blueman-applet      | ~40 MB     |
+| cliphist watchers               | ~10 MB     |
+| polkit-gnome                    | ~20 MB     |
+| gammastep                       | ~5 MB     |
+| **Total estimated**             | **~470 MB**|
+
+If the measurement after stage 10 exceeds 500 MB, suspects in order:
+two waybar instances (drop the bottom modules count), nm-applet (replace
+with waybar's `network` module clicks), polkit-gnome (replace with
+`polkit-kde-agent` or none if no polkit dialogs ever happen).

@@ -98,10 +98,15 @@ else
     (( errs++ ))
 fi
 
-if [[ -L "$HOME/.config/starship.toml" ]]; then
-    log_ok "starship.toml linked into ~/.config"
+# Validate the file is reachable AND resolves back into the repo.
+# Stow may fold (link the parent dir) or place a per-file symlink; both
+# are acceptable as long as the resolved file lives inside $ROOT.
+starship_target="$HOME/.config/starship.toml"
+if [[ -e "$starship_target" ]] \
+   && [[ "$(readlink -f "$starship_target")" == "$ROOT"/starship/.config/starship.toml ]]; then
+    log_ok "starship.toml resolves into the repo"
 else
-    log_error "~/.config/starship.toml is not a stow symlink"
+    log_error "~/.config/starship.toml does not resolve to $ROOT/starship/.config/starship.toml"
     (( errs++ ))
 fi
 

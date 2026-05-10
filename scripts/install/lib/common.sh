@@ -86,6 +86,7 @@ require_pkgs() {
         pkg_installed "$p" || missing+=("$p")
     done
     if (( ${#missing[@]} > 0 )); then
+        local IFS=' '
         log_fatal "missing packages: ${missing[*]}"
         return 1
     fi
@@ -100,10 +101,11 @@ require_groups() {
         id -Gn "$USER" | tr ' ' '\n' | grep -qx "$g" || missing+=("$g")
     done
     if (( ${#missing[@]} > 0 )); then
-        log_warn "user '$USER' not in: ${missing[*]} — adding"
-        local joined
-        joined="$(IFS=,; echo "${missing[*]}")"
-        run sudo usermod -aG "$joined" "$USER"
+        local space_joined comma_joined
+        space_joined="$(IFS=' '; echo "${missing[*]}")"
+        comma_joined="$(IFS=,;  echo "${missing[*]}")"
+        log_warn "user '$USER' not in: $space_joined — adding"
+        run sudo usermod -aG "$comma_joined" "$USER"
         log_warn "group changes apply on next login"
     fi
 }
@@ -169,6 +171,16 @@ stow_package() {
         log_warn "$pkg: $conflicts conflict(s) backed up to $backup_target"
     fi
 
+    # Ensure shared parent dirs exist as real dirs before stowing.
+    # Without this, the FIRST package whose source contains `.config/`
+    # gets folded — stow turns ~/.config into a symlink to that one
+    # package's .config/, and subsequent packages cannot stow into
+    # ~/.config/ without conflicts.
+    mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share"
+
     log_info "stow -R $pkg"
-    run stow -R --target "$HOME" -d "$ROOT" "$pkg"
+    # --no-folding forces per-file symlinks (no directory symlinks).
+    # This keeps the layout predictable across multiple packages that
+    # share parent dirs like ~/.config/.
+    run stow -R --no-folding --target "$HOME" -d "$ROOT" "$pkg"
 }

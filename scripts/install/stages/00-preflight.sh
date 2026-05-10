@@ -90,7 +90,13 @@ else
 fi
 
 # ── 9. Sudo works ─────────────────────────────────────────────────────
-if ! sudo -v; then
+# We use `sudo true` (a real no-op) instead of `sudo -v` because the
+# validate flag (-v) fails when the user has multiple sudoers rules and
+# any of them requires a password — even if a NOPASSWD rule also
+# matches. Running a real command exercises the actual auth path and
+# also primes the credential cache for subsequent sudo calls.
+log_info "verifying sudo (may prompt for password)"
+if ! sudo true; then
     log_fatal "sudo failed (user may not be in wheel, or password rejected)"
     exit 1
 fi
@@ -107,11 +113,18 @@ fi
 log_ok "AMD render node /dev/dri/renderD128 present"
 
 # ── 12. AUR helper ────────────────────────────────────────────────────
-if ! command -v paru &>/dev/null; then
-    log_info "paru not found — bootstrapping from AUR"
+# Validate paru actually runs (`paru --version`), not just that the
+# binary is on PATH. A broken paru-bin (libalpm ABI mismatch) shows up
+# as "command exists but errors on every run".
+if ! command -v paru &>/dev/null || ! paru --version &>/dev/null; then
+    log_info "paru missing or not working — bootstrapping from AUR"
     bootstrap_paru || { log_fatal "paru bootstrap failed"; exit 1; }
 fi
-log_ok "paru available: $(command -v paru)"
+if ! paru --version &>/dev/null; then
+    log_fatal "paru installed but does not run; check libalpm ABI compatibility"
+    exit 1
+fi
+log_ok "paru available: $(command -v paru) ($(paru --version 2>&1 | head -1))"
 
 # ── 13. State + backup directories ────────────────────────────────────
 run mkdir -p "$STATE_DIR" "$BACKUP_DIR"

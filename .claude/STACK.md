@@ -65,7 +65,7 @@ ttf-jetbrains-mono-nerd inter-font
 #### Stage 02 — base
 ```
 sway swaybg foot
-mesa vulkan-radeon libva-mesa-driver mesa-vdpau libva-utils
+mesa vulkan-radeon libva-utils
 pipewire wireplumber pipewire-pulse pipewire-jack
 sof-firmware alsa-ucm-conf
 xorg-xwayland qt5-wayland qt6-wayland

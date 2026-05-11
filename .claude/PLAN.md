@@ -194,7 +194,7 @@ the user can launch a bare Sway from TTY1 and verify VAAPI.
 ```bash
 sudo pacman -S --needed --noconfirm \
   sway swaybg foot \
-  mesa vulkan-radeon libva-mesa-driver mesa-vdpau libva-utils \
+  mesa vulkan-radeon libva-utils \
   pipewire wireplumber pipewire-pulse pipewire-jack \
   sof-firmware alsa-ucm-conf \
   xorg-xwayland qt5-wayland qt6-wayland \
@@ -208,6 +208,9 @@ sudo sensors-detect --auto
 
 > SwayFX is **not** installed here. We confirm vanilla Sway runs first;
 > this isolates `swayfx`-specific failures from generic Sway failures.
+> On resumed installs after stage 03, `02-base.sh` must skip the
+> vanilla `sway` package when `swayfx` is already installed, because the
+> packages intentionally conflict while still providing `/usr/bin/sway`.
 
 **Validation**:
 
@@ -236,12 +239,14 @@ powerprofilesctl list | grep -q balanced                                        
 reports "swayfx".
 
 ```bash
-paru -S --needed --noconfirm swayfx
+paru -S --needed --noconfirm --useask --noprovides swayfx
 ```
 
 > Why no `sudo pacman -R sway`: the AUR `swayfx` package conflicts with
-> and replaces `sway`. `paru` handles the swap. If `paru` complains about
-> a manual conflict, the user resolves it interactively.
+> and replaces `sway`. `paru --useask` lets pacman resolve that package
+> swap without a separate manual remove step. `--noprovides` selects the
+> exact `swayfx` package instead of prompting between `swayfx`,
+> `swayfx-git`, and other providers.
 > See [REFERENCES.md §SwayFX](REFERENCES.md) for the upstream notes.
 
 **Validation**:

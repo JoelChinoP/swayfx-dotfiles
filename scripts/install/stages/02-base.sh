@@ -36,14 +36,21 @@ else
 fi
 
 BASE_PKGS=(
-    sway swaybg foot
-    mesa vulkan-radeon libva-mesa-driver mesa-vdpau libva-utils
+    swaybg foot
+    mesa vulkan-radeon libva-utils
     pipewire wireplumber pipewire-pulse pipewire-jack
     sof-firmware alsa-ucm-conf
     xorg-xwayland qt5-wayland qt6-wayland
     xdg-utils xdg-user-dirs polkit polkit-gnome
     lm_sensors power-profiles-daemon
 )
+
+if command -v pacman >/dev/null 2>&1 && pkg_installed swayfx; then
+    log_info "swayfx is already installed; skipping vanilla sway package on resume"
+else
+    BASE_PKGS=(sway "${BASE_PKGS[@]}")
+fi
+
 pacman_install "${BASE_PKGS[@]}"
 
 log_info "enabling PipeWire user services"

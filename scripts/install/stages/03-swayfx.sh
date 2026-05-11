@@ -25,7 +25,9 @@ else
     sudo true || { log_fatal "sudo failed"; exit 1; }
 fi
 
-paru_install swayfx
+require paru
+log_info "paru -S --needed --noconfirm --useask --noprovides swayfx"
+run paru -S --needed --noconfirm --useask --noprovides swayfx
 
 if (( DRY_RUN )); then
     log_warn "skipping post-install validation (dry-run)"

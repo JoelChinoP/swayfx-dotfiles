@@ -169,8 +169,10 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
   Requires `sof-firmware` (premise §2).
 - **Network**: NetworkManager + `nm-applet` in tray.
 - **Bluetooth**: bluez/bluez-utils + blueman-applet.
-- **AMD drivers**: `mesa`, `vulkan-radeon`, `libva-mesa-driver`,
-  `mesa-vdpau`, `libva-utils`. Requires `amd-ucode` (premise §2).
+- **AMD drivers**: `mesa`, `vulkan-radeon`, `libva-utils`. Arch's
+  `mesa` package provides the VA-API Mesa driver on current repos;
+  `mesa-vdpau` is no longer available. Requires `amd-ucode`
+  (premise §2).
 - **Power management**: `power-profiles-daemon`. Do **not** install `tlp`
   alongside — they conflict.
 - **Sensors**: `lm_sensors` + `sensors-detect --auto` so waybar's

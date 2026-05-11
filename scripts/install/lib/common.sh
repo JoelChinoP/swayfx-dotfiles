@@ -162,7 +162,7 @@ stow_package() {
             continue
         fi
 
-        (( conflicts++ ))
+        (( ++conflicts ))
         run mkdir -p "$(dirname "$backup_target/$rel")"
         run mv "$home_path" "$backup_target/$rel"
     done < <(find "$pkg_dir" -type f -print0 2>/dev/null)

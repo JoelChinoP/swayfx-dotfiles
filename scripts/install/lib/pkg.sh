@@ -72,8 +72,25 @@ bootstrap_paru() {
             log_warn "git clone of $pkg failed"
             rm -rf "$tmp"; return 1
         fi
+        local makepkg_conf="$tmp/makepkg.conf"
+        cp /etc/makepkg.conf "$makepkg_conf"
+        cat >> "$makepkg_conf" <<'EOF'
+
+# swayfx-dotfiles bootstrap: keep source AUR builds viable on low-RAM VMs.
+for i in "${!OPTIONS[@]}"; do
+    [[ "${OPTIONS[$i]}" == debug || "${OPTIONS[$i]}" == "!debug" ]] && OPTIONS[$i]="!debug"
+    [[ "${OPTIONS[$i]}" == lto || "${OPTIONS[$i]}" == "!lto" ]] && OPTIONS[$i]="!lto"
+done
+EOF
+        local -a build_env=(
+            TMPDIR="$build_root"
+            CARGO_BUILD_JOBS=1
+            CARGO_PROFILE_RELEASE_DEBUG=0
+            CARGO_PROFILE_RELEASE_LTO=false
+            CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16
+        )
         # TMPDIR keeps cargo/llvm intermediates out of tmpfs.
-        if ! ( cd "$tmp/$pkg" && TMPDIR="$build_root" makepkg -si --noconfirm ); then
+        if ! ( cd "$tmp/$pkg" && env "${build_env[@]}" makepkg --config "$makepkg_conf" -si --noconfirm ); then
             log_warn "makepkg for $pkg failed"
             rm -rf "$tmp"; return 1
         fi

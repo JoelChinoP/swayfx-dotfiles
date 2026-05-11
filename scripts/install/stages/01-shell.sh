@@ -72,14 +72,14 @@ if getent passwd "$USER" | grep -q "${zsh_path}\$"; then
     log_ok "login shell is zsh"
 else
     log_error "login shell is not zsh (chsh may need a re-login)"
-    (( errs++ ))
+    (( ++errs ))
 fi
 
 if zsh -c 'starship --version' >/dev/null 2>&1; then
     log_ok "starship is callable from zsh"
 else
     log_error "starship is not callable from zsh"
-    (( errs++ ))
+    (( ++errs ))
 fi
 
 for plugin_pkg in zsh-syntax-highlighting zsh-autosuggestions zsh-completions; do
@@ -87,7 +87,7 @@ for plugin_pkg in zsh-syntax-highlighting zsh-autosuggestions zsh-completions; d
         log_ok "package present: $plugin_pkg"
     else
         log_error "package missing: $plugin_pkg"
-        (( errs++ ))
+        (( ++errs ))
     fi
 done
 
@@ -95,7 +95,7 @@ if grep -q '^[[:space:]]*exec sway' "$HOME/.zprofile" 2>/dev/null; then
     log_ok "~/.zprofile contains the TTY1 exec-sway block"
 else
     log_error "~/.zprofile missing 'exec sway' block"
-    (( errs++ ))
+    (( ++errs ))
 fi
 
 # Validate the file is reachable AND resolves back into the repo.
@@ -107,7 +107,7 @@ if [[ -e "$starship_target" ]] \
     log_ok "starship.toml resolves into the repo"
 else
     log_error "~/.config/starship.toml does not resolve to $ROOT/starship/.config/starship.toml"
-    (( errs++ ))
+    (( ++errs ))
 fi
 
 if (( errs > 0 )); then

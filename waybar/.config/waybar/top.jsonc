@@ -1,0 +1,91 @@
+// Verified against: waybar(5), waybar-sway-workspaces(5)
+// Reviewed: 2026-05-11
+{
+  "name": "top",
+  "layer": "top",
+  "position": "top",
+  "height": 32,
+  "spacing": 8,
+  "margin-top": 6,
+  "margin-left": 10,
+  "margin-right": 10,
+
+  "modules-left": ["custom/distro"],
+  "modules-center": ["sway/workspaces", "sway/mode"],
+  "modules-right": [
+    "network",
+    "pulseaudio",
+    "battery",
+    "custom/powerprofile",
+    "custom/notifications",
+    "clock",
+    "custom/power"
+  ],
+
+  "custom/distro": {
+    "format": "󰣇",
+    "tooltip": false,
+    "on-click": "fuzzel"
+  },
+
+  "sway/workspaces": {
+    "format": "{name}",
+    "disable-scroll": true,
+    "all-outputs": false
+  },
+
+  "sway/mode": {
+    "format": "{}"
+  },
+
+  "clock": {
+    "format": " {:%H:%M}",
+    "tooltip-format": "<tt>{calendar}</tt>"
+  },
+
+  "network": {
+    "format-wifi": "󰤨 {signalStrength}%",
+    "format-ethernet": "󰈀",
+    "format-disconnected": "󰤭",
+    "tooltip-format": "{ifname}: {ipaddr}",
+    "on-click": "ghostty -e nmtui",
+    "on-click-right": "nm-connection-editor"
+  },
+
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "󰝟",
+    "format-icons": ["󰕿", "󰖀", "󰕾"],
+    "on-click": "pavucontrol",
+    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+  },
+
+  "battery": {
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "󰚥 {capacity}%",
+    "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+    "states": { "warning": 30, "critical": 15 }
+  },
+
+  "custom/powerprofile": {
+    "exec": "swayfx-power-profile",
+    "return-type": "json",
+    "interval": 10,
+    "on-click": "swayfx-power-profile cycle"
+  },
+
+  "custom/notifications": {
+    "exec": "swayfx-waybar-notifications",
+    "return-type": "json",
+    "interval": 2,
+    "on-click": "makoctl dismiss --all",
+    "on-click-right": "makoctl mode -t do-not-disturb"
+  },
+
+  "custom/power": {
+    "format": "󰐥",
+    "tooltip": false,
+    "on-click": "swayfx-powermenu"
+  }
+}

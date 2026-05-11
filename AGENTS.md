@@ -158,8 +158,9 @@ swayfx-dotfile/
 └── system/                  # /etc/* templates (zram-generator.conf, greetd.toml)
 ```
 
-Most of these directories already exist as empty Stow placeholders. The
-configs themselves are listed as TODO in [.claude/PLAN.md §6](.claude/PLAN.md).
+The Stow packages and stage scripts are implemented. Keep
+[.claude/PLAN.md](.claude/PLAN.md) as the behavioral contract when
+editing them.
 
 ---
 

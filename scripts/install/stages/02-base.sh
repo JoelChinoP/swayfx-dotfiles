@@ -36,7 +36,7 @@ else
 fi
 
 BASE_PKGS=(
-    swaybg foot
+    swaybg foot ghostty
     mesa vulkan-radeon libva-utils
     pipewire wireplumber pipewire-pulse pipewire-jack
     sof-firmware alsa-ucm-conf
@@ -77,12 +77,14 @@ else
     (( ++errs ))
 fi
 
-if command -v foot >/dev/null 2>&1; then
-    log_ok "foot is installed"
-else
-    log_error "foot is not on PATH"
-    (( ++errs ))
-fi
+for terminal in foot ghostty; do
+    if command -v "$terminal" >/dev/null 2>&1; then
+        log_ok "$terminal is installed"
+    else
+        log_error "$terminal is not on PATH"
+        (( ++errs ))
+    fi
+done
 
 if [[ -e /dev/dri/renderD128 ]]; then
     log_ok "render node present: /dev/dri/renderD128"

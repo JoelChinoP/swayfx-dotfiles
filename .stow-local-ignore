@@ -1,0 +1,15 @@
+# GNU Stow ignore rules.
+# Verified against: GNU Stow manual
+# Reviewed: 2026-05-11
+
+^README\.md$
+^AGENTS\.md$
+^\.claude/
+^\.codex/
+^\.agents/
+^\.git/
+^old/
+^install/
+^.*\.md$
+^system/
+^scripts/install/

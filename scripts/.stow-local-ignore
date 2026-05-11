@@ -1,0 +1,5 @@
+# Stow only user helper binaries from the scripts package.
+# Verified against: GNU Stow manual
+# Reviewed: 2026-05-11
+
+^install/

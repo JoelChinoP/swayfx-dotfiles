@@ -3,7 +3,7 @@
 # This file is sourced, not executed. Do not run it directly.
 #
 # Verified against: project conventions in .claude/CONTEXT.md §6.3
-# Reviewed: 2026-05-10
+# Reviewed: 2026-05-11
 
 # Required env (with defaults so a stage script can also be sourced
 # standalone for debugging):
@@ -28,11 +28,18 @@ _log() {
     # $1 = level color, $2 = level tag, $3.. = message
     local color="$1" tag="$2"; shift 2
     local ts; ts="$(date +%H:%M:%S)"
-    printf '%s[%s]%s %s[%-5s]%s %s\n' \
+    local line plain_line
+    line="$(printf '%s[%s]%s %s[%-5s]%s %s' \
         "$C_DIM" "$ts" "$C_RESET" \
         "$color" "$tag" "$C_RESET" \
-        "$*" \
-        | tee -a "$LOG_FILE" >&2
+        "$*")"
+    plain_line="$(printf '[%s] [%-5s] %s' "$ts" "$tag" "$*")"
+    printf '%s\n' "$line" >&2
+    local log_dir
+    log_dir="$(dirname "$LOG_FILE")"
+    if [[ -w "$log_dir" ]] && { [[ ! -e "$LOG_FILE" ]] || [[ -w "$LOG_FILE" ]]; }; then
+        printf '%s\n' "$plain_line" >> "$LOG_FILE" || true
+    fi
 }
 
 log_info()  { _log "$C_INFO"  INFO  "$@"; }
@@ -151,6 +158,12 @@ stow_package() {
         local rel="${src_in_pkg#"$pkg_dir"/}"
         local home_path="$HOME/$rel"
 
+        # The scripts package intentionally stows only ~/.local/bin.
+        # scripts/install is repository tooling, not a user dotfile.
+        case "$pkg/$rel" in
+            scripts/install/*) continue ;;
+        esac
+
         if [[ -L "$home_path" ]]; then
             local target
             target="$(readlink -f "$home_path" 2>/dev/null || true)"
@@ -176,7 +189,7 @@ stow_package() {
     # gets folded — stow turns ~/.config into a symlink to that one
     # package's .config/, and subsequent packages cannot stow into
     # ~/.config/ without conflicts.
-    mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share"
+    run mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share"
 
     log_info "stow -R $pkg"
     # --no-folding forces per-file symlinks (no directory symlinks).

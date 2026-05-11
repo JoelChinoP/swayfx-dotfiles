@@ -1,0 +1,26 @@
+# Verified against: mako(5)
+# Reviewed: 2026-05-11
+
+font=Inter 10
+background-color=#0e0e10
+text-color=#e6e6e6
+border-color=#1f1f24
+progress-color=over #89b4fa
+border-size=1
+border-radius=10
+padding=12
+margin=10
+width=360
+height=120
+default-timeout=6000
+ignore-timeout=0
+max-visible=5
+icons=1
+anchor=top-right
+
+[urgency=critical]
+border-color=#f38ba8
+default-timeout=0
+
+[mode=do-not-disturb]
+invisible=1

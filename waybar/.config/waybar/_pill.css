@@ -1,0 +1,44 @@
+/* Shared pill style.
+ * Verified against: waybar(5)
+ * Reviewed: 2026-05-11
+ */
+
+@define-color bg #000000;
+@define-color surface #0e0e10;
+@define-color surface-alt #15151a;
+@define-color border #1f1f24;
+@define-color text #e6e6e6;
+@define-color text-dim #9a9aa6;
+@define-color accent #89b4fa;
+@define-color ok #a6e3a1;
+@define-color warn #f9e2af;
+@define-color crit #f38ba8;
+
+.modules-left,
+.modules-center,
+.modules-right {
+  background: transparent;
+}
+
+#custom-distro,
+#workspaces,
+#mode,
+#clock,
+#network,
+#pulseaudio,
+#battery,
+#custom-notifications,
+#custom-powerprofile,
+#custom-power,
+#custom-terminal,
+#custom-browser,
+#custom-files,
+#custom-editor,
+#taskbar {
+  background: @surface;
+  border: 1px solid @border;
+  border-radius: 18px;
+  color: @text;
+  padding: 2px 12px;
+  margin: 0 3px;
+}

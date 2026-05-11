@@ -24,7 +24,15 @@ source "$ROOT/scripts/install/lib/pkg.sh"
 log_info "Stage 00 — preflight"
 
 # ── 1. Distro identity ────────────────────────────────────────────────
-[[ -f /etc/arch-release ]] || { log_fatal "this is not an Arch system"; exit 1; }
+if [[ ! -f /etc/arch-release ]]; then
+    if (( DRY_RUN )); then
+        log_warn "this is not an Arch system; skipping host preflight checks in dry-run"
+        log_ok "Stage 00 dry-run complete"
+        exit 0
+    fi
+    log_fatal "this is not an Arch system"
+    exit 1
+fi
 log_ok "Arch detected"
 
 # ── 2. Architecture ───────────────────────────────────────────────────

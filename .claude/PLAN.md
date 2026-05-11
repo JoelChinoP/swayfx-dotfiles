@@ -193,7 +193,7 @@ the user can launch a bare Sway from TTY1 and verify VAAPI.
 
 ```bash
 sudo pacman -S --needed --noconfirm \
-  sway swaybg foot \
+  sway swaybg foot ghostty \
   mesa vulkan-radeon libva-utils \
   pipewire wireplumber pipewire-pulse pipewire-jack \
   sof-firmware alsa-ucm-conf \
@@ -296,7 +296,7 @@ command -v mako      || exit 1
 are applied in stage 10.
 
 ```bash
-sudo pacman -S --needed --noconfirm waybar ttf-font-awesome
+sudo pacman -S --needed --noconfirm waybar otf-font-awesome
 ```
 
 **Validation**:
@@ -318,7 +318,7 @@ ASUS helper.
 ```bash
 sudo pacman -S --needed --noconfirm \
   wl-clipboard cliphist \
-  grim slurp \
+  grim slurp satty \
   brightnessctl gammastep \
   wdisplays pavucontrol playerctl \
   networkmanager network-manager-applet \
@@ -328,7 +328,6 @@ sudo pacman -S --needed --noconfirm \
 
 sudo systemctl enable --now NetworkManager.service bluetooth.service
 
-paru -S --needed --noconfirm satty || log_warn "satty not available; skipping"
 paru -S --needed --noconfirm asusctl || log_warn "asusctl failed; skipping"
 ```
 
@@ -358,10 +357,10 @@ by file-roller / thunar-archive-plugin under the hood.
 sudo pacman -S --needed --noconfirm \
   nautilus loupe papers gnome-text-editor gnome-calculator \
   file-roller mpv \
-  btop tree htop \
+  mission-center btop tree htop \
   unzip zip p7zip tar
 
-paru -S --needed --noconfirm brave-bin mission-center
+paru -S --needed --noconfirm brave-bin
 ```
 
 > Nautilus is preferred per the user's stack. Thunar is the lighter
@@ -375,6 +374,7 @@ command -v nautilus  || exit 1
 command -v brave     || exit 1
 command -v mpv       || exit 1
 command -v btop      || exit 1
+command -v missioncenter || exit 1
 command -v 7z        || exit 1
 ```
 

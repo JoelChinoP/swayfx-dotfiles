@@ -1,0 +1,50 @@
+/* Bottom taskbar.
+ * Verified against: waybar(5), waybar-wlr-taskbar(5)
+ * Reviewed: 2026-05-11
+ */
+
+@import url("_pill.css");
+
+* {
+  border: none;
+  font-family: "JetBrainsMono Nerd Font", "Inter", sans-serif;
+  font-size: 12px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: transparent;
+  color: @text;
+}
+
+#custom-terminal,
+#custom-browser,
+#custom-files,
+#custom-editor {
+  min-width: 18px;
+  padding: 4px 10px;
+}
+
+#taskbar {
+  border-radius: 22px;
+  margin-left: 8px;
+  padding: 4px 10px;
+}
+
+#taskbar button {
+  background: transparent;
+  border-radius: 12px;
+  color: @text-dim;
+  margin: 0 2px;
+  padding: 2px 6px;
+}
+
+#taskbar button.active {
+  background: @surface-alt;
+  color: @text;
+}
+
+#taskbar button.urgent {
+  background: @crit;
+  color: @bg;
+}

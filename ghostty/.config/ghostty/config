@@ -1,0 +1,21 @@
+# Ghostty config.
+#
+# Verified against: https://ghostty.org/docs/config/reference
+# Reviewed: 2026-05-11
+
+font-family = "JetBrainsMono Nerd Font"
+font-size = 11
+window-padding-x = 10
+window-padding-y = 10
+
+background = #000000
+foreground = #e6e6e6
+background-opacity = 1.0
+cursor-color = #89b4fa
+selection-background = #15151a
+selection-foreground = #e6e6e6
+
+gtk-single-instance = true
+window-decoration = client
+confirm-close-surface = false
+copy-on-select = clipboard

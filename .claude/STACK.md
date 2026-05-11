@@ -64,7 +64,7 @@ ttf-jetbrains-mono-nerd inter-font
 
 #### Stage 02 — base
 ```
-sway swaybg foot
+sway swaybg foot ghostty
 mesa vulkan-radeon libva-utils
 pipewire wireplumber pipewire-pulse pipewire-jack
 sof-firmware alsa-ucm-conf
@@ -81,13 +81,13 @@ xdg-desktop-portal xdg-desktop-portal-wlr xdg-desktop-portal-gtk
 
 #### Stage 05 — bars
 ```
-waybar ttf-font-awesome
+waybar otf-font-awesome
 ```
 
 #### Stage 06 — utils
 ```
 wl-clipboard cliphist
-grim slurp
+grim slurp satty
 brightnessctl gammastep
 wdisplays pavucontrol playerctl
 networkmanager network-manager-applet
@@ -100,7 +100,7 @@ jq ufw
 ```
 nautilus loupe papers gnome-text-editor gnome-calculator
 file-roller mpv
-btop tree htop
+mission-center btop tree htop
 unzip zip p7zip tar
 ```
 
@@ -138,14 +138,12 @@ swayfx
 
 #### Stage 06 — utils (optional)
 ```
-satty                 # screenshot annotation
 asusctl               # ASUS Fn keys (optional, WARN on failure)
 ```
 
 #### Stage 07 — apps
 ```
 brave-bin
-mission-center
 ```
 
 #### Stage 08 — theming

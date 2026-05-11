@@ -1,0 +1,30 @@
+/* Verified against: wlogout style conventions
+ * Reviewed: 2026-05-11
+ */
+
+* {
+  background-image: none;
+  box-shadow: none;
+  font-family: "Inter", "JetBrainsMono Nerd Font";
+  font-size: 14px;
+}
+
+window {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+button {
+  background-color: #0e0e10;
+  border: 1px solid #1f1f24;
+  border-radius: 8px;
+  color: #e6e6e6;
+  margin: 8px;
+  min-height: 92px;
+  min-width: 132px;
+}
+
+button:hover,
+button:focus {
+  background-color: #15151a;
+  border-color: #89b4fa;
+}

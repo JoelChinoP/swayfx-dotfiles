@@ -1,0 +1,62 @@
+/* Top bar.
+ * Verified against: waybar(5)
+ * Reviewed: 2026-05-11
+ */
+
+@import url("_pill.css");
+
+* {
+  border: none;
+  font-family: "JetBrainsMono Nerd Font", "Inter", sans-serif;
+  font-size: 12px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: transparent;
+  color: @text;
+}
+
+#custom-distro {
+  border-radius: 999px;
+  font-size: 14px;
+  min-width: 18px;
+  padding: 2px 8px;
+}
+
+#workspaces button {
+  background: transparent;
+  border-radius: 12px;
+  color: @text-dim;
+  margin: 0 1px;
+  padding: 0 7px;
+}
+
+#workspaces button.focused,
+#workspaces button.active {
+  background: @accent;
+  color: @bg;
+}
+
+#workspaces button.urgent {
+  background: @crit;
+  color: @bg;
+}
+
+#mode {
+  color: @warn;
+}
+
+#battery.warning,
+#custom-powerprofile.power-saver {
+  color: @warn;
+}
+
+#battery.critical,
+#custom-notifications.dnd {
+  color: @crit;
+}
+
+#custom-powerprofile.performance {
+  color: @ok;
+}

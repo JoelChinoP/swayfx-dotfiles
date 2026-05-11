@@ -69,10 +69,9 @@ Each stage has its own script in `scripts/install/stages/NN-*.sh` and
 ends with copy-pasteable validation commands. The master
 `scripts/install/run.sh` chains them and stops at the first failure.
 
-> The plan, scripts and configs are still being written. The detailed
-> spec lives in [`.claude/PLAN.md`](.claude/PLAN.md). Until that work is
-> committed, the directory listing reflects placeholders for each Stow
-> package.
+> The staged installer and primary Stow configs are implemented. The
+> detailed behavioral spec lives in [`.claude/PLAN.md`](.claude/PLAN.md);
+> run real stages only on Arch, not from Ubuntu.
 
 ### Quick start (once the installer exists)
 

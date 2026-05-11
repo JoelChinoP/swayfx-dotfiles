@@ -1,0 +1,7 @@
+/* Verified against: GTK CSS conventions
+ * Reviewed: 2026-05-11
+ */
+
+@define-color accent_color #89b4fa;
+@define-color window_bg_color #000000;
+@define-color window_fg_color #e6e6e6;

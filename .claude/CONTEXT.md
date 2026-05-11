@@ -180,7 +180,7 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **ASUS-specific (optional)**: `asusctl` (AUR) for Fn keys.
   `supergfxctl` does not apply (7730U is iGPU-only).
 - **Clipboard**: `wl-clipboard` + `cliphist`.
-- **Screenshots**: `grim` + `slurp` + `satty` (AUR, optional editor).
+- **Screenshots**: `grim` + `slurp` + `satty` (official repo).
 - **Brightness**: `brightnessctl`.
 - **Blue-light filter**: `gammastep`.
 - **File manager**: Nautilus (preferred per user's stack note). Thunar is
@@ -193,7 +193,7 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Multimedia**: `mpv` + `uosc` + `hwdec=auto-safe`.
 - **Archive backends**: `unzip`, `zip`, `p7zip`, `tar`, `file-roller`,
   `thunar-archive-plugin` (used regardless of Nautilus vs Thunar).
-- **Resource monitors**: `mission-center` (AUR, GUI), `btop` (TUI).
+- **Resource monitors**: `mission-center` (official repo, GUI), `btop` (TUI).
 - **Custom-module helper**: `jq`.
 - **Firewall (optional)**: `ufw`. Installed **inactive**; user enables it
   after setting their own rules.

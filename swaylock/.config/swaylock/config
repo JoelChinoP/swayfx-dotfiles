@@ -1,0 +1,25 @@
+# swaylock-effects config.
+#
+# Verified against: swaylock-effects --help
+# Reviewed: 2026-05-11
+
+screenshots
+clock
+indicator
+indicator-radius=100
+indicator-thickness=7
+effect-blur=7x5
+effect-vignette=0.5:0.5
+font=Inter
+font-size=32
+text-color=e6e6e6
+ring-color=1f1f24
+inside-color=00000088
+key-hl-color=89b4fa
+separator-color=00000000
+line-color=00000000
+ring-ver-color=f9e2af
+ring-wrong-color=f38ba8
+inside-ver-color=000000aa
+inside-wrong-color=000000aa
+ignore-empty-password

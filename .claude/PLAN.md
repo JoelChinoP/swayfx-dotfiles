@@ -281,7 +281,8 @@ paru -S --needed --noconfirm --useask --noprovides swayfx
 **Validation**:
 
 ```bash
-swaymsg -t get_version 2>/dev/null | grep -qi swayfx \
+swaymsg -t get_version >/dev/null 2>&1                 || exit 1
+sway --version 2>/dev/null | grep -qi swayfx \
   || pacman -Q swayfx                                  || exit 1
 [ -f /usr/share/wayland-sessions/swayfx.desktop ] \
   || [ -f /usr/share/wayland-sessions/sway.desktop ]   || exit 1

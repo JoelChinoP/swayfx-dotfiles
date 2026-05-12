@@ -107,7 +107,10 @@ do
     check_cmd "helper installed: $helper" bash -c 'test -x "$HOME/.local/bin/$1"' _ "$helper"
 done
 
-check_live_cmd "running compositor is SwayFX" bash -c 'swaymsg -t get_version 2>/dev/null | grep -qi swayfx'
+check_live_cmd "running compositor is SwayFX" bash -c '
+swaymsg -t get_version >/dev/null 2>&1 || exit 1
+sway --version 2>/dev/null | grep -qi swayfx || pacman -Q swayfx >/dev/null 2>&1
+'
 check_live_cmd "two waybar instances running" bash -c '[ "$(pgrep -cx waybar 2>/dev/null || true)" -eq 2 ]'
 check_live_cmd "PipeWire responds" wpctl status
 check_live_cmd "VAAPI reports decode entrypoint" bash -c 'vainfo --display drm --device /dev/dri/renderD128 2>/dev/null | grep -q VAEntrypoint'

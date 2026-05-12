@@ -51,10 +51,11 @@ else
     (( ++errs ))
 fi
 
-if swaymsg -t get_version 2>/dev/null | grep -qi swayfx; then
-    log_ok "running compositor reports SwayFX"
+if swaymsg -t get_version >/dev/null 2>&1 && \
+   { sway --version 2>/dev/null | grep -qi swayfx || pacman -Q swayfx >/dev/null 2>&1; }; then
+    log_ok "running compositor responds and SwayFX provider is installed"
 else
-    log_warn "no running SwayFX IPC detected; package validation is being used instead"
+    log_warn "no running SwayFX session detected; package validation is being used instead"
 fi
 
 if [[ -f /usr/share/wayland-sessions/sway.desktop ]] \

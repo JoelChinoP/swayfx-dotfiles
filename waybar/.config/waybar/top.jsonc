@@ -75,7 +75,7 @@
   },
 
   "custom/notifications": {
-    "exec": "swayfx-waybar-notifications",
+    "exec": "bash ~/.local/bin/swayfx-waybar-notifications",
     "return-type": "json",
     "interval": 2,
     "on-click": "makoctl dismiss --all",
@@ -85,6 +85,6 @@
   "custom/power": {
     "format": "󰐥",
     "tooltip": false,
-    "on-click": "swayfx-powermenu"
+    "on-click": "bash ~/.local/bin/swayfx-powermenu"
   }
 }

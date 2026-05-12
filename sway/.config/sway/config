@@ -76,7 +76,7 @@ input type:touchpad {
 
 # Outputs are intentionally not hardcoded.
 # Discover with: swaymsg -t get_outputs
-output * bg #000000 solid_color
+output * bg ~/.config/sway/wallpaper.jpg fill
 
 # Environment for dbus/systemd-activated apps.
 exec_always dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP
@@ -99,7 +99,7 @@ exec swayidle -w \
     before-sleep 'swaylock -f'
 
 # Two Waybar instances.
-exec_always pkill -x waybar; waybar -c ~/.config/waybar/top.jsonc -s ~/.config/waybar/top.css & waybar -c ~/.config/waybar/bottom.jsonc -s ~/.config/waybar/bottom.css &
+exec_always sh -lc 'export PATH="$HOME/.local/bin:$PATH"; pkill -x waybar || true; waybar -c "$HOME/.config/waybar/top.jsonc" -s "$HOME/.config/waybar/top.css" & waybar -c "$HOME/.config/waybar/bottom.jsonc" -s "$HOME/.config/waybar/bottom.css" &'
 
 # Application launchers.
 bindsym $mod+Return exec $term
@@ -180,10 +180,10 @@ bindsym $mod+Shift+0 move container to workspace number $ws10
 
 # Utilities.
 bindsym $mod+Ctrl+l exec swaylock -f
-bindsym $mod+Ctrl+v exec swayfx-cliphist-menu
-bindsym Print exec swayfx-screenshot full
-bindsym $mod+Print exec swayfx-screenshot area
-bindsym $mod+Shift+Print exec swayfx-screenshot edit
+bindsym $mod+Ctrl+v exec ~/.local/bin/swayfx-cliphist-menu
+bindsym Print exec ~/.local/bin/swayfx-screenshot full
+bindsym $mod+Print exec ~/.local/bin/swayfx-screenshot area
+bindsym $mod+Shift+Print exec ~/.local/bin/swayfx-screenshot edit
 bindsym XF86MonBrightnessUp exec brightnessctl set +5%
 bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 bindsym XF86AudioRaiseVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+
@@ -192,7 +192,7 @@ bindsym XF86AudioMute exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 bindsym XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
-bindsym $mod+Shift+q exec swayfx-powermenu
+bindsym $mod+Shift+q exec ~/.local/bin/swayfx-powermenu
 
 # Floating rules.
 for_window [window_type="dialog"] floating enable

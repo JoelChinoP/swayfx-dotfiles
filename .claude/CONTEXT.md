@@ -401,7 +401,8 @@ Grouped so a failure points to the responsible stage.
 ### 10.2. Session and compositor (stages 01–05)
 
 - [ ] Logging in on TTY1 starts SwayFX automatically via `~/.zprofile`.
-- [ ] `swaymsg -t get_version | grep -i swayfx` → SwayFX active.
+- [ ] `swaymsg -t get_version` responds and `sway --version | grep -i swayfx`
+      (or `pacman -Q swayfx`) confirms the SwayFX provider.
 - [ ] `pgrep -a waybar | wc -l` → 2.
 - [ ] Top bar visible, transparent background, pure-black pills.
 - [ ] Bottom bar visible: pinned apps + active windows.

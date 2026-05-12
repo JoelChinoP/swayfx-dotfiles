@@ -49,7 +49,7 @@ else
     (( ++errs ))
 fi
 
-if waybar --help 2>&1 | grep -q -- '--config'; then
+if { waybar --help 2>&1 || true; } | grep -q -- '--config'; then
     log_ok "waybar supports explicit --config"
 else
     log_error "waybar --help did not expose --config"

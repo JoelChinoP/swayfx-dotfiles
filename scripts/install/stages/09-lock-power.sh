@@ -90,7 +90,7 @@ fi
 
 errs=0
 
-if swaylock --help 2>&1 | grep -q screenshots; then
+if { swaylock --help 2>&1 || true; } | grep -q -- '--screenshots'; then
     log_ok "swaylock-effects binary responds"
 else
     log_error "swaylock-effects features not detected in swaylock --help"

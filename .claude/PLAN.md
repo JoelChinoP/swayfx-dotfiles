@@ -108,7 +108,7 @@ than `paru`.**
 [ -f /etc/arch-release ] || { log_fatal "not Arch"; exit 1; }
 pacman -Q linux-firmware sof-firmware amd-ucode networkmanager sudo \
          git base-devel zsh starship stow \
-         power-profiles-daemon lm_sensors jq \
+         lm_sensors jq \
          unzip zip p7zip
 systemctl is-enabled NetworkManager.service
 ping -c 3 archlinux.org
@@ -135,7 +135,6 @@ mkdir -p ~/.local/share/swayfx-dotfiles/backups
 ```bash
 command -v paru               || exit 1
 command -v stow               || exit 1
-command -v powerprofilesctl   || exit 1
 id "$USER" | grep -E 'video|input|audio'  || exit 1
 [ -e /dev/dri/renderD128 ]    || exit 1
 ```
@@ -189,8 +188,9 @@ grep -q 'exec sway' "$HOME/.zprofile"                            || exit 1
 ### Stage 02 — `02-base.sh`
 
 **What.** Sway vanilla (so we can verify the session before adding SwayFX
-quirks), AMD drivers, audio, sensors, power management. After this stage
-the user can launch a bare Sway from TTY1 and verify VAAPI.
+quirks), AMD drivers, audio, sensors, power management, and CPU
+frequency ceilings. After this stage the user can launch a bare Sway
+from TTY1 and verify VAAPI.
 
 ```bash
 sudo pacman -S --needed --noconfirm \
@@ -200,10 +200,18 @@ sudo pacman -S --needed --noconfirm \
   sof-firmware alsa-ucm-conf \
   xorg-xwayland qt5-wayland qt6-wayland \
   xdg-utils xdg-user-dirs polkit polkit-gnome \
-  lm_sensors power-profiles-daemon
+  lm_sensors cpupower
 
 systemctl --user enable --now pipewire pipewire-pulse wireplumber
-sudo systemctl enable --now power-profiles-daemon.service
+sudo install -Dm 0755 "$ROOT/system/usr/local/lib/swayfx-dotfiles/cpu-frequency-limit" \
+  /usr/local/lib/swayfx-dotfiles/cpu-frequency-limit
+sudo install -Dm 0644 "$ROOT/system/systemd/system/swayfx-cpu-frequency-limit.service" \
+  /etc/systemd/system/swayfx-cpu-frequency-limit.service
+sudo install -Dm 0644 "$ROOT/system/udev/rules.d/90-swayfx-cpu-frequency-limit.rules" \
+  /etc/udev/rules.d/90-swayfx-cpu-frequency-limit.rules
+sudo systemctl daemon-reload
+sudo udevadm control --reload
+sudo systemctl enable --now swayfx-cpu-frequency-limit.service
 sudo sensors-detect --auto
 ```
 
@@ -212,6 +220,10 @@ sudo sensors-detect --auto
 > On resumed installs after stage 03, `02-base.sh` must skip the
 > vanilla `sway` package when `swayfx` is already installed, because the
 > packages intentionally conflict while still providing `/usr/bin/sway`.
+> CPU limits are applied with `cpupower`, not PPD, TLP, auto-cpufreq or
+> RyzenAdj. The helper detects AC from `/sys/class/power_supply` without
+> hardcoding adapter or battery names, then caps scaling max at 2 GHz on
+> battery and 3 GHz on AC.
 
 **Validation**:
 
@@ -220,7 +232,8 @@ which sway                                                                      
 vainfo --display drm --device /dev/dri/renderD128 2>&1 | grep -q VAEntrypoint        || exit 1
 wpctl status                                                                          || exit 1
 sensors | grep -qE 'k10temp|coretemp|amdgpu'                                          || exit 1
-powerprofilesctl list | grep -q balanced                                              || exit 1
+command -v cpupower                                                                    || exit 1
+systemctl is-enabled swayfx-cpu-frequency-limit.service                                || exit 1
 ```
 
 **Manual smoke test (run by the user, not the script)**:
@@ -632,7 +645,7 @@ output * bg #000000 solid_color
   "modules-left":   ["custom/distro", "sway/workspaces", "sway/mode"],
   "modules-center": ["clock"],
   "modules-right":  ["network", "pulseaudio", "battery",
-                     "custom/notifications", "custom/power"],
+                     "custom/cpucap", "custom/notifications", "custom/power"],
 
   "custom/distro":      { "format": " ", "tooltip": false, "on-click": "fuzzel" },
   "sway/workspaces":    { "format": "{name}", "disable-scroll": true },
@@ -649,6 +662,9 @@ output * bg #000000 solid_color
   "battery":            { "format": "{icon} {capacity}%",
                           "format-icons": ["󰁺","󰁻","󰁼","󰁽","󰁾","󰁿","󰂀","󰂁","󰂂","󰁹"],
                           "states": { "warning": 30, "critical": 15 } },
+  "custom/cpucap":      { "exec": "bash ~/.local/bin/swayfx-cpu-cap",
+                          "return-type": "json",
+                          "interval": 10 },
   "custom/notifications": { "exec": "makoctl mode | tr -d '\\n'",
                             "interval": 2, "format": "󰂚",
                             "on-click": "makoctl dismiss --all",
@@ -665,7 +681,7 @@ appearance, imported by both bars:
 
 ```css
 .pill, #workspaces, #clock, #network, #pulseaudio, #battery,
-#custom-distro, #custom-notifications, #custom-power,
+#custom-distro, #custom-cpucap, #custom-notifications, #custom-power,
 #custom-terminal, #custom-browser, #custom-files, #custom-editor,
 #taskbar {
   background: #0e0e10;
@@ -943,7 +959,11 @@ decisions in CONTEXT.md and the snippets above:
   `catppuccin-mocha.conf`).
 - `starship/.config/starship.toml`.
 - `zsh/{.zshrc, .zprofile, .zshenv}`.
-- `system/zram-generator.conf`, `system/sysctl.d/99-swayfx-zram.conf`,
+- `scripts/.local/bin/swayfx-cpu-cap`.
+- `system/usr/local/lib/swayfx-dotfiles/cpu-frequency-limit`,
+  `system/systemd/system/swayfx-cpu-frequency-limit.service`,
+  `system/udev/rules.d/90-swayfx-cpu-frequency-limit.rules`,
+  `system/zram-generator.conf`, `system/sysctl.d/99-swayfx-zram.conf`,
   `system/greetd.toml`.
 - `.stow-local-ignore` at repo root, listing
   `^README\.md$`, `^AGENTS\.md$`, `^\.claude/`, `^\.git/`, `^old/`,

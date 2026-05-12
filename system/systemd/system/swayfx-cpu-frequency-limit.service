@@ -1,0 +1,14 @@
+# Verified against: systemd.service(5)
+# Reviewed: 2026-05-12
+
+[Unit]
+Description=SwayFX CPU frequency ceiling by power source
+Documentation=man:cpupower-frequency-set(1)
+ConditionPathExistsGlob=/sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/swayfx-dotfiles/cpu-frequency-limit
+
+[Install]
+WantedBy=multi-user.target

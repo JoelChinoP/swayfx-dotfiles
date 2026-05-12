@@ -1,6 +1,6 @@
 /* Shared pill style.
  * Verified against: waybar(5)
- * Reviewed: 2026-05-11
+ * Reviewed: 2026-05-12
  */
 
 @define-color bg #000000;
@@ -28,7 +28,7 @@
 #pulseaudio,
 #battery,
 #custom-notifications,
-#custom-powerprofile,
+#custom-cpucap,
 #custom-power,
 #custom-terminal,
 #custom-browser,

@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Verified against: cpupower-frequency-set(1), Linux power_supply sysfs
+# Reviewed: 2026-05-12
+
+set -euo pipefail
+IFS=$'\n\t'
+
+AC_MAX_KHZ="${AC_MAX_KHZ:-3000000}"
+BATTERY_MAX_KHZ="${BATTERY_MAX_KHZ:-2000000}"
+
+has_ac_power() {
+    local supply type online
+
+    for supply in /sys/class/power_supply/*; do
+        [[ -r "$supply/type" && -r "$supply/online" ]] || continue
+        type="$(< "$supply/type")"
+        online="$(< "$supply/online")"
+
+        # Avoid hardcoding AC adapter names. Any online non-battery
+        # power_supply means the laptop is externally powered.
+        if [[ "$type" != "Battery" && "$online" == "1" ]]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+apply_with_sysfs() {
+    local max_khz="$1"
+    local applied=0 file
+
+    for file in /sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_max_freq; do
+        [[ -w "$file" ]] || continue
+        printf '%s\n' "$max_khz" > "$file"
+        applied=1
+    done
+
+    (( applied ))
+}
+
+if has_ac_power; then
+    profile="AC"
+    max_khz="$AC_MAX_KHZ"
+else
+    profile="battery"
+    max_khz="$BATTERY_MAX_KHZ"
+fi
+
+if ! compgen -G '/sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_max_freq' >/dev/null; then
+    echo "No cpufreq scaling_max_freq files found; skipping CPU ceiling."
+    exit 0
+fi
+
+if command -v cpupower >/dev/null 2>&1; then
+    if cpupower frequency-set -u "${max_khz}kHz"; then
+        echo "Applied $profile CPU frequency ceiling: ${max_khz} kHz"
+        exit 0
+    fi
+
+    echo "cpupower failed; falling back to sysfs." >&2
+fi
+
+if apply_with_sysfs "$max_khz"; then
+    echo "Applied $profile CPU frequency ceiling via sysfs: ${max_khz} kHz"
+else
+    echo "Failed to apply CPU frequency ceiling." >&2
+    exit 1
+fi

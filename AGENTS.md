@@ -155,7 +155,7 @@ swayfx-dotfile/
 ├── colors/.config/colors/blacked.conf
 ├── starship/.config/starship.toml
 ├── zsh/{.zshrc,.zprofile,.zshenv}
-└── system/                  # /etc/* templates (zram, sysctl, greetd)
+└── system/                  # /etc and /usr/local system templates
 ```
 
 The Stow packages and stage scripts are implemented. Keep

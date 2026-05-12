@@ -1,0 +1,6 @@
+# Verified against: udev(7), systemd.device(5)
+# Reviewed: 2026-05-12
+
+# Re-apply the CPU ceiling whenever AC/battery state changes. The helper
+# inspects /sys/class/power_supply itself, so adapter names are not hardcoded.
+ACTION=="change", SUBSYSTEM=="power_supply", TAG+="systemd", ENV{SYSTEMD_WANTS}+="swayfx-cpu-frequency-limit.service"

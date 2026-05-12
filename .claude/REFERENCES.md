@@ -251,7 +251,7 @@ for_window [app_id="com.obsproject.Studio"]      blur disable
 | Pure-black palette (no CP)    | None — original to this repo       | User preference; references trend Catppuccin/Oxocarbon      |
 | TTY1 + `.zprofile` exec sway  | ArchWiki "Sway" autostart section  | Lightest path, no DM RAM cost                               |
 | greetd/ReGreet as **optional**| codex draft + ArchWiki             | Defer DM until session is stable                            |
-| `power-profiles-daemon`       | ArchWiki "Power management"        | Lightest, integrates with GNOME Settings and waybar custom  |
+| `cpupower` CPU ceilings       | cpupower manual + ArchWiki         | Simple 2 GHz battery / 3 GHz AC frequency cap without PPD/TLP |
 | `scratchpad_minimize enable`  | (DEVIATION from upstream)          | Required for CSD-button minimize; fallback documented       |
 | `swaylock-effects`            | All references                     | Real lock with screenshot+blur                              |
 | `mako` (not Dunst, not SwayNC)| Sway/man pages                     | Canonical layer-shell notification daemon                   |
@@ -308,7 +308,10 @@ for_window [app_id="com.obsproject.Studio"]      blur disable
 - PipeWire: <https://wiki.archlinux.org/title/PipeWire>
 - NetworkManager: <https://wiki.archlinux.org/title/NetworkManager>
 - zram: <https://wiki.archlinux.org/title/Zram>
-- power-profiles-daemon: <https://wiki.archlinux.org/title/CPU_frequency_scaling>
+- cpupower frequency limits: <https://man.archlinux.org/man/extra/cpupower/cpupower-frequency-set.1.en>
+- power-profiles-daemon (rejected for main path): <https://wiki.archlinux.org/title/CPU_frequency_scaling>
+- TLP processor settings (rejected for main path): <https://linrunner.de/tlp/settings/processor.html>
+- RyzenAdj (deferred low-level TDP experiments only): <https://github.com/FlyGoat/RyzenAdj>
 - greetd: <https://wiki.archlinux.org/title/Greetd>
 - ReGreet: <https://github.com/rharish101/ReGreet>
 - xdg-desktop-portal-wlr: <https://github.com/emersion/xdg-desktop-portal-wlr>

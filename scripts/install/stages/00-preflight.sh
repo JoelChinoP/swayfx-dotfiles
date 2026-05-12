@@ -52,7 +52,7 @@ REQUIRED_PKGS=(
     linux-firmware sof-firmware amd-ucode
     networkmanager sudo git base-devel
     zsh starship stow
-    power-profiles-daemon lm_sensors jq
+    lm_sensors jq
     unzip zip p7zip
 )
 if ! require_pkgs "${REQUIRED_PKGS[@]}"; then

@@ -18,7 +18,7 @@ pacstrap -K /mnt \
   base linux linux-firmware sof-firmware amd-ucode \
   networkmanager sudo git base-devel \
   zsh starship stow \
-  power-profiles-daemon lm_sensors jq \
+  lm_sensors jq \
   nano man-db man-pages texinfo \
   efibootmgr dosfstools \
   btrfs-progs exfatprogs ntfs-3g \
@@ -70,7 +70,7 @@ pipewire wireplumber pipewire-pulse pipewire-jack
 sof-firmware alsa-ucm-conf
 xorg-xwayland qt5-wayland qt6-wayland
 xdg-utils xdg-user-dirs polkit polkit-gnome
-lm_sensors power-profiles-daemon
+lm_sensors cpupower
 ```
 
 #### Stage 04 — session
@@ -195,11 +195,15 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
   popups.
 - **mako**: layer-shell native, ~6–10 MB, scriptable via `makoctl`.
 
-### 3.4. Power management: power-profiles-daemon (not TLP)
+### 3.4. Power management: cpupower helper (not PPD/TLP)
 
-- **TLP**: aggressive defaults, more config, conflicts with PPD.
-- **PPD**: lighter, GNOME-aware, integrates with `powerprofilesctl`,
-  exposes three profiles waybar can switch via custom module.
+- **cpupower**: sets a hard CPU scaling maximum. The project caps the CPU
+  at 2 GHz on battery and 3 GHz on AC via a systemd/udev helper.
+- **power-profiles-daemon**: rejected for the main path. Without GNOME or
+  Plasma power UI it adds little here, and the fixed cpupower ceiling is
+  the actual policy the user wants.
+- **TLP / auto-cpufreq**: rejected because they add another policy layer.
+- **RyzenAdj**: deferred for explicit low-level TDP experiments only.
 
 ### 3.5. Display: TTY1 + `.zprofile` (greetd as optional)
 
@@ -292,7 +296,7 @@ Not part of stages 00–10 by default. Install manually when needed.
 |---------------------|----------------------------|-----------------------------|
 | `swayfx`            | `sway` (official)          | Let paru replace `sway`.    |
 | `swaylock-effects`  | `swaylock` (official)      | Install only the AUR one.   |
-| `power-profiles-daemon` | `tlp`                  | Pick one. We pick PPD.      |
+| `cpupower` policy helper | `power-profiles-daemon` / `tlp` / `auto-cpufreq` | Pick one policy layer. |
 | `pipewire-pulse`    | `pulseaudio`               | We use the pipewire stack.  |
 | `pipewire-jack`     | `jack2`                    | We use pipewire's JACK.     |
 | `wireplumber`       | `pipewire-media-session`   | wireplumber is current.     |

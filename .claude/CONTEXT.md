@@ -49,7 +49,7 @@ with a clear message if any is missing:
   becomes relevant later.
 - Tooling pre-installed by `pacstrap` (see STACK.md): `base-devel`, `git`,
   `stow`, `zsh`, `starship`, `nano`/`neovim`, `man-db`, `less`, `curl`/
-  `wget`, `openssh`, `power-profiles-daemon`, `lm_sensors`, `jq`, archive
+  `wget`, `openssh`, `lm_sensors`, `jq`, archive
   utilities, hardware diagnostics, EFI tooling, filesystem progs.
 
 ## 3. What "desktop-style SwayFX" means
@@ -176,8 +176,11 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
   `mesa` package provides the VA-API Mesa driver on current repos;
   `mesa-vdpau` is no longer available. Requires `amd-ucode`
   (premise §2).
-- **Power management**: `power-profiles-daemon`. Do **not** install `tlp`
-  alongside — they conflict.
+- **Power management**: `cpupower` plus a project systemd/udev helper.
+  Battery caps CPU scaling max at 2 GHz; AC caps it at 3 GHz. This is
+  deliberately frequency-only, not TDP tuning.
+- **Do not use power policy daemons in the main path**: no
+  `power-profiles-daemon`, no `tlp`, no `auto-cpufreq`, no `ryzenadj`.
 - **Sensors**: `lm_sensors` + `sensors-detect --auto` so waybar's
   temperature module has data.
 - **ASUS-specific (optional)**: `asusctl` (AUR) for Fn keys.
@@ -228,7 +231,7 @@ scripts/install/
 └── stages/
     ├── 00-preflight.sh         # validate Arch minimal premises
     ├── 01-shell.sh             # zsh + starship + plugins (FIRST)
-    ├── 02-base.sh              # sway + drivers + audio + sensors + PPD
+    ├── 02-base.sh              # sway + drivers + audio + sensors + cpupower
     ├── 03-swayfx.sh            # replace sway with SwayFX (AUR)
     ├── 04-session.sh           # fuzzel + mako + xdg portals + polkit
     ├── 05-bars.sh              # waybar (two instances)
@@ -330,7 +333,7 @@ swayfx-dotfile/
 ├── colors/.config/colors/blacked.conf
 ├── starship/.config/starship.toml
 ├── zsh/{.zshrc,.zprofile,.zshenv}
-├── system/                          # /etc/* templates (zram, sysctl, greetd)
+├── system/                          # /etc + /usr/local system templates
 └── (legacy files: PLAN.codex.md, planv2.codex.md, etc. — to be removed)
 ```
 
@@ -354,7 +357,10 @@ swayfx-dotfile/
   (AUR) — they conflict. Stick to `swaylock-effects`.
 - **Do not** enable `shadows`. The plain-black UI does not benefit and
   Vega 8 takes the cost.
-- **Do not** install `tlp` alongside `power-profiles-daemon`.
+- **Do not** install `power-profiles-daemon`, `tlp` or `auto-cpufreq`
+  in the main path. CPU policy is handled by the project cpupower helper.
+- **Do not** install `ryzenadj` in the main path. CPU frequency ceilings
+  use `cpupower`; RyzenAdj is only for explicit low-level TDP experiments.
 - **Do not** auto-enable `ufw`. Install it disabled; user enables it
   after defining their own ruleset.
 - **Do not** copy configs with `cp` from the install scripts. Always
@@ -402,7 +408,9 @@ Grouped so a failure points to the responsible stage.
 - [ ] `vainfo` reports `VAEntrypointVLD` for H264 and HEVC.
 - [ ] `wpctl status` lists sink and source.
 - [ ] `sensors` reports CPU temperature (lm_sensors configured).
-- [ ] `powerprofilesctl list` returns `power-saver/balanced/performance`.
+- [ ] `systemctl is-enabled swayfx-cpu-frequency-limit` → `enabled`.
+- [ ] On battery, CPU `scaling_max_freq` is at or below `2000000`; on AC,
+      at or below `3000000`.
 - [ ] `notify-send "test" "ok"` displays a notification.
 - [ ] `brightnessctl set +5%` changes brightness.
 - [ ] `nmcli device status` lists wifi; the top bar reflects it.

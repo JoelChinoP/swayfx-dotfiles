@@ -1,5 +1,5 @@
 // Verified against: waybar(5), waybar-sway-workspaces(5)
-// Reviewed: 2026-05-11
+// Reviewed: 2026-05-12
 {
   "name": "top",
   "layer": "top",
@@ -16,7 +16,7 @@
     "network",
     "pulseaudio",
     "battery",
-    "custom/powerprofile",
+    "custom/cpucap",
     "custom/notifications",
     "clock",
     "custom/power"
@@ -68,11 +68,10 @@
     "states": { "warning": 30, "critical": 15 }
   },
 
-  "custom/powerprofile": {
-    "exec": "swayfx-power-profile",
+  "custom/cpucap": {
+    "exec": "bash ~/.local/bin/swayfx-cpu-cap",
     "return-type": "json",
-    "interval": 10,
-    "on-click": "swayfx-power-profile cycle"
+    "interval": 10
   },
 
   "custom/notifications": {

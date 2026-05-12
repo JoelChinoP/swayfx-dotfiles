@@ -2,11 +2,12 @@
 # Stage 02 - Base Wayland stack.
 #
 # Installs vanilla Sway, AMD userspace drivers, PipeWire audio,
-# XWayland/Qt Wayland support, polkit, sensors, and power profiles.
+# XWayland/Qt Wayland support, polkit, sensors, and CPU frequency
+# ceilings for AC/battery.
 # SwayFX is deliberately not installed here; stage 03 performs that swap.
 #
 # Verified against: .claude/PLAN.md §2 stage 02
-# Reviewed: 2026-05-11
+# Reviewed: 2026-05-12
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -42,7 +43,7 @@ BASE_PKGS=(
     sof-firmware alsa-ucm-conf
     xorg-xwayland qt5-wayland qt6-wayland
     xdg-utils xdg-user-dirs polkit polkit-gnome
-    lm_sensors power-profiles-daemon
+    lm_sensors cpupower
 )
 
 if command -v pacman >/dev/null 2>&1 && pkg_installed swayfx; then
@@ -53,11 +54,52 @@ fi
 
 pacman_install "${BASE_PKGS[@]}"
 
+install_system_template() {
+    local src="$1" dest="$2" mode="${3:-0644}"
+
+    if [[ ! -f "$src" ]]; then
+        log_fatal "template missing: $src"
+        exit 1
+    fi
+
+    if (( DRY_RUN )); then
+        log_info "would install $src -> $dest"
+        return 0
+    fi
+
+    if [[ -e "$dest" ]] && ! cmp -s "$src" "$dest"; then
+        local ts backup_path
+        ts="${BACKUP_TS:-$(date +%Y%m%d-%H%M%S)}"
+        backup_path="$BACKUP_DIR/$ts${dest}"
+        mkdir -p "$(dirname "$backup_path")"
+        sudo cp -a "$dest" "$backup_path"
+        log_warn "backed up $dest to $backup_path"
+    fi
+
+    sudo install -Dm "$mode" "$src" "$dest"
+    log_ok "installed $dest"
+}
+
+install_system_template \
+    "$ROOT/system/usr/local/lib/swayfx-dotfiles/cpu-frequency-limit" \
+    /usr/local/lib/swayfx-dotfiles/cpu-frequency-limit \
+    0755
+install_system_template \
+    "$ROOT/system/systemd/system/swayfx-cpu-frequency-limit.service" \
+    /etc/systemd/system/swayfx-cpu-frequency-limit.service \
+    0644
+install_system_template \
+    "$ROOT/system/udev/rules.d/90-swayfx-cpu-frequency-limit.rules" \
+    /etc/udev/rules.d/90-swayfx-cpu-frequency-limit.rules \
+    0644
+
 log_info "enabling PipeWire user services"
 run systemctl --user enable --now pipewire.service pipewire-pulse.service wireplumber.service
 
-log_info "enabling power-profiles-daemon"
-run sudo systemctl enable --now power-profiles-daemon.service
+log_info "enabling CPU frequency ceiling service"
+run sudo systemctl daemon-reload
+run sudo udevadm control --reload
+run sudo systemctl enable --now swayfx-cpu-frequency-limit.service
 
 log_info "detecting sensors"
 run sudo sensors-detect --auto
@@ -85,6 +127,13 @@ for terminal in foot ghostty; do
         (( ++errs ))
     fi
 done
+
+if command -v cpupower >/dev/null 2>&1; then
+    log_ok "cpupower is installed"
+else
+    log_error "cpupower is not on PATH"
+    (( ++errs ))
+fi
 
 if [[ -e /dev/dri/renderD128 ]]; then
     log_ok "render node present: /dev/dri/renderD128"
@@ -129,12 +178,24 @@ else
     (( ++errs ))
 fi
 
-if powerprofilesctl list 2>/dev/null | grep -q balanced; then
-    log_ok "power-profiles-daemon reports balanced profile"
-elif (( IS_VM )); then
-    log_warn "powerprofilesctl did not report balanced in VM; hardware support may be absent"
+if systemctl is-enabled swayfx-cpu-frequency-limit.service >/dev/null 2>&1; then
+    log_ok "CPU frequency ceiling service is enabled"
 else
-    log_error "powerprofilesctl list did not report balanced"
+    log_error "CPU frequency ceiling service is not enabled"
+    (( ++errs ))
+fi
+
+if compgen -G '/sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_max_freq' >/dev/null; then
+    if sudo systemctl start swayfx-cpu-frequency-limit.service >/dev/null 2>&1; then
+        log_ok "CPU frequency ceiling service runs"
+    else
+        log_error "CPU frequency ceiling service failed"
+        (( ++errs ))
+    fi
+elif (( IS_VM )); then
+    log_warn "no cpufreq sysfs in VM; skipping CPU frequency ceiling validation"
+else
+    log_error "no cpufreq scaling_max_freq files found"
     (( ++errs ))
 fi
 

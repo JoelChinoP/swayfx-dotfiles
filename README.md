@@ -54,7 +54,7 @@ Installation is split into numbered **stages**:
 |------:|-------------------------------------------------------------|
 | 00    | Validate Arch minimal premises (microcode, audio firmware…) |
 | 01    | zsh + starship + plugins (first, before anything graphical) |
-| 02    | Vanilla Sway + AMD drivers + audio + sensors + power-mgmt   |
+| 02    | Vanilla Sway + AMD drivers + audio + sensors + CPU power caps |
 | 03    | Replace Sway with SwayFX from AUR                           |
 | 04    | Launcher (fuzzel) + notifications (mako) + XDG portals       |
 | 05    | Waybar (one binary, two configs)                             |

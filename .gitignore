@@ -3,6 +3,9 @@
 .config/mimeapps.list
 .config/pulse/
 .local/
+!scripts/.local/
+!scripts/.local/bin/
+!scripts/.local/bin/*
 .cache/
 
 # SSH y GPG — NUNCA subir al repositorio

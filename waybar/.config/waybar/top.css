@@ -1,6 +1,6 @@
 /* Top bar.
  * Verified against: waybar(5)
- * Reviewed: 2026-05-11
+ * Reviewed: 2026-05-12
  */
 
 @import url("_pill.css");
@@ -48,7 +48,7 @@ window#waybar {
 }
 
 #battery.warning,
-#custom-powerprofile.power-saver {
+#custom-cpucap.battery {
   color: @warn;
 }
 
@@ -57,6 +57,6 @@ window#waybar {
   color: @crit;
 }
 
-#custom-powerprofile.performance {
+#custom-cpucap.ac {
   color: @ok;
 }

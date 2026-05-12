@@ -60,6 +60,29 @@ check_cmd "dark color scheme set" bash -c '[ "$(gsettings get org.gnome.desktop.
 check_cmd "FiraCode Nerd Font installed" bash -c "fc-list | grep -qi 'FiraCode.*Nerd'"
 check_cmd "JetBrainsMono Nerd Font installed" bash -c "fc-list | grep -qi 'JetBrains.*Nerd'"
 check_cmd "Inter font installed" bash -c "fc-list | grep -qi 'Inter'"
+check_cmd "cpupower installed" command -v cpupower
+check_cmd "CPU frequency ceiling service enabled" systemctl is-enabled swayfx-cpu-frequency-limit.service
+check_cmd "CPU frequency ceiling active" bash -c '
+shopt -s nullglob
+files=(/sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_max_freq)
+(( ${#files[@]} > 0 )) || exit 1
+
+expected=2000000
+for supply in /sys/class/power_supply/*; do
+    [[ -r "$supply/type" && -r "$supply/online" ]] || continue
+    type="$(< "$supply/type")"
+    online="$(< "$supply/online")"
+    if [[ "$type" != "Battery" && "$online" = "1" ]]; then
+        expected=3000000
+        break
+    fi
+done
+
+for file in "${files[@]}"; do
+    read -r value < "$file"
+    (( value <= expected )) || exit 1
+done
+'
 check_cmd "zram0 present" bash -c 'zramctl 2>/dev/null | grep -q zram0'
 check_cmd "zram swappiness tuned" bash -c '[ "$(sysctl -n vm.swappiness 2>/dev/null)" = "180" ]'
 check_cmd "zram page-cluster tuned" bash -c '[ "$(sysctl -n vm.page-cluster 2>/dev/null)" = "0" ]'
@@ -73,7 +96,6 @@ check_live_cmd "two waybar instances running" bash -c '[ "$(pgrep -cx waybar 2>/
 check_live_cmd "PipeWire responds" wpctl status
 check_live_cmd "VAAPI reports decode entrypoint" bash -c 'vainfo --display drm --device /dev/dri/renderD128 2>/dev/null | grep -q VAEntrypoint'
 check_live_cmd "lm_sensors reports CPU/GPU temp" bash -c "sensors 2>/dev/null | grep -qE 'k10temp|coretemp|amdgpu'"
-check_live_cmd "power profiles available" bash -c 'powerprofilesctl list 2>/dev/null | grep -q balanced'
 check_live_cmd "notification daemon works" bash -c 'notify-send "swayfx-dotfiles" "ok"'
 
 if (( FAILS > 0 )); then

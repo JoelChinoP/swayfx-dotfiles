@@ -1,0 +1,16 @@
+#%PAM-1.0
+# greetd/ReGreet PAM policy.
+#
+# Verified against: pam_securetty(8), Arch system-local-login PAM layout
+# Reviewed: 2026-05-12
+#
+# DEVIATION: do not use pam_securetty here. ReGreet runs through greetd
+# without a classic PAM_TTY item, and pam_securetty returns SERVICE_ERR
+# when it cannot determine the TTY. Root login is not part of this setup;
+# the personal user session is authenticated through system-local-login.
+
+auth       requisite    pam_nologin.so
+auth       include      system-local-login
+account    include      system-local-login
+session    include      system-local-login
+password   include      system-local-login

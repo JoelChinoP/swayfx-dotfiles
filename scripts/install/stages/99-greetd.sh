@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Stage 99 - Optional graphical login.
 #
-# Installs greetd + ReGreet on cage and writes /etc/greetd/config.toml.
+# Installs greetd + ReGreet on cage and writes greetd/PAM config.
 # This stage is intentionally excluded from --all.
 #
 # Verified against: Arch greetd package and greetd/ReGreet layout
-# Reviewed: 2026-05-11
+# Reviewed: 2026-05-12
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -54,6 +54,7 @@ install_system_template() {
 
 install_system_template "$ROOT/system/greetd.toml" /etc/greetd/config.toml 0644
 install_system_template "$ROOT/system/regreet.toml" /etc/greetd/regreet.toml 0644
+install_system_template "$ROOT/system/pam.d/greetd" /etc/pam.d/greetd 0644
 
 log_warn "comment the exec-sway block in ~/.zprofile before rebooting into greetd"
 run sudo systemctl disable getty@tty1.service
@@ -74,6 +75,13 @@ for cmd in regreet cage; do
         (( ++errs ))
     fi
 done
+
+if grep -Eq '^[[:space:]]*auth[[:space:]].*pam_securetty' /etc/pam.d/greetd; then
+    log_error "/etc/pam.d/greetd still uses pam_securetty; ReGreet may fail with SERVICE_ERR"
+    (( ++errs ))
+else
+    log_ok "greetd PAM does not use pam_securetty"
+fi
 
 if systemctl is-enabled greetd.service >/dev/null 2>&1; then
     log_ok "greetd.service enabled"

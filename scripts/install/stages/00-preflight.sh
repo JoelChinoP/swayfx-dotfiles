@@ -25,7 +25,7 @@ log_info "Stage 00 - preflight"
 
 REPAIRABLE_BASE_PKGS=(
     linux-firmware sof-firmware amd-ucode
-    networkmanager git base-devel
+    networkmanager git
     zsh starship stow
     lm_sensors jq
     curl wget openssh
@@ -34,6 +34,15 @@ REPAIRABLE_BASE_PKGS=(
 
 REQUIRED_PKGS=(sudo "${REPAIRABLE_BASE_PKGS[@]}")
 REJECTED_POWER_PKGS=(power-profiles-daemon tlp auto-cpufreq ryzenadj)
+BASE_DEVEL_COMMANDS=(makepkg make gcc fakeroot pkgconf)
+
+base_devel_ready() {
+    local cmd
+    for cmd in "${BASE_DEVEL_COMMANDS[@]}"; do
+        command -v "$cmd" >/dev/null 2>&1 || return 1
+    done
+    return 0
+}
 
 check_network_reachable() {
     local mode="${1:-warn}"
@@ -68,6 +77,9 @@ install_missing_base_packages() {
     for p in "${REPAIRABLE_BASE_PKGS[@]}"; do
         pkg_installed "$p" || missing+=("$p")
     done
+    if ! base_devel_ready; then
+        missing+=(base-devel)
+    fi
 
     if (( ${#missing[@]} == 0 )); then
         log_ok "all repairable base packages present"
@@ -88,6 +100,10 @@ install_missing_base_packages() {
         log_fatal "base package repair did not complete; inspect pacman output and re-run"
         exit 1
     }
+    if ! base_devel_ready; then
+        log_fatal "base-devel toolchain is still incomplete after repair"
+        exit 1
+    fi
     log_ok "base installer packages repaired"
 }
 

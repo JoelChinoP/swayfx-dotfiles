@@ -146,7 +146,10 @@ mkdir -p ~/.local/share/swayfx-dotfiles/backups
 ```bash
 command -v paru               || exit 1
 command -v stow               || exit 1
-pacman -Q base-devel starship jq unzip zip p7zip || exit 1
+pacman -Q starship jq unzip zip p7zip || exit 1
+for cmd in makepkg make gcc fakeroot pkgconf; do
+  command -v "$cmd" >/dev/null || exit 1
+done
 for p in power-profiles-daemon tlp auto-cpufreq ryzenadj; do
   ! pacman -Q "$p" 2>/dev/null || exit 1
 done
@@ -538,6 +541,8 @@ ReGreet on cage. Run **only** after the rest of the install is stable.
 sudo pacman -S --needed --noconfirm greetd greetd-regreet cage
 
 sudo install -m 0644 "$ROOT/system/greetd.toml" /etc/greetd/config.toml
+sudo install -m 0644 "$ROOT/system/regreet.toml" /etc/greetd/regreet.toml
+sudo install -m 0644 "$ROOT/system/pam.d/greetd" /etc/pam.d/greetd
 
 sudo systemctl disable getty@tty1.service || true
 sudo systemctl enable greetd.service
@@ -554,6 +559,10 @@ command = "dbus-run-session cage -s -mlast -- regreet"
 user = "greeter"
 ```
 
+`system/pam.d/greetd` must not include `pam_securetty.so`; ReGreet
+authenticates through greetd without a classic PAM_TTY item, and
+`pam_securetty` can return `SERVICE_ERR` before user auth completes.
+
 After enabling, **comment** the `exec sway` block in `~/.zprofile` so
 TTY1 no longer races greetd.
 
@@ -562,6 +571,7 @@ TTY1 no longer races greetd.
 ```bash
 command -v regreet                          || exit 1
 command -v cage                             || exit 1
+! grep -Eq '^[[:space:]]*auth[[:space:]].*pam_securetty' /etc/pam.d/greetd || exit 1
 ls /usr/share/wayland-sessions/             || exit 1
 ```
 

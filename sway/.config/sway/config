@@ -92,16 +92,14 @@ exec wl-paste --type image --watch cliphist store
 exec gammastep
 
 # Idle and lock.
-exec swayidle -w \
-    timeout 300 'swaylock -f' \
-    timeout 600 'swaymsg "output * power off"' \
-    resume 'swaymsg "output * power on"' \
-    before-sleep 'swaylock -f'
+exec swayidle -w timeout 300 'swaylock -f' timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' before-sleep 'swaylock -f'
 
 # Two Waybar instances.
 exec_always sh -lc 'export PATH="$HOME/.local/bin:$PATH"; pkill -x waybar || true; waybar -c "$HOME/.config/waybar/top.jsonc" -s "$HOME/.config/waybar/top.css" & waybar -c "$HOME/.config/waybar/bottom.jsonc" -s "$HOME/.config/waybar/bottom.css" &'
 
 # Application launchers.
+bindsym --release Super_L exec $launcher
+bindsym --release Super_R exec $launcher
 bindsym $mod+Return exec $term
 bindsym $mod+Shift+Return exec $term_fallback
 bindsym $mod+d exec $launcher

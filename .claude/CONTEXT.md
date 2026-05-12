@@ -155,7 +155,7 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 
 - **Compositor**: SwayFX (AUR).
 - **Session start**: TTY1 + `exec sway` in `~/.zprofile`. **No display
-  manager** in the main path. Optional Stage 9 sets up `greetd` + ReGreet
+  manager** in the main path. Optional Stage 99 sets up `greetd` + ReGreet
   for users who want a graphical login later.
 - **Shell**: zsh + starship + plugins (`zsh-completions`,
   `zsh-syntax-highlighting`, `zsh-autosuggestions`). Installed **first**.
@@ -249,7 +249,9 @@ scripts/install/
 Optional stage (do **not** include in `--all`):
 
 - `99-greetd.sh` — graphical login via greetd + ReGreet + cage. Run
-  manually only after the rest is stable.
+  manually only after the rest is stable. Installs a greetd PAM policy
+  without `pam_securetty`, because ReGreet does not provide a classic
+  PAM_TTY item and can otherwise fail with `SERVICE_ERR`.
 
 CLI:
 
@@ -391,7 +393,9 @@ Grouped so a failure points to the responsible stage.
 ### 10.1. Premises (§2 / stage 00)
 
 - [ ] `pacman -Q amd-ucode sof-firmware sudo` → all installed.
-- [ ] `pacman -Q base-devel starship stow jq unzip zip p7zip` → all installed.
+- [ ] `pacman -Q starship stow jq unzip zip p7zip` → all installed.
+- [ ] `command -v makepkg make gcc fakeroot pkgconf` → base-devel
+      toolchain available.
 - [ ] `for p in power-profiles-daemon tlp auto-cpufreq ryzenadj; do pacman -Q "$p" && exit 1; done` → no rejected power policy package installed.
 - [ ] `systemctl is-active NetworkManager` → `active`.
 - [ ] `systemctl is-active systemd-timesyncd` → `active`.

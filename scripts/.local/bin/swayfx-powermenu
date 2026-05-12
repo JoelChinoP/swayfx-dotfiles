@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Verified against: wlogout(1), fuzzel --dmenu
+# Reviewed: 2026-05-12
+
+set -euo pipefail
+IFS=$'\n\t'
+
+notify() {
+    command -v notify-send >/dev/null 2>&1 || return 0
+    notify-send "SwayFX" "$1"
+}
+
+run_choice() {
+    case "$1" in
+        "Bloquear") exec swaylock -f ;;
+        "Suspender") exec systemctl suspend ;;
+        "Salir") exec swaymsg exit ;;
+        "Reiniciar") exec systemctl reboot ;;
+        "Apagar") exec systemctl poweroff ;;
+        "Cancelar"|"") exit 0 ;;
+        *)
+            notify "Opcion no reconocida: $1"
+            exit 1
+            ;;
+    esac
+}
+
+if command -v wlogout >/dev/null 2>&1 && [[ "${SWAYFX_POWERMENU_FORCE_DMENU:-0}" != "1" ]]; then
+    exec wlogout
+fi
+
+command -v fuzzel >/dev/null 2>&1 || {
+    notify "No se encontro wlogout ni fuzzel."
+    exit 1
+}
+
+choice="$(
+    printf '%s\n' \
+        "Bloquear" \
+        "Suspender" \
+        "Salir" \
+        "Reiniciar" \
+        "Apagar" \
+        "Cancelar" |
+        fuzzel --dmenu --prompt="Energia> "
+)"
+
+run_choice "$choice"

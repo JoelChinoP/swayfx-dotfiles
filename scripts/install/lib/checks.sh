@@ -90,6 +90,15 @@ check_cmd "starship config linked" bash -c 'test -e "$HOME/.config/starship.toml
 check_cmd "sway config linked" bash -c 'test -e "$HOME/.config/sway/config"'
 check_cmd "waybar top config linked" bash -c 'test -e "$HOME/.config/waybar/top.jsonc"'
 check_cmd "waybar bottom config linked" bash -c 'test -e "$HOME/.config/waybar/bottom.jsonc"'
+for helper in \
+    swayfx-cpu-cap \
+    swayfx-powermenu \
+    swayfx-screenshot \
+    swayfx-cliphist-menu \
+    swayfx-waybar-notifications
+do
+    check_cmd "helper installed: $helper" bash -c 'test -x "$HOME/.local/bin/$1"' _ "$helper"
+done
 
 check_live_cmd "running compositor is SwayFX" bash -c 'swaymsg -t get_version 2>/dev/null | grep -qi swayfx'
 check_live_cmd "two waybar instances running" bash -c '[ "$(pgrep -cx waybar 2>/dev/null || true)" -eq 2 ]'

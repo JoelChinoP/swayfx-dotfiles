@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Verified against: cliphist(1), fuzzel --dmenu, wl-copy(1)
+# Reviewed: 2026-05-12
+
+set -euo pipefail
+IFS=$'\n\t'
+
+notify() {
+    command -v notify-send >/dev/null 2>&1 || return 0
+    notify-send "Portapapeles" "$1"
+}
+
+for cmd in cliphist fuzzel wl-copy; do
+    command -v "$cmd" >/dev/null 2>&1 || {
+        notify "Falta el comando: $cmd"
+        exit 1
+    }
+done
+
+selection="$(cliphist list | fuzzel --dmenu --prompt="Portapapeles> ")" || exit 0
+[[ -n "$selection" ]] || exit 0
+
+printf '%s' "$selection" | cliphist decode | wl-copy
+notify "Elemento restaurado."

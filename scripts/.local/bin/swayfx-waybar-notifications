@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Verified against: waybar-custom(5), makoctl(1)
+# Reviewed: 2026-05-12
+
+set -euo pipefail
+IFS=$'\n\t'
+
+json() {
+    printf '{"text":"%s","class":"%s","tooltip":"%s"}\n' "$1" "$2" "$3"
+}
+
+if ! command -v makoctl >/dev/null 2>&1; then
+    json "Noti" "off" "makoctl no esta disponible"
+    exit 0
+fi
+
+modes="$(makoctl mode 2>/dev/null || true)"
+
+if printf '%s\n' "$modes" | grep -qx 'do-not-disturb'; then
+    json "DND" "dnd" "No molestar activado"
+else
+    json "Noti" "default" "Notificaciones activas"
+fi

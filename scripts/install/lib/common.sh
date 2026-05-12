@@ -13,6 +13,11 @@ BACKUP_DIR="${BACKUP_DIR:-$HOME/.local/share/swayfx-dotfiles/backups}"
 DRY_RUN="${DRY_RUN:-0}"
 YES="${YES:-0}"
 
+if [[ -z "${USER:-}" ]]; then
+    USER="$(id -un 2>/dev/null || whoami 2>/dev/null || printf 'user')"
+    export USER
+fi
+
 # Colors only when stdout is a TTY.
 if [[ -t 1 ]]; then
     C_RESET=$'\033[0m'; C_DIM=$'\033[2m'

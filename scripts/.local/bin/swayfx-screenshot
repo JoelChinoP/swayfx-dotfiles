@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Verified against: grim(1), slurp(1), satty(1), wl-copy(1)
+# Reviewed: 2026-05-12
+
+set -euo pipefail
+IFS=$'\n\t'
+
+mode="${1:-area}"
+
+pictures_dir="$HOME/Pictures"
+if command -v xdg-user-dir >/dev/null 2>&1; then
+    pictures_dir="$(xdg-user-dir PICTURES 2>/dev/null || printf '%s/Pictures' "$HOME")"
+fi
+mkdir -p "$pictures_dir/Screenshots"
+
+timestamp="$(date +%Y%m%d-%H%M%S)"
+file="$pictures_dir/Screenshots/screenshot-$timestamp.png"
+
+notify() {
+    command -v notify-send >/dev/null 2>&1 || return 0
+    notify-send "Captura" "$1"
+}
+
+copy_image() {
+    command -v wl-copy >/dev/null 2>&1 || return 0
+    wl-copy --type image/png < "$1" || true
+}
+
+require_cmd() {
+    command -v "$1" >/dev/null 2>&1 || {
+        notify "Falta el comando: $1"
+        exit 1
+    }
+}
+
+capture_area() {
+    require_cmd slurp
+    geometry="$(slurp)" || exit 0
+    [[ -n "$geometry" ]] || exit 0
+    grim -g "$geometry" "$1"
+}
+
+require_cmd grim
+
+case "$mode" in
+    full)
+        grim "$file"
+        copy_image "$file"
+        notify "Guardada en $file"
+        ;;
+    area)
+        capture_area "$file"
+        copy_image "$file"
+        notify "Guardada en $file"
+        ;;
+    edit)
+        tmp="${XDG_RUNTIME_DIR:-/tmp}/swayfx-screenshot-$timestamp.png"
+        capture_area "$tmp"
+        if command -v satty >/dev/null 2>&1; then
+            if satty --filename "$tmp" --output-filename "$file"; then
+                copy_image "$file"
+                notify "Guardada en $file"
+                rm -f "$tmp"
+            else
+                mv "$tmp" "$file"
+                copy_image "$file"
+                notify "Satty fallo; captura guardada sin editar."
+            fi
+        else
+            mv "$tmp" "$file"
+            copy_image "$file"
+            notify "Satty no esta instalado; captura guardada sin editar."
+        fi
+        ;;
+    *)
+        printf 'Usage: %s [full|area|edit]\n' "${0##*/}" >&2
+        exit 2
+        ;;
+esac

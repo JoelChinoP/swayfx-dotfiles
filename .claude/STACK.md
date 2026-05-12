@@ -59,7 +59,7 @@ flat manifest grouped by repo source for review.
 ```
 zsh starship
 zsh-completions zsh-syntax-highlighting zsh-autosuggestions
-ttf-jetbrains-mono-nerd inter-font
+ttf-firacode-nerd ttf-jetbrains-mono-nerd inter-font
 ```
 
 #### Stage 02 — base
@@ -111,7 +111,7 @@ unzip zip p7zip tar
 ```
 adw-gtk-theme papirus-icon-theme
 qt6ct kvantum nwg-look
-ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji inter-font
+ttf-firacode-nerd ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji inter-font
 ```
 
 #### Stage 09 — lock & power

@@ -158,6 +158,9 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
   `zsh-syntax-highlighting`, `zsh-autosuggestions`). Installed **first**.
 - **Terminal**: Ghostty (preferred). `foot` is installed early as fallback
   while testing TTY → Sway, then Ghostty becomes default.
+- **Terminal font**: FiraCode Nerd Font Mono 11. The Nerd Font variant is
+  required so Starship's folder/git icons render correctly. Waybar keeps
+  JetBrainsMono Nerd Font for compact status icons.
 - **Launcher**: fuzzel.
 - **Notifications**: mako.
 - **Bars**: two waybar instances (top: status; bottom: pinned + taskbar).
@@ -414,8 +417,8 @@ Grouped so a failure points to the responsible stage.
 - [ ] `getent passwd $USER | grep -q '/zsh$'` → zsh is the login shell.
 - [ ] Starship prompt visible in zsh (e.g. `›` arrow).
 - [ ] zsh autosuggestions and syntax-highlighting active.
-- [ ] `fc-list | grep -qi 'JetBrainsMono Nerd'` and `'Inter'` → fonts
-      registered.
+- [ ] `fc-list | grep -qi 'FiraCode.*Nerd'`,
+      `'JetBrains.*Nerd'`, and `'Inter'` → fonts registered.
 
 ### 10.5. Resources (stage 09 / 10)
 

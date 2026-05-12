@@ -3,7 +3,7 @@
 # Verified against: https://starship.rs/config/
 # Reviewed: 2026-05-12
 
-add_newline = false
+add_newline = true
 scan_timeout = 30
 command_timeout = 200
 
@@ -16,34 +16,36 @@ $line_break\
 $character"""
 
 [character]
-success_symbol = "[›](bold #89b4fa)"
-error_symbol   = "[›](bold #f38ba8)"
-vimcmd_symbol  = "[‹](bold #a6e3a1)"
+success_symbol = "[>](bold #a6e3a1)"
+error_symbol   = "[>](bold #f38ba8)"
+vimcmd_symbol  = "[<](bold #89b4fa)"
 
 [directory]
+format                 = "[ $path]($style)[$read_only]($read_only_style) "
 truncation_length      = 3
 truncate_to_repo       = true
-truncation_symbol      = "…/"
-style                  = "bold #e6e6e6"
-read_only              = " "
+truncation_symbol      = ".../"
+style                  = "bold #89b4fa"
+read_only              = " "
 read_only_style        = "#f38ba8"
 
 [git_branch]
-symbol = " "
-style  = "#9a9aa6"
+symbol = " "
+style  = "#f9e2af"
 format = "[$symbol$branch]($style) "
 
 [git_status]
-style    = "#f9e2af"
-format   = "[$all_status$ahead_behind]($style) "
-conflicted = "✖"
-ahead      = "⇡${count}"
-behind     = "⇣${count}"
-diverged   = "⇕⇡${ahead_count}⇣${behind_count}"
-modified   = "✱"
-staged     = "[+\\($count\\)](#a6e3a1)"
-untracked  = "?"
-stashed    = "≡"
+format     = '([\[ ](#9a9aa6)$all_status$ahead_behind[\]](#9a9aa6) )'
+conflicted = "[✖${count}](#f38ba8) "
+ahead      = "[⇡${count}](#89b4fa) "
+behind     = "[⇣${count}](#9a9aa6) "
+diverged   = "[⇕⇡${ahead_count}⇣${behind_count}](#f38ba8) "
+modified   = "[✱${count}](#89b4fa) "
+staged     = "[+${count}](#a6e3a1) "
+untracked  = "[?${count}](#f9e2af) "
+stashed    = "[≡${count}](#9a9aa6) "
+deleted    = "[✘${count}](#f38ba8) "
+renamed    = "[»${count}](#89b4fa) "
 
 [cmd_duration]
 min_time           = 2000

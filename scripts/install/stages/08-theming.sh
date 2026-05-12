@@ -5,7 +5,7 @@
 # Applies global dark settings through gsettings.
 #
 # Verified against: Arch GTK, Qt, fontconfig and Starship/Waybar needs
-# Reviewed: 2026-05-11
+# Reviewed: 2026-05-12
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -28,7 +28,7 @@ fi
 THEME_PKGS=(
     adw-gtk-theme papirus-icon-theme
     qt6ct kvantum nwg-look
-    ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji inter-font
+    ttf-firacode-nerd ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji inter-font
 )
 pacman_install "${THEME_PKGS[@]}"
 
@@ -55,7 +55,7 @@ set_gsetting org.gnome.desktop.interface gtk-theme "'adw-gtk3-dark'"
 set_gsetting org.gnome.desktop.interface icon-theme "'Papirus-Dark'"
 set_gsetting org.gnome.desktop.interface cursor-theme "'Bibata-Modern-Classic'"
 set_gsetting org.gnome.desktop.interface font-name "'Inter 11'"
-set_gsetting org.gnome.desktop.interface monospace-font-name "'JetBrainsMono Nerd Font 10'"
+set_gsetting org.gnome.desktop.interface monospace-font-name "'FiraCode Nerd Font Mono 10'"
 
 run fc-cache -fv
 
@@ -71,6 +71,13 @@ if [[ "$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null)" ==
     log_ok "GNOME color-scheme is prefer-dark"
 else
     log_error "GNOME color-scheme is not prefer-dark"
+    (( ++errs ))
+fi
+
+if fc-list | grep -qi 'FiraCode.*Nerd'; then
+    log_ok "FiraCode Nerd Font registered"
+else
+    log_error "FiraCode Nerd Font missing"
     (( ++errs ))
 fi
 

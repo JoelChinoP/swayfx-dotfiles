@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Stage 01 — Shell first.
 #
-# Installs zsh, starship, the QoL plugins, and the JetBrainsMono Nerd
-# Font + Inter fonts. Sets zsh as the user's login shell. Stows the
+# Installs zsh, starship, the QoL plugins, and the terminal/UI fonts.
+# Sets zsh as the user's login shell. Stows the
 # `zsh` and `starship` packages so the rest of the install runs in the
 # configured shell.
 #
 # Verified against: .claude/PLAN.md §2 stage 01
-# Reviewed: 2026-05-10
+# Reviewed: 2026-05-12
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -24,7 +24,7 @@ log_info "Stage 01 — shell (zsh + starship + plugins)"
 SHELL_PKGS=(
     zsh starship
     zsh-completions zsh-syntax-highlighting zsh-autosuggestions
-    ttf-jetbrains-mono-nerd inter-font
+    ttf-firacode-nerd ttf-jetbrains-mono-nerd inter-font
 )
 pacman_install "${SHELL_PKGS[@]}"
 
@@ -87,6 +87,15 @@ for plugin_pkg in zsh-syntax-highlighting zsh-autosuggestions zsh-completions; d
         log_ok "package present: $plugin_pkg"
     else
         log_error "package missing: $plugin_pkg"
+        (( ++errs ))
+    fi
+done
+
+for font_pkg in ttf-firacode-nerd ttf-jetbrains-mono-nerd inter-font; do
+    if pkg_installed "$font_pkg"; then
+        log_ok "package present: $font_pkg"
+    else
+        log_error "package missing: $font_pkg"
         (( ++errs ))
     fi
 done

@@ -153,7 +153,7 @@ the rest of the chain runs in the configured shell. Includes the
 sudo pacman -S --needed --noconfirm \
   zsh starship \
   zsh-completions zsh-syntax-highlighting zsh-autosuggestions \
-  ttf-jetbrains-mono-nerd inter-font
+  ttf-firacode-nerd ttf-jetbrains-mono-nerd inter-font
 
 [[ "$SHELL" == */zsh ]] || sudo chsh -s "$(command -v zsh)" "$USER"
 
@@ -180,6 +180,7 @@ fi
 getent passwd "$USER" | grep -q '/zsh$'                         || exit 1
 zsh -c 'starship --version'                                      || exit 1
 pacman -Q zsh-syntax-highlighting zsh-autosuggestions             || exit 1
+pacman -Q ttf-firacode-nerd ttf-jetbrains-mono-nerd inter-font    || exit 1
 grep -q 'exec sway' "$HOME/.zprofile"                            || exit 1
 ```
 
@@ -391,7 +392,7 @@ dependencies that those configs need.
 sudo pacman -S --needed --noconfirm \
   adw-gtk-theme papirus-icon-theme \
   qt6ct kvantum nwg-look \
-  ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji inter-font
+  ttf-firacode-nerd ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji inter-font
 
 paru -S --needed --noconfirm bibata-cursor-theme
 
@@ -400,7 +401,7 @@ gsettings set org.gnome.desktop.interface gtk-theme           'adw-gtk3-dark'
 gsettings set org.gnome.desktop.interface icon-theme          'Papirus-Dark'
 gsettings set org.gnome.desktop.interface cursor-theme        'Bibata-Modern-Classic'
 gsettings set org.gnome.desktop.interface font-name           'Inter 11'
-gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrainsMono Nerd Font 10'
+gsettings set org.gnome.desktop.interface monospace-font-name 'FiraCode Nerd Font Mono 10'
 
 fc-cache -fv
 ```
@@ -409,7 +410,8 @@ fc-cache -fv
 
 ```bash
 [ "$(gsettings get org.gnome.desktop.interface color-scheme)" = "'prefer-dark'" ] || exit 1
-fc-list | grep -qi 'JetBrainsMono Nerd' || exit 1
+fc-list | grep -qi 'FiraCode.*Nerd'     || exit 1
+fc-list | grep -qi 'JetBrains.*Nerd'    || exit 1
 fc-list | grep -qi 'Inter'              || exit 1
 ```
 
@@ -753,8 +755,8 @@ window#waybar { background: transparent; }
 
 ```ini
 # Verified against: man foot.ini(5)
-# Reviewed: 2026-05-10
-font=JetBrainsMono Nerd Font:size=11
+# Reviewed: 2026-05-12
+font=FiraCode Nerd Font Mono:size=11
 dpi-aware=yes
 pad=10x10
 
@@ -774,21 +776,32 @@ preferred=client
 
 ```toml
 # Verified against: https://starship.rs/config/
-# Reviewed: 2026-05-10
-add_newline = false
-format = "$directory$git_branch$git_status$nodejs$python$cmd_duration\n$character"
+# Reviewed: 2026-05-12
+add_newline = true
+scan_timeout = 30
+command_timeout = 200
+format = "$directory$git_branch$git_status$nodejs$python$rust$golang$cmd_duration\n$character"
 
 [character]
-success_symbol = "[›](bold #89b4fa)"
-error_symbol   = "[›](bold #f38ba8)"
+success_symbol = "[>](bold #a6e3a1)"
+error_symbol   = "[>](bold #f38ba8)"
+vimcmd_symbol  = "[<](bold #89b4fa)"
 
 [directory]
+format            = "[ $path]($style)[$read_only]($read_only_style) "
 truncation_length = 3
-style             = "bold #e6e6e6"
+truncate_to_repo  = true
+style             = "bold #89b4fa"
 
 [git_branch]
-symbol = " "
-style  = "#9a9aa6"
+symbol = " "
+style  = "#f9e2af"
+
+[git_status]
+format     = '([\[ ](#9a9aa6)$all_status$ahead_behind[\]](#9a9aa6) )'
+modified   = "[✱${count}](#89b4fa) "
+staged     = "[+${count}](#a6e3a1) "
+untracked  = "[?${count}](#f9e2af) "
 
 [cmd_duration]
 min_time          = 2000

@@ -53,6 +53,13 @@ else
 fi
 
 check_cmd "core packages installed" pacman -Q amd-ucode sof-firmware sudo zsh starship stow
+check_cmd "installer bootstrap packages installed" pacman -Q base-devel git lm_sensors jq curl wget openssh unzip zip p7zip
+check_cmd "rejected power policy packages absent" bash -c '
+for pkg in power-profiles-daemon tlp auto-cpufreq ryzenadj; do
+    pacman -Q "$pkg" >/dev/null 2>&1 && exit 1
+done
+exit 0
+'
 check_cmd "NetworkManager active" systemctl is-active NetworkManager.service
 check_cmd "systemd-timesyncd active" systemctl is-active systemd-timesyncd.service
 check_cmd "zsh is login shell" bash -c 'getent passwd "$USER" | grep -q "/zsh$"'

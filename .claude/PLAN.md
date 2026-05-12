@@ -4,7 +4,7 @@
 > CONTEXT wins. Package decisions live in [STACK.md](STACK.md). Reference
 > repo notes and upstream SwayFX syntax live in [REFERENCES.md](REFERENCES.md).
 >
-> Last reviewed: 2026-05-10.
+> Last reviewed: 2026-05-12.
 
 Hardware: ASUS · Ryzen 7 7730U · Vega 8 · 12 GB RAM · Arch Linux.
 Goal: SwayFX desktop usable as a conventional desktop, dark-only,
@@ -100,19 +100,30 @@ confirm()   { (( YES )) && return 0; read -r -p "$1 [y/N] " a; [[ $a == [yY]* ]]
 
 ### Stage 00 — `00-preflight.sh`
 
-**What.** Validate that Arch minimal is correctly installed (CONTEXT §2).
-Bootstrap the AUR helper if missing. **No package installs here other
-than `paru`.**
+**What.** Validate that Arch minimal is correctly installed (CONTEXT §2),
+repair missing official bootstrap packages needed by the installer, remove
+rejected power-policy daemons when confirmed, and bootstrap the AUR helper
+if missing. **No graphical desktop package installs here.**
 
 ```bash
 [ -f /etc/arch-release ] || { log_fatal "not Arch"; exit 1; }
-pacman -Q linux-firmware sof-firmware amd-ucode networkmanager sudo \
-         git base-devel zsh starship stow \
-         lm_sensors jq \
-         unzip zip p7zip
-systemctl is-enabled NetworkManager.service
-ping -c 3 archlinux.org
-sudo -v
+sudo true
+sudo pacman -S --needed --noconfirm \
+  linux-firmware sof-firmware amd-ucode \
+  networkmanager git base-devel \
+  zsh starship stow \
+  lm_sensors jq curl wget openssh \
+  unzip zip p7zip
+
+# Remove installed conflicting power-policy layers only after confirmation/--yes.
+conflicts=()
+for p in power-profiles-daemon tlp auto-cpufreq ryzenadj; do
+  pacman -Q "$p" &>/dev/null && conflicts+=("$p")
+done
+(( ${#conflicts[@]} == 0 )) || sudo pacman -Rns --noconfirm "${conflicts[@]}"
+
+sudo systemctl enable --now NetworkManager.service
+ping -c 1 archlinux.org || curl -fsI https://archlinux.org
 sudo usermod -aG video,input,audio "$USER"
 
 # Render node and EFI checks
@@ -135,6 +146,10 @@ mkdir -p ~/.local/share/swayfx-dotfiles/backups
 ```bash
 command -v paru               || exit 1
 command -v stow               || exit 1
+pacman -Q base-devel starship jq unzip zip p7zip || exit 1
+for p in power-profiles-daemon tlp auto-cpufreq ryzenadj; do
+  ! pacman -Q "$p" 2>/dev/null || exit 1
+done
 id "$USER" | grep -E 'video|input|audio'  || exit 1
 [ -e /dev/dri/renderD128 ]    || exit 1
 ```
@@ -316,7 +331,7 @@ sudo pacman -S --needed --noconfirm waybar otf-font-awesome
 **Validation**:
 
 ```bash
-waybar --help | grep -q -- '--config'      || exit 1
+{ waybar --help 2>&1 || true; } | grep -q -- '--config' || exit 1
 pacman -Qi waybar | grep -q 'Architecture' || exit 1
 ```
 
@@ -423,9 +438,9 @@ fc-cache -fv
 
 ```bash
 [ "$(gsettings get org.gnome.desktop.interface color-scheme)" = "'prefer-dark'" ] || exit 1
-fc-list | grep -qi 'FiraCode.*Nerd'     || exit 1
-fc-list | grep -qi 'JetBrains.*Nerd'    || exit 1
-fc-list | grep -qi 'Inter'              || exit 1
+fc-match 'FiraCode Nerd Font'       | grep -qi 'FiraCode'     || exit 1
+fc-match 'JetBrainsMono Nerd Font'  | grep -qi 'JetBrains'    || exit 1
+fc-match 'Inter'                    | grep -qi 'Inter'        || exit 1
 ```
 
 ---
@@ -437,6 +452,7 @@ stage 06, power menu, zram, and zram-focused sysctl tuning.
 
 ```bash
 sudo pacman -S --needed --noconfirm zram-generator
+curl -fsSL https://github.com/ArtsyMacaw.gpg | gpg --import || true
 paru -S --needed --noconfirm swaylock-effects wlogout
 
 sudo install -m 0644 "$ROOT/system/zram-generator.conf" /etc/systemd/zram-generator.conf
@@ -465,7 +481,7 @@ vm.page-cluster = 0
 **Validation**:
 
 ```bash
-swaylock --help | grep -q screenshots          || exit 1
+{ swaylock --help 2>&1 || true; } | grep -q -- '--screenshots' || exit 1
 command -v wlogout                              || exit 1
 zramctl | grep -q zram0                         || exit 1
 sysctl -n vm.swappiness | grep -qx 180          || exit 1

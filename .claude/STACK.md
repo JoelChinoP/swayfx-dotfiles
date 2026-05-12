@@ -4,7 +4,7 @@
 > changes, update CONTEXT first, then mirror it here. Stages in
 > [PLAN.md](PLAN.md) install from these lists.
 >
-> Last reviewed: 2026-05-10.
+> Last reviewed: 2026-05-12.
 
 ---
 
@@ -26,6 +26,12 @@ pacstrap -K /mnt \
   reflector pacman-contrib openssh \
   curl wget rsync unzip zip p7zip
 ```
+
+Stage 00 can repair missing official packages from this installer-critical
+set (`base-devel`, `git`, `zsh`, `starship`, `stow`, `lm_sensors`, `jq`,
+`curl`, `wget`, `openssh`, `unzip`, `zip`, `p7zip`, plus firmware and
+NetworkManager). It still assumes a booted Arch system, a non-root target
+user with working `sudo`, usable pacman repos, and network connectivity.
 
 After `arch-chroot /mnt`:
 
@@ -54,6 +60,15 @@ The full per-stage breakdown lives in [PLAN.md §2](PLAN.md). This is the
 flat manifest grouped by repo source for review.
 
 ### 2.1. Official repos (`pacman -S --needed`)
+
+#### Stage 00 — preflight repair
+```
+linux-firmware sof-firmware amd-ucode
+networkmanager git base-devel
+zsh starship stow
+lm_sensors jq curl wget openssh
+unzip zip p7zip
+```
 
 #### Stage 01 — shell
 ```
@@ -296,7 +311,7 @@ Not part of stages 00–10 by default. Install manually when needed.
 |---------------------|----------------------------|-----------------------------|
 | `swayfx`            | `sway` (official)          | Let paru replace `sway`.    |
 | `swaylock-effects`  | `swaylock` (official)      | Install only the AUR one.   |
-| `cpupower` policy helper | `power-profiles-daemon` / `tlp` / `auto-cpufreq` | Pick one policy layer. |
+| `cpupower` policy helper | `power-profiles-daemon` / `tlp` / `auto-cpufreq` / `ryzenadj` | Stage 00 removes rejected policy layers when confirmed. |
 | `pipewire-pulse`    | `pulseaudio`               | We use the pipewire stack.  |
 | `pipewire-jack`     | `jack2`                    | We use pipewire's JACK.     |
 | `wireplumber`       | `pipewire-media-session`   | wireplumber is current.     |

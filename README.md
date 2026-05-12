@@ -52,7 +52,7 @@ Installation is split into numbered **stages**:
 
 | Stage | What it does                                                |
 |------:|-------------------------------------------------------------|
-| 00    | Validate Arch minimal premises (microcode, audio firmware…) |
+| 00    | Validate/repair Arch minimal premises and power-policy conflicts |
 | 01    | zsh + starship + plugins (first, before anything graphical) |
 | 02    | Vanilla Sway + AMD drivers + audio + sensors + CPU power caps |
 | 03    | Replace Sway with SwayFX from AUR                           |
@@ -77,6 +77,8 @@ ends with copy-pasteable validation commands. The master
 
 ```bash
 # 1. Have Arch minimal already installed (see .claude/STACK.md §1).
+#    Stage 00 can repair missing installer-critical packages such as
+#    base-devel, starship, stow, jq, unzip, zip and p7zip.
 # 2. Clone the repo.
 git clone https://github.com/<your-user>/swayfx-dotfile.git ~/swayfx-dotfile
 cd ~/swayfx-dotfile

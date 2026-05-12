@@ -5,7 +5,7 @@
 > **this file wins**. If anything is ambiguous, leave a `TODO:` and explain why
 > instead of guessing.
 >
-> Last reviewed: 2026-05-10.
+> Last reviewed: 2026-05-12.
 
 ---
 
@@ -29,8 +29,9 @@
 
 This project does **not** install Arch from scratch. It expects a working
 Arch system with the items below. The exact `pacstrap` recipe lives in
-[STACK.md §1](STACK.md). Stage `00-preflight` validates these and aborts
-with a clear message if any is missing:
+[STACK.md §1](STACK.md). Stage `00-preflight` validates these, repairs
+missing official bootstrap packages when possible, and aborts with a
+clear message for non-repairable premises:
 
 - Kernel + firmware: `linux`, `linux-firmware`, `sof-firmware`, `amd-ucode`
   (with bootloader regenerated so `/amd-ucode.img` is loaded before the
@@ -50,7 +51,9 @@ with a clear message if any is missing:
 - Tooling pre-installed by `pacstrap` (see STACK.md): `base-devel`, `git`,
   `stow`, `zsh`, `starship`, `nano`/`neovim`, `man-db`, `less`, `curl`/
   `wget`, `openssh`, `lm_sensors`, `jq`, archive
-  utilities, hardware diagnostics, EFI tooling, filesystem progs.
+  utilities, hardware diagnostics, EFI tooling, filesystem progs. If a
+  package required by the installer itself is missing, stage 00 installs
+  it from the official repos with `pacman -S --needed`.
 
 ## 3. What "desktop-style SwayFX" means
 
@@ -181,6 +184,7 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
   deliberately frequency-only, not TDP tuning.
 - **Do not use power policy daemons in the main path**: no
   `power-profiles-daemon`, no `tlp`, no `auto-cpufreq`, no `ryzenadj`.
+  Stage 00 detects and removes them only after confirmation or `--yes`.
 - **Sensors**: `lm_sensors` + `sensors-detect --auto` so waybar's
   temperature module has data.
 - **ASUS-specific (optional)**: `asusctl` (AUR) for Fn keys.
@@ -229,7 +233,7 @@ scripts/install/
 │   ├── pkg.sh          # paru/yay/pacman wrappers
 │   └── checks.sh       # post-stage validation helpers
 └── stages/
-    ├── 00-preflight.sh         # validate Arch minimal premises
+    ├── 00-preflight.sh         # validate/repair Arch minimal premises
     ├── 01-shell.sh             # zsh + starship + plugins (FIRST)
     ├── 02-base.sh              # sway + drivers + audio + sensors + cpupower
     ├── 03-swayfx.sh            # replace sway with SwayFX (AUR)
@@ -358,9 +362,11 @@ swayfx-dotfile/
 - **Do not** enable `shadows`. The plain-black UI does not benefit and
   Vega 8 takes the cost.
 - **Do not** install `power-profiles-daemon`, `tlp` or `auto-cpufreq`
-  in the main path. CPU policy is handled by the project cpupower helper.
-- **Do not** install `ryzenadj` in the main path. CPU frequency ceilings
-  use `cpupower`; RyzenAdj is only for explicit low-level TDP experiments.
+  in the main path. Stage 00 removes them when confirmed. CPU policy is
+  handled by the project cpupower helper.
+- **Do not** install `ryzenadj` in the main path. Stage 00 removes it
+  when confirmed. CPU frequency ceilings use `cpupower`; RyzenAdj is only
+  for explicit low-level TDP experiments.
 - **Do not** auto-enable `ufw`. Install it disabled; user enables it
   after defining their own ruleset.
 - **Do not** copy configs with `cp` from the install scripts. Always
@@ -385,6 +391,8 @@ Grouped so a failure points to the responsible stage.
 ### 10.1. Premises (§2 / stage 00)
 
 - [ ] `pacman -Q amd-ucode sof-firmware sudo` → all installed.
+- [ ] `pacman -Q base-devel starship stow jq unzip zip p7zip` → all installed.
+- [ ] `for p in power-profiles-daemon tlp auto-cpufreq ryzenadj; do pacman -Q "$p" && exit 1; done` → no rejected power policy package installed.
 - [ ] `systemctl is-active NetworkManager` → `active`.
 - [ ] `systemctl is-active systemd-timesyncd` → `active`.
 - [ ] `localectl status | grep "System Locale"` → expected `LANG=`.
@@ -425,8 +433,8 @@ Grouped so a failure points to the responsible stage.
 - [ ] `getent passwd $USER | grep -q '/zsh$'` → zsh is the login shell.
 - [ ] Starship prompt visible in zsh (e.g. `›` arrow).
 - [ ] zsh autosuggestions and syntax-highlighting active.
-- [ ] `fc-list | grep -qi 'FiraCode.*Nerd'`,
-      `'JetBrains.*Nerd'`, and `'Inter'` → fonts registered.
+- [ ] `fc-match 'FiraCode Nerd Font'`, `fc-match 'JetBrainsMono Nerd Font'`,
+      and `fc-match 'Inter'` → fonts registered.
 
 ### 10.5. Resources (stage 09 / 10)
 

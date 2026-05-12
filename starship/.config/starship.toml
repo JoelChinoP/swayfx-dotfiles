@@ -1,9 +1,11 @@
 # starship.toml — minimal prompt for a pure-black terminal.
 #
 # Verified against: https://starship.rs/config/
-# Reviewed: 2026-05-10
+# Reviewed: 2026-05-12
 
 add_newline = false
+scan_timeout = 30
+command_timeout = 200
 
 format = """
 $directory\

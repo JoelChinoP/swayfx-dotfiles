@@ -1,7 +1,7 @@
 # ~/.zshrc — read by interactive zsh shells.
 #
 # Verified against: ArchWiki "zsh", zshoptions(1)
-# Reviewed: 2026-05-10
+# Reviewed: 2026-05-12
 
 # ── History ───────────────────────────────────────────────────────────
 HISTFILE="$XDG_STATE_HOME/zsh/history"
@@ -26,8 +26,8 @@ setopt INTERACTIVE_COMMENTS      # allow # comments in interactive shells
 autoload -U colors && colors
 autoload -Uz compinit
 zmodload zsh/complist
-compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
 mkdir -p "$XDG_CACHE_HOME/zsh"
+compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
 
 # Case-insensitive completion, group results by tag.
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'

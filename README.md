@@ -61,7 +61,7 @@ Installation is split into numbered **stages**:
 | 06    | Clipboard, screenshots, brightness, network, bluetooth, BT   |
 | 07    | GUI apps (Nautilus, Brave, mpv, GNOME utilities, btop…)      |
 | 08    | Dark theming for GTK 3/4, Qt, cursor, icons, fonts           |
-| 09    | swaylock-effects + wlogout + zram                            |
+| 09    | swaylock-effects + wlogout + zram/sysctl tuning              |
 | 10    | Apply all dotfiles via `stow -R` and run the final checklist |
 | 99    | (Optional) graphical login via greetd + ReGreet              |
 

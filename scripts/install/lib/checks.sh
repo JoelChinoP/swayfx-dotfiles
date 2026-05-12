@@ -60,6 +60,8 @@ check_cmd "dark color scheme set" bash -c '[ "$(gsettings get org.gnome.desktop.
 check_cmd "JetBrainsMono Nerd Font installed" bash -c "fc-list | grep -qi 'JetBrains.*Nerd'"
 check_cmd "Inter font installed" bash -c "fc-list | grep -qi 'Inter'"
 check_cmd "zram0 present" bash -c 'zramctl 2>/dev/null | grep -q zram0'
+check_cmd "zram swappiness tuned" bash -c '[ "$(sysctl -n vm.swappiness 2>/dev/null)" = "180" ]'
+check_cmd "zram page-cluster tuned" bash -c '[ "$(sysctl -n vm.page-cluster 2>/dev/null)" = "0" ]'
 check_cmd "starship config linked" bash -c 'test -e "$HOME/.config/starship.toml"'
 check_cmd "sway config linked" bash -c 'test -e "$HOME/.config/sway/config"'
 check_cmd "waybar top config linked" bash -c 'test -e "$HOME/.config/waybar/top.jsonc"'

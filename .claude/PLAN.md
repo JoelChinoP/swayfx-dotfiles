@@ -418,14 +418,16 @@ fc-list | grep -qi 'Inter'              || exit 1
 ### Stage 09 — `09-lock-power.sh`
 
 **What.** Lock screen with effects, idle daemon already provided by
-stage 06, power menu, zram.
+stage 06, power menu, zram, and zram-focused sysctl tuning.
 
 ```bash
 sudo pacman -S --needed --noconfirm zram-generator
 paru -S --needed --noconfirm swaylock-effects wlogout
 
 sudo install -m 0644 "$ROOT/system/zram-generator.conf" /etc/systemd/zram-generator.conf
+sudo install -Dm 0644 "$ROOT/system/sysctl.d/99-swayfx-zram.conf" /etc/sysctl.d/99-swayfx-zram.conf
 sudo systemctl daemon-reload
+sudo sysctl --load /etc/sysctl.d/99-swayfx-zram.conf
 sudo systemctl restart systemd-zram-setup@zram0.service
 ```
 
@@ -438,12 +440,21 @@ compression-algorithm = zstd
 swap-priority = 100
 ```
 
+`system/sysctl.d/99-swayfx-zram.conf`:
+
+```conf
+vm.swappiness = 180
+vm.page-cluster = 0
+```
+
 **Validation**:
 
 ```bash
 swaylock --help | grep -q screenshots          || exit 1
 command -v wlogout                              || exit 1
 zramctl | grep -q zram0                         || exit 1
+sysctl -n vm.swappiness | grep -qx 180          || exit 1
+sysctl -n vm.page-cluster | grep -qx 0          || exit 1
 ```
 
 ---
@@ -919,7 +930,8 @@ decisions in CONTEXT.md and the snippets above:
   `catppuccin-mocha.conf`).
 - `starship/.config/starship.toml`.
 - `zsh/{.zshrc, .zprofile, .zshenv}`.
-- `system/zram-generator.conf`, `system/greetd.toml`.
+- `system/zram-generator.conf`, `system/sysctl.d/99-swayfx-zram.conf`,
+  `system/greetd.toml`.
 - `.stow-local-ignore` at repo root, listing
   `^README\.md$`, `^AGENTS\.md$`, `^\.claude/`, `^\.git/`, `^old/`,
   `^scripts/install/`, `^system/`.

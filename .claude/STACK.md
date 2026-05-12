@@ -119,6 +119,13 @@ ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji inter-font
 zram-generator
 ```
 
+System tuning installed by the stage:
+
+```
+/etc/systemd/zram-generator.conf       # 4 GB zram, zstd, priority 100
+/etc/sysctl.d/99-swayfx-zram.conf      # swappiness=180, page-cluster=0
+```
+
 #### Stage 99 — greetd (optional)
 ```
 greetd greetd-regreet cage
@@ -243,7 +250,18 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
   `--effect-vignette`, and is what every reference uses.
 - The two packages **conflict**. Install only `swaylock-effects`.
 
-### 3.10. Resource monitors: mission-center + btop
+### 3.10. ZRAM tuning: zstd + 4 GB + aggressive zram use
+
+- `zstd` keeps a good compression ratio without making the desktop feel
+  CPU-bound.
+- 4 GB is enough headroom for Docker/container memory pressure on a
+  12 GB laptop without overcommitting the machine by default.
+- `vm.swappiness=180` makes the kernel prefer compressed in-RAM swap
+  before heavier reclaim.
+- `vm.page-cluster=0` disables swap readahead, which is appropriate for
+  memory-backed zram.
+
+### 3.11. Resource monitors: mission-center + btop
 
 - **mission-center**: GUI, GNOME-native, replaces gnome-system-monitor
   with a lighter footprint.

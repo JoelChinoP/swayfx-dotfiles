@@ -2,7 +2,7 @@
 # Stage 09 - Lock, power menu and zram.
 #
 # Installs zram-generator, swaylock-effects and wlogout. Writes the
-# zram-generator system template with backup.
+# zram-generator and zram sysctl system templates with backup.
 #
 # Verified against: Arch zram-generator and swaylock-effects usage
 # Reviewed: 2026-05-11
@@ -55,8 +55,10 @@ install_system_template() {
 }
 
 install_system_template "$ROOT/system/zram-generator.conf" /etc/systemd/zram-generator.conf 0644
+install_system_template "$ROOT/system/sysctl.d/99-swayfx-zram.conf" /etc/sysctl.d/99-swayfx-zram.conf 0644
 
 run sudo systemctl daemon-reload
+run sudo sysctl --load /etc/sysctl.d/99-swayfx-zram.conf
 run sudo systemctl restart systemd-zram-setup@zram0.service
 
 if (( DRY_RUN )); then
@@ -85,6 +87,20 @@ if zramctl | grep -q zram0; then
     log_ok "zram0 is active"
 else
     log_error "zram0 is not active"
+    (( ++errs ))
+fi
+
+if [[ "$(sysctl -n vm.swappiness 2>/dev/null)" == "180" ]]; then
+    log_ok "vm.swappiness is 180"
+else
+    log_error "vm.swappiness is not 180"
+    (( ++errs ))
+fi
+
+if [[ "$(sysctl -n vm.page-cluster 2>/dev/null)" == "0" ]]; then
+    log_ok "vm.page-cluster is 0"
+else
+    log_error "vm.page-cluster is not 0"
     (( ++errs ))
 fi
 

@@ -197,7 +197,9 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Custom-module helper**: `jq`.
 - **Firewall (optional)**: `ufw`. Installed **inactive**; user enables it
   after setting their own rules.
-- **zram**: `zram-generator`, 4 GB, zstd, priority 100.
+- **zram**: `zram-generator`, 4 GB, zstd, priority 100, with
+  `vm.swappiness=180` and `vm.page-cluster=0` for compressed-RAM swap
+  under Docker/container pressure.
 
 ## 6. Implementation philosophy
 
@@ -325,7 +327,7 @@ swayfx-dotfile/
 ├── colors/.config/colors/blacked.conf
 ├── starship/.config/starship.toml
 ├── zsh/{.zshrc,.zprofile,.zshenv}
-├── system/                          # /etc/* templates (zram, greetd)
+├── system/                          # /etc/* templates (zram, sysctl, greetd)
 └── (legacy files: PLAN.codex.md, planv2.codex.md, etc. — to be removed)
 ```
 
@@ -420,6 +422,8 @@ Grouped so a failure points to the responsible stage.
 - [ ] `free -m` 30 s after login with no apps → < 600 MB used (target
       ~470 MB; ceiling 600 MB).
 - [ ] `zramctl` shows `/dev/zram0` 4 GB zstd.
+- [ ] `sysctl -n vm.swappiness` → `180`.
+- [ ] `sysctl -n vm.page-cluster` → `0`.
 - [ ] `~/swayfx-dotfiles-install.log` has no `[ERROR]` / `[FATAL]` lines.
 
 ## 11. Glossary

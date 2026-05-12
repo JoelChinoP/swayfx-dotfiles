@@ -26,6 +26,27 @@ else
 fi
 
 pacman_install zram-generator
+
+ensure_wlogout_pgp_key() {
+    local key="F4FDB18A9937358364B276E9E25D679AF73C6D2F"
+
+    if gpg --list-keys "$key" >/dev/null 2>&1; then
+        log_ok "wlogout PGP key already present"
+        return 0
+    fi
+
+    if ! command -v curl >/dev/null 2>&1; then
+        log_warn "curl missing; paru may need to import the wlogout PGP key interactively"
+        return 0
+    fi
+
+    log_info "importing wlogout upstream PGP key from GitHub"
+    if ! curl -fsSL https://github.com/ArtsyMacaw.gpg | gpg --import; then
+        log_warn "could not import wlogout PGP key; paru will attempt its normal key import"
+    fi
+}
+
+ensure_wlogout_pgp_key
 paru_install swaylock-effects wlogout
 
 install_system_template() {

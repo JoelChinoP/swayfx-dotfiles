@@ -74,21 +74,21 @@ else
     (( ++errs ))
 fi
 
-if fc-list | grep -qi 'FiraCode.*Nerd'; then
+if fc-match -f '%{family}\n' 'FiraCode Nerd Font Mono' | grep -qi 'FiraCode.*Nerd'; then
     log_ok "FiraCode Nerd Font registered"
 else
     log_error "FiraCode Nerd Font missing"
     (( ++errs ))
 fi
 
-if fc-list | grep -qi 'JetBrains.*Nerd'; then
+if fc-match -f '%{family}\n' 'JetBrainsMono Nerd Font' | grep -qi 'JetBrains.*Nerd'; then
     log_ok "JetBrainsMono Nerd Font registered"
 else
     log_error "JetBrainsMono Nerd Font missing"
     (( ++errs ))
 fi
 
-if fc-list | grep -qi 'Inter'; then
+if fc-match -f '%{family}\n' 'Inter' | grep -qi 'Inter'; then
     log_ok "Inter font registered"
 else
     log_error "Inter font missing"

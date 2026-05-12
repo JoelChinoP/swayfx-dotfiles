@@ -57,9 +57,9 @@ check_cmd "NetworkManager active" systemctl is-active NetworkManager.service
 check_cmd "systemd-timesyncd active" systemctl is-active systemd-timesyncd.service
 check_cmd "zsh is login shell" bash -c 'getent passwd "$USER" | grep -q "/zsh$"'
 check_cmd "dark color scheme set" bash -c '[ "$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null)" = "'\''prefer-dark'\''" ]'
-check_cmd "FiraCode Nerd Font installed" bash -c "fc-list | grep -qi 'FiraCode.*Nerd'"
-check_cmd "JetBrainsMono Nerd Font installed" bash -c "fc-list | grep -qi 'JetBrains.*Nerd'"
-check_cmd "Inter font installed" bash -c "fc-list | grep -qi 'Inter'"
+check_cmd "FiraCode Nerd Font installed" bash -c "fc-match -f '%{family}\n' 'FiraCode Nerd Font Mono' | grep -qi 'FiraCode.*Nerd'"
+check_cmd "JetBrainsMono Nerd Font installed" bash -c "fc-match -f '%{family}\n' 'JetBrainsMono Nerd Font' | grep -qi 'JetBrains.*Nerd'"
+check_cmd "Inter font installed" bash -c "fc-match -f '%{family}\n' 'Inter' | grep -qi 'Inter'"
 check_cmd "cpupower installed" command -v cpupower
 check_cmd "CPU frequency ceiling service enabled" systemctl is-enabled swayfx-cpu-frequency-limit.service
 check_cmd "CPU frequency ceiling active" bash -c '

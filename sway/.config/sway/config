@@ -18,7 +18,7 @@ set $border      #1f1f24
 set $text        #e6e6e6
 set $text_dim    #9a9aa6
 set $accent      #89b4fa
-set $focus_border #dcf0c5
+set $focus_border #ffffaa
 set $ok          #a6e3a1
 set $warn        #f9e2af
 set $crit        #f38ba8

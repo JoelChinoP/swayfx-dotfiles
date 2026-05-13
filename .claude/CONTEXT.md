@@ -62,23 +62,25 @@ conventional desktop**:
 
 - Floating-window-first workflow for laptop ergonomics; tile/split only
   when explicitly requested.
-- Brave opens as the primary fullscreen surface by default.
+- Brave opens tiled/maximized inside the workspace by default, with the
+  top bar visible. Browser F11 is the explicit true-fullscreen path.
 - Top bar: clock · battery · wifi · audio · notifications · power button.
-- Bottom bar: pinned launchers + active windows (taskbar), visible on
-  the desktop and auto-hidden only while the focused window is fullscreen.
+- Bottom bar: pinned launchers + active windows (taskbar), visible by
+  default and toggled manually when the user wants it hidden.
 
 Mapping to SwayFX features:
 
 | Conventional concept   | Implementation                                               |
 |------------------------|--------------------------------------------------------------|
 | Minimize               | `scratchpad_minimize enable` + `$mod+m`                      |
-| Bring to front         | `wlr/taskbar` left click (`activate`)                        |
-| Fullscreen             | `fullscreen toggle` keybind + `wlr/taskbar` right click      |
+| Minimize / restore     | `wlr/taskbar` left click (`minimize-raise`)                  |
+| Maximize               | `wlr/taskbar` right click (`maximize`)                       |
+| Fullscreen             | `$mod+f` or browser F11                                      |
 | Window mode            | floating by default; toggle tiling with `$mod+Shift+space`   |
 | Close from bar         | `wlr/taskbar` middle click                                   |
 | Tile / split           | Sway defaults (`splith`, `splitv`, `tabbed`, `stacking`)     |
 | Top bar                | Waybar instance with `top.jsonc` + `top.css`                 |
-| Bottom bar             | **Second Waybar instance** with `bottom.jsonc` + `bottom.css` + IPC helper |
+| Bottom bar             | **Second Waybar instance** with `bottom.jsonc` + `bottom.css`; manual IPC toggle |
 
 > **Upstream warning about `scratchpad_minimize`**: the SwayFX README says
 > "we recommend keeping this setting off, as there are many kinks to iron
@@ -132,15 +134,13 @@ the left, workspace pills in the center, status pills on the right):
 - Pill 1 (left): pinned launchers as `custom/*` modules.
 - Pill 2 (right): `wlr/taskbar` with active windows (icons only,
   `icon-size: 28`).
-- Initial pinned apps: terminal, browser, files, editor.
-- Click left = activate/bring to front; click right = fullscreen toggle;
+- Initial pinned apps: terminal, browser, files.
+- Click left = minimize/restore; click right = maximize;
   click middle = close (on `wlr/taskbar`).
 - `height: 52`, `margin-bottom: 8px`. `exclusive: false` so floating
   windows can pass underneath.
-- `swayfx-waybar-bottom-visibility` switches the bottom bar from `dock`
-  to `hide` when the focused window is fullscreen, so it behaves like a
-  traditional dock: visible on the desktop, revealed by the lower screen
-  edge during fullscreen work.
+- `swayfx-waybar-bottom-toggle` manually switches the bottom bar between
+  `dock` and `hide` via Sway bar IPC (`$mod+Shift+b`).
 
 ### 4.4. Blur, opacity, shadows, corners
 
@@ -413,16 +413,15 @@ Grouped so a failure points to the responsible stage.
 - [ ] `swaymsg -t get_version` responds and `sway --version | grep -i swayfx`
       (or `pacman -Q swayfx`) confirms the SwayFX provider.
 - [ ] `pgrep -a waybar | wc -l` → 2.
-- [ ] `pgrep -af swayfx-waybar-bottom-visibility` shows the bottom-bar
-      visibility helper.
 - [ ] Top bar visible, transparent background, pure-black pills.
 - [ ] Bottom bar visible on the desktop: pinned apps + active windows.
-- [ ] Bottom bar auto-hides while the focused window is fullscreen and
-      reveals at the lower screen edge.
-- [ ] Pinned apps launch terminal, browser, files, editor.
-- [ ] Left click on taskbar activates/raises; right toggles fullscreen;
+- [ ] `$mod+Shift+b` toggles the bottom bar between visible dock and
+      hidden edge mode.
+- [ ] Pinned apps launch terminal, browser, files.
+- [ ] Left click on taskbar minimizes/restores; right maximizes;
       middle closes.
-- [ ] Most normal apps open floating and centered; Brave opens fullscreen.
+- [ ] Most normal apps open floating and centered; Brave opens tiled with
+      the top bar visible.
 - [ ] `$mod+f` toggles fullscreen; `$mod+Shift+space` toggles floating/tiling.
 - [ ] Terminal blurred and at 0.85 opacity; everything else opaque.
 

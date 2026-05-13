@@ -644,20 +644,20 @@ for_window [app_id="mpv"]                      blur disable, opacity set 1.0
 scratchpad_minimize  enable
 for_window [app_id=".*"] floating enable, resize set 1280 720, move position center
 for_window [class=".*"] floating enable, resize set 1280 720, move position center
-for_window [app_id="^brave-browser$"] floating disable, fullscreen enable
-for_window [app_id="^brave$"] floating disable, fullscreen enable
-for_window [class="^Brave-browser$"] floating disable, fullscreen enable
+for_window [app_id="^brave-browser$"] floating disable
+for_window [app_id="^brave$"] floating disable
+for_window [class="^Brave-browser$"] floating disable
 
 bindsym $mod+m            move scratchpad
 bindsym $mod+Shift+m      scratchpad show
 bindsym $mod+f            fullscreen toggle
 bindsym $mod+Shift+space  floating toggle
+bindsym $mod+Shift+b      exec ~/.local/bin/swayfx-waybar-bottom-toggle
 
 # === Two waybars ===
 exec_always pkill -x waybar; \
   waybar -c ~/.config/waybar/top.jsonc    -s ~/.config/waybar/top.css & \
   waybar -c ~/.config/waybar/bottom.jsonc -s ~/.config/waybar/bottom.css &
-exec_always ~/.local/bin/swayfx-waybar-bottom-visibility
 
 # Outputs are intentionally not hardcoded.
 # Discover with:  swaymsg -t get_outputs
@@ -705,7 +705,7 @@ output * bg #000000 solid_color
                             "interval": 2, "format": "󰂚",
                             "on-click": "makoctl dismiss --all",
                             "on-click-right": "makoctl restore" },
-  "custom/power":       { "format": "󰐥", "on-click": "wlogout",
+  "custom/power":       { "format": "󰐥", "on-click": "bash ~/.local/bin/swayfx-powermenu",
                           "tooltip": false }
 }
 ```
@@ -764,7 +764,7 @@ window#waybar { background: transparent; color: #e6e6e6; }
 
   "modules-left":   [],
   "modules-center": ["custom/terminal", "custom/browser", "custom/files",
-                     "custom/editor", "wlr/taskbar"],
+                     "wlr/taskbar"],
   "modules-right":  [],
 
   "custom/terminal": { "format": "", "on-click": "ghostty",
@@ -773,9 +773,6 @@ window#waybar { background: transparent; color: #e6e6e6; }
                        "tooltip": true, "tooltip-format": "Brave" },
   "custom/files":    { "format": "", "on-click": "nautilus",
                        "tooltip": true, "tooltip-format": "Archivos" },
-  "custom/editor":   { "format": "", "on-click": "gnome-text-editor",
-                       "tooltip": true, "tooltip-format": "Editor" },
-
   "wlr/taskbar": {
     "format":          "{icon}",
     "icon-size":       28,
@@ -783,8 +780,8 @@ window#waybar { background: transparent; color: #e6e6e6; }
     "active-first":    true,
     "icon-theme":      ["Papirus-Dark", "Papirus"],
     "tooltip-format":  "{name}: {title}",
-    "on-click":        "activate",
-    "on-click-right":  "fullscreen",
+    "on-click":        "minimize-raise",
+    "on-click-right":  "maximize",
     "on-click-middle": "close"
   }
 }

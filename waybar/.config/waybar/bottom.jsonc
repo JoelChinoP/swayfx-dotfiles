@@ -16,7 +16,7 @@
     "custom/terminal",
     "custom/browser",
     "custom/files",
-    "custom/editor",
+    // "custom/editor",
     "wlr/taskbar"
   ],
   "modules-right": [],
@@ -54,8 +54,8 @@
       "Papirus"
     ],
     "tooltip-format": "{name}: {title}",
-    "on-click": "activate",
-    "on-click-right": "fullscreen",
+    "on-click": "minimize-raise",
+    "on-click-right": "maximize",
     "on-click-middle": "close"
   }
 }

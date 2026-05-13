@@ -102,13 +102,19 @@ check_cmd "starship config linked" bash -c 'test -e "$HOME/.config/starship.toml
 check_cmd "sway config linked" bash -c 'test -e "$HOME/.config/sway/config"'
 check_cmd "waybar top config linked" bash -c 'test -e "$HOME/.config/waybar/top.jsonc"'
 check_cmd "waybar bottom config linked" bash -c 'test -e "$HOME/.config/waybar/bottom.jsonc"'
+check_cmd "wlogout layout linked" bash -c 'test -e "$HOME/.config/wlogout/layout"'
+check_cmd "wlogout layout object stream" bash -c '
+layout="$HOME/.config/wlogout/layout"
+grep -q "\"label\"" "$layout" || exit 1
+! grep -q "^[[:space:]]*\\[" "$layout"
+'
 for helper in \
     swayfx-cpu-cap \
     swayfx-powermenu \
     swayfx-screenshot \
     swayfx-cliphist-menu \
     swayfx-waybar-notifications \
-    swayfx-waybar-bottom-visibility
+    swayfx-waybar-bottom-toggle
 do
     check_cmd "helper installed: $helper" bash -c 'test -x "$HOME/.local/bin/$1"' _ "$helper"
 done
@@ -118,7 +124,6 @@ swaymsg -t get_version >/dev/null 2>&1 || exit 1
 sway --version 2>/dev/null | grep -qi swayfx || pacman -Q swayfx >/dev/null 2>&1
 '
 check_live_cmd "two waybar instances running" bash -c '[ "$(pgrep -cx waybar 2>/dev/null || true)" -eq 2 ]'
-check_live_cmd "bottom waybar visibility helper running" pgrep -f swayfx-waybar-bottom-visibility
 check_live_cmd "PipeWire responds" wpctl status
 check_live_cmd "VAAPI reports decode entrypoint" bash -c 'vainfo --display drm --device /dev/dri/renderD128 2>/dev/null | grep -q VAEntrypoint'
 check_live_cmd "lm_sensors reports CPU/GPU temp" bash -c "sensors 2>/dev/null | grep -qE 'k10temp|coretemp|amdgpu'"

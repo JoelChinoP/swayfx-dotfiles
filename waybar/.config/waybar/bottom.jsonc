@@ -21,7 +21,7 @@
   ],
   "modules-right": [],
   "custom/terminal": {
-    "format": "",
+    "format": "",
     "on-click": "ghostty",
     "tooltip": true,
     "tooltip-format": "Terminal"

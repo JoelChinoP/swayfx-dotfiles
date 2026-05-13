@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Toggle the bottom Waybar between visible dock mode and hidden edge mode.
+#
+# Reviewed: 2026-05-13
+
+set -euo pipefail
+IFS=$'\n\t'
+
+bar_id="swayfx-bottom"
+
+current_mode="$(
+    swaymsg -t get_bar_config "$bar_id" 2>/dev/null |
+        jq -r '.mode // empty' 2>/dev/null || true
+)"
+
+if [[ "$current_mode" == "hide" ]]; then
+    swaymsg bar "$bar_id" mode dock
+else
+    swaymsg bar "$bar_id" mode hide
+fi

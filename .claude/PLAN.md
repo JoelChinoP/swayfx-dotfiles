@@ -4,7 +4,7 @@
 > CONTEXT wins. Package decisions live in [STACK.md](STACK.md). Reference
 > repo notes and upstream SwayFX syntax live in [REFERENCES.md](REFERENCES.md).
 >
-> Last reviewed: 2026-05-12.
+> Last reviewed: 2026-05-13.
 
 Hardware: ASUS · Ryzen 7 7730U · Vega 8 · 12 GB RAM · Arch Linux.
 Goal: SwayFX desktop usable as a conventional desktop, dark-only,
@@ -432,8 +432,8 @@ gsettings set org.gnome.desktop.interface color-scheme        'prefer-dark'
 gsettings set org.gnome.desktop.interface gtk-theme           'adw-gtk3-dark'
 gsettings set org.gnome.desktop.interface icon-theme          'Papirus-Dark'
 gsettings set org.gnome.desktop.interface cursor-theme        'Bibata-Modern-Classic'
-gsettings set org.gnome.desktop.interface font-name           'Inter 11'
-gsettings set org.gnome.desktop.interface monospace-font-name 'FiraCode Nerd Font Mono 10'
+gsettings set org.gnome.desktop.interface font-name           'Inter 12'
+gsettings set org.gnome.desktop.interface monospace-font-name 'FiraCode Nerd Font Mono 12'
 
 fc-cache -fv
 ```
@@ -601,6 +601,7 @@ set $accent      #89b4fa
 set $crit        #f38ba8
 
 # class                  border    bg   text  indicator child_border
+font pango:Inter 12
 client.focused           $accent  $bg  $text $accent  $accent
 client.focused_inactive  $border  $bg  $text $border  $border
 client.unfocused         $surface $bg  $text $surface $surface
@@ -656,6 +657,7 @@ bindsym $mod+Shift+space  floating toggle
 exec_always pkill -x waybar; \
   waybar -c ~/.config/waybar/top.jsonc    -s ~/.config/waybar/top.css & \
   waybar -c ~/.config/waybar/bottom.jsonc -s ~/.config/waybar/bottom.css &
+exec_always ~/.local/bin/swayfx-waybar-bottom-visibility
 
 # Outputs are intentionally not hardcoded.
 # Discover with:  swaymsg -t get_outputs
@@ -732,13 +734,13 @@ appearance, imported by both bars:
 @import url("_pill.css");
 * {
   font-family: "JetBrainsMono Nerd Font", "Inter";
-  font-size: 12px;
+  font-size: 14px;
   border: none;
   min-height: 0;
 }
 window#waybar { background: transparent; color: #e6e6e6; }
 
-#custom-distro { padding: 2px 10px; border-radius: 999px; }
+#custom-distro { padding: 2px 10px; border-radius: 999px; font-size: 16px; }
 #workspaces button             { color: #9a9aa6; padding: 0 6px; border-radius: 12px; }
 #workspaces button.focused     { background: #89b4fa; color: #000000; }
 #workspaces button.urgent      { background: #f38ba8; color: #000000; }
@@ -750,11 +752,14 @@ window#waybar { background: transparent; color: #e6e6e6; }
 
 ```jsonc
 {
+  "id":            "swayfx-bottom",
+  "ipc":           true,
   "layer":         "top",
   "position":      "bottom",
-  "height":        38,
+  "mode":          "dock",
+  "height":        52,
   "spacing":       0,
-  "margin-bottom": 6,
+  "margin-bottom": 8,
   "exclusive":     false,
 
   "modules-left":   [],
@@ -773,7 +778,7 @@ window#waybar { background: transparent; color: #e6e6e6; }
 
   "wlr/taskbar": {
     "format":          "{icon}",
-    "icon-size":       22,
+    "icon-size":       28,
     "all-outputs":     false,
     "active-first":    true,
     "icon-theme":      ["Papirus-Dark", "Papirus"],
@@ -789,15 +794,17 @@ window#waybar { background: transparent; color: #e6e6e6; }
 
 ```css
 @import url("_pill.css");
-* { font-family: "JetBrainsMono Nerd Font"; font-size: 12px;
+* { font-family: "JetBrainsMono Nerd Font"; font-size: 15px;
     border: none; min-height: 0; }
 window#waybar { background: transparent; }
 
 #custom-terminal, #custom-browser, #custom-files, #custom-editor {
-  margin-right: 6px;
+  border-radius: 24px;
+  min-width: 28px;
+  padding: 7px 14px;
 }
-#taskbar { padding: 4px 10px; border-radius: 22px; }
-#taskbar button { padding: 2px 6px; border-radius: 12px; background: transparent; border: 1px solid transparent; }
+#taskbar { margin-left: 8px; padding: 7px 14px; border-radius: 26px; }
+#taskbar button { margin: 0 3px; padding: 4px 9px; border-radius: 16px; background: transparent; border: 1px solid transparent; }
 #taskbar button.active { background: #15151a; border-color: #89b4fa; }
 #taskbar button.fullscreen, #taskbar button.maximized { border-color: #a6e3a1; }
 #taskbar button.minimized { opacity: 0.55; }

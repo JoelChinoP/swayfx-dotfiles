@@ -5,7 +5,7 @@
 # Applies global dark settings through gsettings.
 #
 # Verified against: Arch GTK, Qt, fontconfig and Starship/Waybar needs
-# Reviewed: 2026-05-12
+# Reviewed: 2026-05-13
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -54,8 +54,8 @@ set_gsetting org.gnome.desktop.interface color-scheme "'prefer-dark'"
 set_gsetting org.gnome.desktop.interface gtk-theme "'adw-gtk3-dark'"
 set_gsetting org.gnome.desktop.interface icon-theme "'Papirus-Dark'"
 set_gsetting org.gnome.desktop.interface cursor-theme "'Bibata-Modern-Classic'"
-set_gsetting org.gnome.desktop.interface font-name "'Inter 11'"
-set_gsetting org.gnome.desktop.interface monospace-font-name "'FiraCode Nerd Font Mono 10'"
+set_gsetting org.gnome.desktop.interface font-name "'Inter 12'"
+set_gsetting org.gnome.desktop.interface monospace-font-name "'FiraCode Nerd Font Mono 12'"
 
 run fc-cache -fv
 

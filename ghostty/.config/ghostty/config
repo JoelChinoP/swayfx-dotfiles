@@ -1,10 +1,10 @@
 # Ghostty config.
 #
 # Verified against: https://ghostty.org/docs/config/reference
-# Reviewed: 2026-05-12
+# Reviewed: 2026-05-13
 
 font-family = "FiraCode Nerd Font Mono"
-font-size = 11
+font-size = 12
 window-padding-x = 10
 window-padding-y = 10
 

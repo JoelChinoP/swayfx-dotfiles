@@ -1,6 +1,6 @@
 /* Top bar.
  * Verified against: waybar(5)
- * Reviewed: 2026-05-12
+ * Reviewed: 2026-05-13
  */
 
 @import url("_pill.css");
@@ -8,7 +8,7 @@
 * {
   border: none;
   font-family: "JetBrainsMono Nerd Font", "Inter", sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   min-height: 0;
 }
 
@@ -19,7 +19,7 @@ window#waybar {
 
 #custom-distro {
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 16px;
   min-width: 18px;
   padding: 2px 8px;
 }

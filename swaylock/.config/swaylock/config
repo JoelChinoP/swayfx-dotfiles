@@ -1,11 +1,12 @@
 # swaylock-effects config.
 #
 # Verified against: swaylock-effects --help
-# Reviewed: 2026-05-11
+# Reviewed: 2026-05-13
 
 screenshots
 clock
 indicator
+hide-keyboard-layout
 indicator-radius=140
 indicator-thickness=7
 effect-blur=9x5

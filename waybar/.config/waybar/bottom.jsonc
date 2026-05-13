@@ -1,12 +1,15 @@
 // Verified against: waybar(5), waybar-wlr-taskbar(5), waybar-custom(5)
-// Reviewed: 2026-05-11
+// Reviewed: 2026-05-13
 {
   "name": "bottom",
+  "id": "swayfx-bottom",
+  "ipc": true,
   "layer": "top",
   "position": "bottom",
-  "height": 38,
+  "mode": "dock",
+  "height": 52,
   "spacing": 0,
-  "margin-bottom": 6,
+  "margin-bottom": 8,
   "exclusive": false,
 
   "modules-left": [],
@@ -49,7 +52,7 @@
 
   "wlr/taskbar": {
     "format": "{icon}",
-    "icon-size": 22,
+    "icon-size": 28,
     "all-outputs": false,
     "active-first": true,
     "icon-theme": ["Papirus-Dark", "Papirus"],

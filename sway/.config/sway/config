@@ -1,7 +1,7 @@
 # SwayFX desktop config.
 #
 # Verified against: https://github.com/WillPower3309/swayfx, sway(5)
-# Reviewed: 2026-05-11
+# Reviewed: 2026-05-13
 
 set $mod Mod4
 set $term ghostty
@@ -23,7 +23,7 @@ set $ok          #a6e3a1
 set $warn        #f9e2af
 set $crit        #f38ba8
 
-font pango:Inter 10
+font pango:Inter 12
 
 client.focused           $focus_border $bg $text $focus_border $focus_border
 client.focused_inactive  $border  $bg $text $border $border
@@ -99,6 +99,7 @@ exec swayidle -w timeout 300 'swaylock -f' timeout 600 'swaymsg "output * power 
 
 # Two Waybar instances.
 exec_always sh -lc 'export PATH="$HOME/.local/bin:$PATH"; pkill -x waybar || true; waybar -c "$HOME/.config/waybar/top.jsonc" -s "$HOME/.config/waybar/top.css" & waybar -c "$HOME/.config/waybar/bottom.jsonc" -s "$HOME/.config/waybar/bottom.css" &'
+exec_always ~/.local/bin/swayfx-waybar-bottom-visibility
 
 # Application launchers.
 bindsym --release Super_L exec $launcher

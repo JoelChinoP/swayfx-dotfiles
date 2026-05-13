@@ -5,7 +5,7 @@
 > **this file wins**. If anything is ambiguous, leave a `TODO:` and explain why
 > instead of guessing.
 >
-> Last reviewed: 2026-05-12.
+> Last reviewed: 2026-05-13.
 
 ---
 
@@ -64,8 +64,8 @@ conventional desktop**:
   when explicitly requested.
 - Brave opens as the primary fullscreen surface by default.
 - Top bar: clock · battery · wifi · audio · notifications · power button.
-- Bottom bar: pinned launchers + active windows (taskbar, **always
-  visible**, not autohidden).
+- Bottom bar: pinned launchers + active windows (taskbar), visible on
+  the desktop and auto-hidden only while the focused window is fullscreen.
 
 Mapping to SwayFX features:
 
@@ -78,7 +78,7 @@ Mapping to SwayFX features:
 | Close from bar         | `wlr/taskbar` middle click                                   |
 | Tile / split           | Sway defaults (`splith`, `splitv`, `tabbed`, `stacking`)     |
 | Top bar                | Waybar instance with `top.jsonc` + `top.css`                 |
-| Bottom bar             | **Second Waybar instance** with `bottom.jsonc` + `bottom.css`|
+| Bottom bar             | **Second Waybar instance** with `bottom.jsonc` + `bottom.css` + IPC helper |
 
 > **Upstream warning about `scratchpad_minimize`**: the SwayFX README says
 > "we recommend keeping this setting off, as there are many kinks to iron
@@ -122,7 +122,7 @@ the left, workspace pills in the center, status pills on the right):
   `background: --surface`, `border: 1px solid --border`,
   `border-radius: 18px`.
 - **Pill spacing**: 8 px.
-- Icons: JetBrainsMono Nerd Font 10. Text: Inter 10.
+- Icons/text: JetBrainsMono Nerd Font + Inter at 14 px; distro glyph 16 px.
 - Distro pill (left): perfect circle, Arch glyph.
 - Active workspace pill: `--accent` background, `--bg` text.
 
@@ -131,12 +131,16 @@ the left, workspace pills in the center, status pills on the right):
 - Same pill style; **two centered pills**, do not span full width.
 - Pill 1 (left): pinned launchers as `custom/*` modules.
 - Pill 2 (right): `wlr/taskbar` with active windows (icons only,
-  `icon-size: 22`).
+  `icon-size: 28`).
 - Initial pinned apps: terminal, browser, files, editor.
 - Click left = activate/bring to front; click right = fullscreen toggle;
   click middle = close (on `wlr/taskbar`).
-- `margin-bottom: 6px`. `exclusive: false` so floating windows can pass
-  underneath.
+- `height: 52`, `margin-bottom: 8px`. `exclusive: false` so floating
+  windows can pass underneath.
+- `swayfx-waybar-bottom-visibility` switches the bottom bar from `dock`
+  to `hide` when the focused window is fullscreen, so it behaves like a
+  traditional dock: visible on the desktop, revealed by the lower screen
+  edge during fullscreen work.
 
 ### 4.4. Blur, opacity, shadows, corners
 
@@ -163,7 +167,7 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Shell**: zsh + starship + plugins (`zsh-completions`,
   `zsh-syntax-highlighting`, `zsh-autosuggestions`). Installed **first**.
 - **Terminal**: Ghostty.
-- **Terminal font**: FiraCode Nerd Font Mono 11. The Nerd Font variant is
+- **Terminal font**: FiraCode Nerd Font Mono 12. The Nerd Font variant is
   required so Starship's folder/git icons render correctly. Waybar keeps
   JetBrainsMono Nerd Font for compact status icons.
 - **Launcher**: fuzzel.
@@ -324,7 +328,7 @@ swayfx-dotfile/
 │   │   ├── run.sh
 │   │   ├── lib/{common,pkg,checks}.sh
 │   │   └── stages/{00..10}-*.sh
-│   └── .local/bin/                  # powermenu, screenshot helpers
+│   └── .local/bin/                  # powermenu, screenshot, waybar helpers
 ├── sway/.config/sway/config
 ├── waybar/.config/waybar/{top,bottom}.{jsonc,css}
 ├── ghostty/.config/ghostty/config
@@ -409,8 +413,12 @@ Grouped so a failure points to the responsible stage.
 - [ ] `swaymsg -t get_version` responds and `sway --version | grep -i swayfx`
       (or `pacman -Q swayfx`) confirms the SwayFX provider.
 - [ ] `pgrep -a waybar | wc -l` → 2.
+- [ ] `pgrep -af swayfx-waybar-bottom-visibility` shows the bottom-bar
+      visibility helper.
 - [ ] Top bar visible, transparent background, pure-black pills.
-- [ ] Bottom bar visible: pinned apps + active windows.
+- [ ] Bottom bar visible on the desktop: pinned apps + active windows.
+- [ ] Bottom bar auto-hides while the focused window is fullscreen and
+      reveals at the lower screen edge.
 - [ ] Pinned apps launch terminal, browser, files, editor.
 - [ ] Left click on taskbar activates/raises; right toggles fullscreen;
       middle closes.

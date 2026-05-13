@@ -18,7 +18,7 @@ font=Inter
 font-size=68
 
 timestr=%H:%M
-datestr=%A%n%d %B
+datestr=%a, %d %B
 
 text-color=e6e6e6
 text-caps-lock-color=00000000

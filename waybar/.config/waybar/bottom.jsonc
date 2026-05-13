@@ -54,8 +54,8 @@
     "active-first": true,
     "icon-theme": ["Papirus-Dark", "Papirus"],
     "tooltip-format": "{name}: {title}",
-    "on-click": "minimize-raise",
-    "on-click-right": "maximize",
+    "on-click": "activate",
+    "on-click-right": "fullscreen",
     "on-click-middle": "close"
   }
 }

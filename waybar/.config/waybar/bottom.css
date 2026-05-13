@@ -33,6 +33,7 @@ window#waybar {
 
 #taskbar button {
   background: transparent;
+  border: 1px solid transparent;
   border-radius: 12px;
   color: @text-dim;
   margin: 0 2px;
@@ -41,7 +42,18 @@ window#waybar {
 
 #taskbar button.active {
   background: @surface-alt;
+  border-color: @accent;
   color: @text;
+}
+
+#taskbar button.fullscreen,
+#taskbar button.maximized {
+  border-color: @ok;
+  color: @text;
+}
+
+#taskbar button.minimized {
+  opacity: 0.55;
 }
 
 #taskbar button.urgent {

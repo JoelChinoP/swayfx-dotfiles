@@ -33,6 +33,10 @@ client.urgent            $crit    $bg $text $crit $crit
 # SwayFX visuals.
 default_border pixel 2
 smart_borders on
+default_floating_border pixel 2
+floating_modifier $mod normal
+focus_follows_mouse no
+focus_on_window_activation focus
 gaps inner 6
 gaps outer 4
 smart_gaps on
@@ -191,8 +195,13 @@ bindsym $mod+Shift+r restart
 bindsym $mod+Shift+q exec ~/.local/bin/swayfx-powermenu
 
 # Floating rules.
-for_window [app_id=".*"] floating enable, resize set 1280 720
-for_window [class=".*"] floating enable, resize set 1280 720
+for_window [app_id=".*"] floating enable, resize set 1280 720, move position center
+for_window [class=".*"] floating enable, resize set 1280 720, move position center
+
+# Desktop workflow: Brave behaves like the primary fullscreen surface.
+for_window [app_id="^brave-browser$"] floating disable, fullscreen enable
+for_window [app_id="^brave$"] floating disable, fullscreen enable
+for_window [class="^Brave-browser$"] floating disable, fullscreen enable
 
 for_window [window_type="dialog"] floating enable
 for_window [window_role="pop-up"] floating enable

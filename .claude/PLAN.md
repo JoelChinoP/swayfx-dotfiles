@@ -609,6 +609,10 @@ client.urgent            $crit    $bg  $text $crit    $crit
 # === SwayFX visuals ===
 default_border       pixel 2
 smart_borders        on
+default_floating_border pixel 2
+floating_modifier    $mod normal
+focus_follows_mouse  no
+focus_on_window_activation focus
 gaps inner           6
 gaps outer           4
 smart_gaps           on
@@ -637,6 +641,11 @@ for_window [app_id="mpv"]                      blur disable, opacity set 1.0
 # We enable it because it is the only way to get true minimize-from-CSD.
 # If quirks appear, set to disable and rely on wlr/taskbar raise/lower.
 scratchpad_minimize  enable
+for_window [app_id=".*"] floating enable, resize set 1280 720, move position center
+for_window [class=".*"] floating enable, resize set 1280 720, move position center
+for_window [app_id="^brave-browser$"] floating disable, fullscreen enable
+for_window [app_id="^brave$"] floating disable, fullscreen enable
+for_window [class="^Brave-browser$"] floating disable, fullscreen enable
 
 bindsym $mod+m            move scratchpad
 bindsym $mod+Shift+m      scratchpad show
@@ -769,8 +778,8 @@ window#waybar { background: transparent; color: #e6e6e6; }
     "active-first":    true,
     "icon-theme":      ["Papirus-Dark", "Papirus"],
     "tooltip-format":  "{name}: {title}",
-    "on-click":        "minimize-raise",
-    "on-click-right":  "maximize",
+    "on-click":        "activate",
+    "on-click-right":  "fullscreen",
     "on-click-middle": "close"
   }
 }
@@ -788,8 +797,10 @@ window#waybar { background: transparent; }
   margin-right: 6px;
 }
 #taskbar { padding: 4px 10px; border-radius: 22px; }
-#taskbar button { padding: 2px 6px; border-radius: 12px; background: transparent; }
-#taskbar button.active { background: #15151a; }
+#taskbar button { padding: 2px 6px; border-radius: 12px; background: transparent; border: 1px solid transparent; }
+#taskbar button.active { background: #15151a; border-color: #89b4fa; }
+#taskbar button.fullscreen, #taskbar button.maximized { border-color: #a6e3a1; }
+#taskbar button.minimized { opacity: 0.55; }
 ```
 
 ### 3.7. `starship/.config/starship.toml`

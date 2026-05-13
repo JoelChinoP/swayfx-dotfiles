@@ -60,8 +60,9 @@ clear message for non-repairable premises:
 The user wants Sway's tiling efficiency **without losing the gestures of a
 conventional desktop**:
 
-- Maximize / minimize / move in window mode for any app, not only tiling.
-- Tile and split when desired (Sway defaults).
+- Floating-window-first workflow for laptop ergonomics; tile/split only
+  when explicitly requested.
+- Brave opens as the primary fullscreen surface by default.
 - Top bar: clock · battery · wifi · audio · notifications · power button.
 - Bottom bar: pinned launchers + active windows (taskbar, **always
   visible**, not autohidden).
@@ -70,9 +71,10 @@ Mapping to SwayFX features:
 
 | Conventional concept   | Implementation                                               |
 |------------------------|--------------------------------------------------------------|
-| Minimize               | `scratchpad_minimize enable` + `wlr/taskbar` left click      |
-| Maximize               | `fullscreen toggle` keybind + `wlr/taskbar` right click      |
-| Window mode            | `floating toggle` (`$mod+Shift+space`) + `for_window` rules  |
+| Minimize               | `scratchpad_minimize enable` + `$mod+m`                      |
+| Bring to front         | `wlr/taskbar` left click (`activate`)                        |
+| Fullscreen             | `fullscreen toggle` keybind + `wlr/taskbar` right click      |
+| Window mode            | floating by default; toggle tiling with `$mod+Shift+space`   |
 | Close from bar         | `wlr/taskbar` middle click                                   |
 | Tile / split           | Sway defaults (`splith`, `splitv`, `tabbed`, `stacking`)     |
 | Top bar                | Waybar instance with `top.jsonc` + `top.css`                 |
@@ -131,8 +133,8 @@ the left, workspace pills in the center, status pills on the right):
 - Pill 2 (right): `wlr/taskbar` with active windows (icons only,
   `icon-size: 22`).
 - Initial pinned apps: terminal, browser, files, editor.
-- Click left = minimize/restore; click right = maximize; click middle =
-  close (on `wlr/taskbar`).
+- Click left = activate/bring to front; click right = fullscreen toggle;
+  click middle = close (on `wlr/taskbar`).
 - `margin-bottom: 6px`. `exclusive: false` so floating windows can pass
   underneath.
 
@@ -144,7 +146,8 @@ the left, workspace pills in the center, status pills on the right):
 - **Shadows**: disabled (no visible benefit on a pure-black UI; saves GPU
   on Vega 8).
 - **Corners**: `corner_radius 10`.
-- **Borders**: `default_border pixel 2`, `smart_borders on`.
+- **Borders**: `default_border pixel 2`, `default_floating_border pixel 2`,
+  `smart_borders on`.
 - Per-window blur **disabled** for graphics editors (gimp, krita,
   inkscape, OBS, mpv, virt-manager) so colors are not distorted while
   editing. Pattern from the [vaelixd reference](REFERENCES.md).
@@ -409,9 +412,10 @@ Grouped so a failure points to the responsible stage.
 - [ ] Top bar visible, transparent background, pure-black pills.
 - [ ] Bottom bar visible: pinned apps + active windows.
 - [ ] Pinned apps launch terminal, browser, files, editor.
-- [ ] Left click on active window minimizes/restores; right maximizes;
+- [ ] Left click on taskbar activates/raises; right toggles fullscreen;
       middle closes.
-- [ ] `$mod+f` toggles fullscreen; `$mod+Shift+space` toggles floating.
+- [ ] Most normal apps open floating and centered; Brave opens fullscreen.
+- [ ] `$mod+f` toggles fullscreen; `$mod+Shift+space` toggles floating/tiling.
 - [ ] Terminal blurred and at 0.85 opacity; everything else opaque.
 
 ### 10.3. Hardware and services (stages 02 / 06 / 09)

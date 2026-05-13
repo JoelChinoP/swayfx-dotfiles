@@ -8,17 +8,17 @@ clock
 indicator
 hide-keyboard-layout
 
-indicator-radius=240
+indicator-radius=200
 indicator-thickness=10
 
 effect-blur=7x3
 effect-vignette=0.5:0.5
 
 font=Inter
-font-size=72
+font-size=68
 
 timestr=%H:%M
-datestr=%A • %d %B
+datestr=%A\n%d %B
 
 text-color=e6e6e6
 text-caps-lock-color=00000000

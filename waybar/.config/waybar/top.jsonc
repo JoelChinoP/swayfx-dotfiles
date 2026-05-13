@@ -1,5 +1,5 @@
 // Verified against: waybar(5), waybar-sway-workspaces(5)
-// Reviewed: 2026-05-12
+// Reviewed: 2026-05-13
 {
   "name": "top",
   "layer": "top",
@@ -9,9 +9,13 @@
   "margin-top": 6,
   "margin-left": 10,
   "margin-right": 10,
-
-  "modules-left": ["custom/distro"],
-  "modules-center": ["sway/workspaces", "sway/mode"],
+  "modules-left": [
+    "custom/distro"
+  ],
+  "modules-center": [
+    "sway/workspaces",
+    "sway/mode"
+  ],
   "modules-right": [
     "network",
     "pulseaudio",
@@ -21,67 +25,101 @@
     "clock",
     "custom/power"
   ],
-
   "custom/distro": {
     "format": "󰣇",
     "tooltip": false,
     "on-click": "fuzzel"
   },
-
   "sway/workspaces": {
     "format": "{name}",
-    "disable-scroll": true,
-    "all-outputs": false
+    "disable-scroll": true
   },
-
   "sway/mode": {
-    "format": "{}"
+    "format": "󰨑 {}",
+    "tooltip": false
   },
-
   "clock": {
-    "format": " {:%H:%M}",
-    "tooltip-format": "<tt>{calendar}</tt>"
+    "format": " {:%H:%M}",
+    "format-alt": " {:%A, %d %B %Y}",
+    "tooltip-format": "<big>{:%A, %d %B %Y}</big>\n<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "mode-mon-col": 3,
+      "weeks-pos": "left",
+      "on-scroll": 1,
+      "format": {
+        "months": "<span color='#cdd6f4'><b>{}</b></span>",
+        "days": "<span color='#cdd6f4'>{}</span>",
+        "weeks": "<span color='#6c7086'><b>W{}</b></span>",
+        "weekdays": "<span color='#89b4fa'><b>{}</b></span>",
+        "today": "<span color='#f38ba8'><b>{}</b></span>"
+      }
+    },
+    "actions": {
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    }
   },
-
   "network": {
     "format-wifi": "󰤨 {signalStrength}%",
-    "format-ethernet": "󰈀",
+    "format-ethernet": "󰈀 {ifname}",
+    "format-linked": "󰈀 (sin IP)",
     "format-disconnected": "󰤭",
-    "tooltip-format": "{ifname}: {ipaddr}",
+    "tooltip-format-wifi": "{essid} ({signalStrength}%)  {ipaddr}",
+    "tooltip-format-ethernet": "{ifname}: {ipaddr}/{cidr}",
+    "tooltip-format-disconnected": "Desconectado",
     "on-click": "ghostty -e nmtui",
     "on-click-right": "nm-connection-editor"
   },
-
   "pulseaudio": {
     "format": "{icon} {volume}%",
     "format-muted": "󰝟",
-    "format-icons": ["󰕿", "󰖀", "󰕾"],
+    "format-icons": [
+      "󰕿",
+      "󰖀",
+      "󰕾"
+    ],
+    "scroll-step": 5,
     "on-click": "pavucontrol",
-    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+    "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
   },
-
   "battery": {
     "format": "{icon} {capacity}%",
-    "format-charging": "󰂄 {capacity}%",
+    "format-charging": "󰂄 {capacity}% ({time})",
     "format-plugged": "󰚥 {capacity}%",
-    "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
-    "states": { "warning": 30, "critical": 15 }
+    "format-time": "{H}h {M}m",
+    "tooltip-format": "{timeTo} — {power:.1f}W",
+    "format-icons": [
+      "󰁺",
+      "󰁻",
+      "󰁼",
+      "󰁽",
+      "󰁾",
+      "󰁿",
+      "󰂀",
+      "󰂁",
+      "󰂂",
+      "󰁹"
+    ],
+    "states": {
+      "warning": 30,
+      "critical": 15
+    }
   },
-
   "custom/cpucap": {
     "exec": "bash ~/.local/bin/swayfx-cpu-cap",
     "return-type": "json",
     "interval": 10
   },
-
   "custom/notifications": {
     "exec": "bash ~/.local/bin/swayfx-waybar-notifications",
     "return-type": "json",
-    "interval": 2,
+    "interval": 5,
+    "signal": 1,
     "on-click": "makoctl dismiss --all",
     "on-click-right": "makoctl mode -t do-not-disturb"
   },
-
   "custom/power": {
     "format": "󰐥",
     "tooltip": false,

@@ -24,12 +24,18 @@ window#waybar {
   padding: 2px 8px;
 }
 
+/* Clock: negrita y 2px más grande que el base (14 → 16px) */
+#clock {
+  font-size: 16px;
+  font-weight: bold;
+}
+
 #workspaces button {
   background: transparent;
   border-radius: 12px;
   color: @text-dim;
   margin: 0 1px;
-  padding: 0 7px;
+  padding: 0 4px;
 }
 
 #workspaces button.focused,

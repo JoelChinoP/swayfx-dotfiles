@@ -1,0 +1,7 @@
+# Normalizar todos los archivos de texto a LF en el repositorio
+* text=auto eol=lf
+
+# Forzar LF explícitamente en archivos de configuración críticos
+*.sh text eol=lf
+*.json text eol=lf
+wlogout/.config/wlogout/layout text eol=lf

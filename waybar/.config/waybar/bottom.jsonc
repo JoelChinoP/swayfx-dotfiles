@@ -11,7 +11,6 @@
   "spacing": 0,
   "margin-bottom": 8,
   "exclusive": false,
-
   "modules-left": [],
   "modules-center": [
     "custom/terminal",
@@ -21,41 +20,39 @@
     "wlr/taskbar"
   ],
   "modules-right": [],
-
   "custom/terminal": {
     "format": "",
     "on-click": "ghostty",
     "tooltip": true,
     "tooltip-format": "Terminal"
   },
-
   "custom/browser": {
     "format": "",
     "on-click": "brave",
     "tooltip": true,
     "tooltip-format": "Brave"
   },
-
   "custom/files": {
     "format": "",
     "on-click": "nautilus",
     "tooltip": true,
     "tooltip-format": "Archivos"
   },
-
-  "custom/editor": {
+  /*   "custom/editor": {
     "format": "",
     "on-click": "gnome-text-editor",
     "tooltip": true,
     "tooltip-format": "Editor"
-  },
-
+  }, */
   "wlr/taskbar": {
     "format": "{icon}",
     "icon-size": 28,
     "all-outputs": false,
     "active-first": true,
-    "icon-theme": ["Papirus-Dark", "Papirus"],
+    "icon-theme": [
+      "Papirus-Dark",
+      "Papirus"
+    ],
     "tooltip-format": "{name}: {title}",
     "on-click": "activate",
     "on-click-right": "fullscreen",

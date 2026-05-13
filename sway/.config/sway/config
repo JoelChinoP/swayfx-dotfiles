@@ -182,6 +182,7 @@ bindsym $mod+Shift+0 move container to workspace number $ws10
 # Utilities.
 bindsym $mod+Ctrl+l exec swaylock -f
 bindsym $mod+Ctrl+v exec ~/.local/bin/swayfx-cliphist-menu
+bindsym $mod+n exec nmgui
 bindsym Print exec ~/.local/bin/swayfx-screenshot full
 bindsym $mod+Print exec ~/.local/bin/swayfx-screenshot area
 bindsym $mod+Shift+Print exec ~/.local/bin/swayfx-screenshot edit

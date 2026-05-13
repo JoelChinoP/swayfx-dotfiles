@@ -69,7 +69,7 @@
     "tooltip-format-wifi": "{essid} ({signalStrength}%)  {ipaddr}",
     "tooltip-format-ethernet": "{ifname}: {ipaddr}/{cidr}",
     "tooltip-format-disconnected": "Desconectado",
-    "on-click": "ghostty -e nmtui",
+    "on-click": "nmgui",
     "on-click-right": "nm-connection-editor"
   },
   "pulseaudio": {

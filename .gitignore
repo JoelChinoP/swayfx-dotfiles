@@ -1,5 +1,5 @@
 # Archivos personales / sensibles
-.config/sway/wallpaper.*
+# .config/sway/wallpaper.*
 .config/mimeapps.list
 .config/pulse/
 .local/

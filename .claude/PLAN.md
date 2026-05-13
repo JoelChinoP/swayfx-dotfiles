@@ -212,7 +212,7 @@ from TTY1 and verify VAAPI.
 
 ```bash
 sudo pacman -S --needed --noconfirm \
-  sway swaybg foot ghostty \
+  sway swaybg ghostty \
   mesa vulkan-radeon libva-utils \
   pipewire wireplumber pipewire-pulse pipewire-jack \
   sof-firmware alsa-ucm-conf \
@@ -260,7 +260,7 @@ systemctl is-enabled swayfx-cpu-frequency-limit.service                         
 2. Log in on TTY1.
 3. `~/.zprofile` will try `exec sway`. If it does not work yet, comment
    that line and run `sway` manually to verify.
-4. Inside Sway: `Mod+Return` → `foot`. Exit. Continue with stage 03.
+4. Inside Sway: `Mod+Return` → Ghostty. Exit. Continue with stage 03.
 
 ---
 
@@ -501,7 +501,7 @@ sysctl -n vm.page-cluster | grep -qx 0          || exit 1
 
 ```bash
 cd "$ROOT"
-PKGS=( sway waybar foot ghostty fuzzel mako swaylock wlogout
+PKGS=( sway waybar ghostty fuzzel mako swaylock wlogout
        gtk environment gammastep mpv brave colors
        starship zsh scripts )
 
@@ -619,8 +619,6 @@ dim_inactive_colors.unfocused #000000FF
 
 # Blur ONLY on the terminal
 blur                 disable
-for_window [app_id="foot"]                     blur enable
-for_window [app_id="foot"]                     opacity set 0.85
 for_window [app_id="com.mitchellh.ghostty"]    blur enable
 for_window [app_id="com.mitchellh.ghostty"]    blur_passes 3
 for_window [app_id="com.mitchellh.ghostty"]    blur_radius 5
@@ -794,28 +792,7 @@ window#waybar { background: transparent; }
 #taskbar button.active { background: #15151a; }
 ```
 
-### 3.7. `foot/.config/foot/foot.ini`
-
-```ini
-# Verified against: man foot.ini(5)
-# Reviewed: 2026-05-12
-font=FiraCode Nerd Font Mono:size=11
-dpi-aware=yes
-pad=10x10
-
-[colors]
-# DEVIATION: keep alpha=1.0 here. Compositor-level opacity (SwayFX
-# `for_window opacity set 0.85`) avoids the double-transparency artifact
-# that happens if both client and compositor apply alpha.
-alpha=1.0
-foreground=e6e6e6
-background=000000
-
-[csd]
-preferred=client
-```
-
-### 3.8. `starship/.config/starship.toml`
+### 3.7. `starship/.config/starship.toml`
 
 ```toml
 # Verified against: https://starship.rs/config/
@@ -942,7 +919,7 @@ state. Do not advance until the prior session passes its checklist.
 2. **Session 2**: write `02-base.sh`. After it passes, smoke-test vanilla
    Sway from TTY1 manually.
 3. **Session 3**: write `03-swayfx.sh` + `04-session.sh`. Confirm
-   SwayFX + foot + fuzzel + mako boot to a usable session.
+   SwayFX + fuzzel + mako boot to a usable session.
 4. **Session 4**: write `05-bars.sh`. Iterate `top.jsonc`/`bottom.jsonc`
    + their CSS by applying with `stow waybar` manually until the look
    matches the reference image.
@@ -971,7 +948,6 @@ decisions in CONTEXT.md and the snippets above:
   pure-black palette).
 - `waybar/.config/waybar/{_pill.css, top.jsonc, top.css, bottom.jsonc,
   bottom.css}` (replace the current `config.jsonc`).
-- `foot/.config/foot/foot.ini`.
 - `ghostty/.config/ghostty/config`.
 - `fuzzel/.config/fuzzel/fuzzel.ini`.
 - `mako/.config/mako/config`.

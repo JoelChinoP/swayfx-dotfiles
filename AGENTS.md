@@ -141,7 +141,6 @@ swayfx-dotfile/
 │   └── .local/bin/          # powermenu, screenshot helpers
 ├── sway/.config/sway/config
 ├── waybar/.config/waybar/{_pill.css,top.jsonc,top.css,bottom.jsonc,bottom.css}
-├── foot/.config/foot/foot.ini
 ├── ghostty/.config/ghostty/config
 ├── fuzzel/.config/fuzzel/fuzzel.ini
 ├── mako/.config/mako/config

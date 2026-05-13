@@ -79,7 +79,7 @@ ttf-firacode-nerd ttf-jetbrains-mono-nerd inter-font
 
 #### Stage 02 — base
 ```
-sway swaybg foot ghostty
+sway swaybg ghostty
 mesa vulkan-radeon libva-utils
 pipewire wireplumber pipewire-pulse pipewire-jack
 sof-firmware alsa-ucm-conf
@@ -245,15 +245,11 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
   --enable-features=WebUIDarkMode
   ```
 
-### 3.7. Terminal: Ghostty preferred, foot fallback
+### 3.7. Terminal: Ghostty
 
-- **foot** is in stage 02 because it has zero deps beyond Wayland and
-  works the moment Sway is up — perfect for verifying the session.
-- **Ghostty** is the daily driver once stage 04+ lands. Reasons: GPU
-  rendering, theme support, `gtk-single-instance = true`, mature config
-  format.
-- Both are kept; `$mod+Return` binds to whichever the user prefers in
-  `sway/config`.
+- **Ghostty** es el terminal principal. GPU rendering, soporte de temas,
+  `gtk-single-instance = true`, formato de configuración maduro.
+- `$mod+Return` lanza Ghostty.
 
 ### 3.8. File manager: Nautilus (preferred), Thunar (lighter alt)
 

@@ -114,7 +114,7 @@ reject.
 | Compositor      | SwayFX                                     |
 | Bar             | Waybar (status modules)                    |
 | Bottom dock     | **Eww widgets**                            |
-| Terminal        | Foot                                       |
+| Terminal        | Ghostty                                    |
 | Launcher        | Rofi                                       |
 | Notifications   | Dunst                                      |
 | Theming         | Custom "colors" flake; dark-leaning        |
@@ -156,8 +156,7 @@ reject.
 | Status          | Archived read-only (June 2024)             |
 
 - **Adopt**: nothing meaningful for our architecture.
-- **Reject**: Eww; WezTerm (we use Ghostty / foot); destructive one-liner
-  install.
+- **Reject**: Eww; WezTerm (we use Ghostty); destructive one-liner install.
 
 ### 2.4. `Failedex/CarbonMonoxide`
 
@@ -165,7 +164,7 @@ reject.
 |-----------------|--------------------------------------------|
 | Compositor      | SwayFX                                     |
 | Bar             | **Eww** (animated bar + dock + widgets)    |
-| Terminal        | Foot                                       |
+| Terminal        | Ghostty                                    |
 | Launcher        | Wofi                                       |
 | Lock            | Swaylock                                   |
 | Theming         | Oxocarbon palette                          |
@@ -287,7 +286,6 @@ for_window [app_id="com.obsproject.Studio"]      blur disable
 - Waybar custom: `man 5 waybar-custom`
 - Waybar clock / battery / network / pulseaudio / bluetooth / cpu /
   memory / temperature: same-named man pages.
-- foot: `man 5 foot.ini`
 - Ghostty: <https://ghostty.org/docs>
 - fuzzel: `man 5 fuzzel.ini`
 - mako: `man 5 mako`

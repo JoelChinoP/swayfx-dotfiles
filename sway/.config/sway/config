@@ -5,7 +5,6 @@
 
 set $mod Mod4
 set $term ghostty
-set $term_fallback foot
 set $launcher fuzzel
 set $files nautilus
 set $editor gnome-text-editor
@@ -19,13 +18,14 @@ set $border      #1f1f24
 set $text        #e6e6e6
 set $text_dim    #9a9aa6
 set $accent      #89b4fa
+set $focus_border #dcf0c5
 set $ok          #a6e3a1
 set $warn        #f9e2af
 set $crit        #f38ba8
 
 font pango:Inter 10
 
-client.focused           $accent  $bg $text $accent $accent
+client.focused           $focus_border $bg $text $focus_border $focus_border
 client.focused_inactive  $border  $bg $text $border $border
 client.unfocused         $surface $bg $text $surface $surface
 client.urgent            $crit    $bg $text $crit $crit
@@ -43,7 +43,6 @@ dim_inactive_colors.unfocused #000000FF
 
 # Blur only on the terminal.
 blur disable
-for_window [app_id="foot"] blur enable, opacity set 0.85
 for_window [app_id="com.mitchellh.ghostty"] blur enable, blur_passes 3, blur_radius 5, opacity set 0.85
 
 # Keep graphics/video apps color-accurate.
@@ -76,7 +75,7 @@ input type:touchpad {
 
 # Outputs are intentionally not hardcoded.
 # Discover with: swaymsg -t get_outputs
-output * bg ~/.config/sway/wallpaper.jpg fill
+output * bg ~/.config/sway/wallpaper.png fill
 
 # Environment for dbus/systemd-activated apps.
 exec_always dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP
@@ -101,7 +100,6 @@ exec_always sh -lc 'export PATH="$HOME/.local/bin:$PATH"; pkill -x waybar || tru
 bindsym --release Super_L exec $launcher
 bindsym --release Super_R exec $launcher
 bindsym $mod+Return exec $term
-bindsym $mod+Shift+Return exec $term_fallback
 bindsym $mod+d exec $launcher
 bindsym $mod+Shift+e exec $files
 bindsym $mod+Shift+t exec $editor

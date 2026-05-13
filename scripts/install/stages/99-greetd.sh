@@ -52,9 +52,60 @@ install_system_template() {
     sudo install -Dm "$mode" "$src" "$dest"
 }
 
-install_system_template "$ROOT/system/greetd.toml" /etc/greetd/config.toml 0644
-install_system_template "$ROOT/system/regreet.toml" /etc/greetd/regreet.toml 0644
-install_system_template "$ROOT/system/pam.d/greetd" /etc/pam.d/greetd 0644
+install_system_template "$ROOT/system/greetd.toml"    /etc/greetd/config.toml   0644
+install_system_template "$ROOT/system/regreet.toml"   /etc/greetd/regreet.toml  0644
+install_system_template "$ROOT/system/regreet.css"    /etc/greetd/regreet.css   0644
+install_system_template "$ROOT/system/pam.d/greetd"   /etc/pam.d/greetd         0644
+
+generate_login_wallpaper() {
+    local src="$ROOT/sway/.config/sway/wallpaper.png"
+    local dest=/etc/greetd/wallpaper-login.png
+
+    if [[ ! -f "$src" ]]; then
+        log_warn "wallpaper.png not found — regreet background will be blank"
+        return 0
+    fi
+
+    if (( DRY_RUN )); then
+        log_info "would generate blurred login wallpaper: $dest"
+        return 0
+    fi
+
+    local tmp
+    tmp="$(mktemp --suffix=.png)"
+
+    if command -v convert >/dev/null 2>&1; then
+        log_info "generating blurred login wallpaper with ImageMagick"
+        if convert "$src" \
+            -blur 0x16 \
+            \( +clone -fill "rgba(0,0,0,0.38)" -draw "color 0,0 reset" \) \
+            -composite \
+            "$tmp"; then
+            sudo install -Dm 0644 "$tmp" "$dest"
+            log_ok "installed $dest (ImageMagick)"
+            rm -f "$tmp"
+            return 0
+        fi
+    fi
+
+    if command -v ffmpeg >/dev/null 2>&1; then
+        log_info "generating blurred login wallpaper with ffmpeg"
+        if ffmpeg -y -i "$src" \
+            -vf "boxblur=16:4,colorlevels=rimin=0:rimax=0.62:gimax=0.62:bimax=0.62" \
+            "$tmp" 2>/dev/null; then
+            sudo install -Dm 0644 "$tmp" "$dest"
+            log_ok "installed $dest (ffmpeg)"
+            rm -f "$tmp"
+            return 0
+        fi
+    fi
+
+    log_warn "no image tool found (imagemagick or ffmpeg); copying wallpaper as-is"
+    sudo install -Dm 0644 "$src" "$dest"
+    rm -f "$tmp"
+}
+
+generate_login_wallpaper
 
 log_warn "comment the exec-sway block in ~/.zprofile before rebooting into greetd"
 run sudo systemctl disable getty@tty1.service

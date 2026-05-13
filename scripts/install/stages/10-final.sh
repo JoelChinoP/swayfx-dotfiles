@@ -26,7 +26,6 @@ PKGS=(
     starship
     sway
     waybar
-    foot
     ghostty
     fuzzel
     mako

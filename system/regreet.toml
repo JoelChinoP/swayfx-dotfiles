@@ -3,7 +3,7 @@
 # Reviewed: 2026-05-11
 
 [background]
-path = ""
+path = "/etc/greetd/wallpaper-login.png"
 fit = "Fill"
 
 [GTK]
@@ -11,3 +11,4 @@ application_prefer_dark_theme = true
 theme_name = "adw-gtk3-dark"
 icon_theme_name = "Papirus-Dark"
 font_name = "Inter 11"
+css_path = "/etc/greetd/regreet.css"

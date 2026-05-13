@@ -159,8 +159,7 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
   for users who want a graphical login later.
 - **Shell**: zsh + starship + plugins (`zsh-completions`,
   `zsh-syntax-highlighting`, `zsh-autosuggestions`). Installed **first**.
-- **Terminal**: Ghostty (preferred). `foot` is installed early as fallback
-  while testing TTY → Sway, then Ghostty becomes default.
+- **Terminal**: Ghostty.
 - **Terminal font**: FiraCode Nerd Font Mono 11. The Nerd Font variant is
   required so Starship's folder/git icons render correctly. Waybar keeps
   JetBrainsMono Nerd Font for compact status icons.
@@ -285,7 +284,7 @@ CLI:
 
 ### 6.4. Dotfile application: GNU Stow
 
-- The repo is structured as Stow packages (`sway/`, `waybar/`, `foot/`,
+- The repo is structured as Stow packages (`sway/`, `waybar/`,
   `ghostty/`, `fuzzel/`, `mako/`, `swaylock/`, `wlogout/`, `gtk/`,
   `environment/`, `gammastep/`, `mpv/`, `brave/`, `colors/`, `starship/`,
   `zsh/`, `scripts/`).
@@ -325,7 +324,6 @@ swayfx-dotfile/
 │   └── .local/bin/                  # powermenu, screenshot helpers
 ├── sway/.config/sway/config
 ├── waybar/.config/waybar/{top,bottom}.{jsonc,css}
-├── foot/.config/foot/foot.ini
 ├── ghostty/.config/ghostty/config
 ├── fuzzel/.config/fuzzel/fuzzel.ini
 ├── mako/.config/mako/config

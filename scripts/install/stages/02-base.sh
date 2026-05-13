@@ -37,7 +37,7 @@ else
 fi
 
 BASE_PKGS=(
-    swaybg foot ghostty
+    swaybg ghostty
     mesa vulkan-radeon libva-utils
     pipewire wireplumber pipewire-pulse pipewire-jack
     sof-firmware alsa-ucm-conf
@@ -119,14 +119,12 @@ else
     (( ++errs ))
 fi
 
-for terminal in foot ghostty; do
-    if command -v "$terminal" >/dev/null 2>&1; then
-        log_ok "$terminal is installed"
-    else
-        log_error "$terminal is not on PATH"
-        (( ++errs ))
-    fi
-done
+if command -v ghostty >/dev/null 2>&1; then
+    log_ok "ghostty is installed"
+else
+    log_error "ghostty is not on PATH"
+    (( ++errs ))
+fi
 
 if command -v cpupower >/dev/null 2>&1; then
     log_ok "cpupower is installed"

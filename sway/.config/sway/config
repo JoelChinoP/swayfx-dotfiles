@@ -232,3 +232,6 @@ mode "resize" {
     bindsym Escape mode "default"
 }
 bindsym $mod+r mode "resize"
+
+# Blur para wlogout (layer surface)
+layer_effects "wlogout" blur enable; blur_passes 3; blur_radius 6; shadows disable

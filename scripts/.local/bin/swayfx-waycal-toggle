@@ -14,18 +14,53 @@ fi
 
 command -v waycal >/dev/null 2>&1 || exit 127
 
+focused_node_id() {
+    swaymsg -t get_tree |
+        jq -r 'recurse(.nodes[]?, .floating_nodes[]?) | select(.focused == true) | .id' |
+        tail -n 1
+}
+
+focused_workspace() {
+    swaymsg -t get_workspaces |
+        jq -r '.[] | select(.focused == true) | .name' |
+        head -n 1
+}
+
 waycal >/dev/null 2>&1 &
 disown
 
 command -v swaymsg >/dev/null 2>&1 || exit 0
 
 (
-    sleep 0.25
-    swaymsg -t subscribe '["window","workspace","binding"]' 2>/dev/null |
+    # waycal creates a layer-shell surface; wait until that startup noise is
+    # done before monitoring focus changes.
+    sleep 0.8
+    pgrep -x waycal >/dev/null 2>&1 || exit 0
+
+    if ! command -v jq >/dev/null 2>&1; then
+        swaymsg -t subscribe '["window","workspace"]' 2>/dev/null |
+            while IFS= read -r _event; do
+                pgrep -x waycal >/dev/null 2>&1 || exit 0
+                pkill -x waycal
+                exit 0
+            done
+        exit 0
+    fi
+
+    initial_focus="$(focused_node_id)"
+    initial_workspace="$(focused_workspace)"
+
+    swaymsg -t subscribe '["window","workspace"]' 2>/dev/null |
         while IFS= read -r _event; do
             pgrep -x waycal >/dev/null 2>&1 || exit 0
-            pkill -x waycal
-            exit 0
+
+            current_focus="$(focused_node_id)"
+            current_workspace="$(focused_workspace)"
+
+            if [[ "$current_focus" != "$initial_focus" || "$current_workspace" != "$initial_workspace" ]]; then
+                pkill -x waycal
+                exit 0
+            fi
         done
 ) >/dev/null 2>&1 &
 disown

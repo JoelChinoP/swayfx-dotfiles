@@ -38,7 +38,11 @@
     "sort-by-number": true,
     "all-outputs": false,
     "persistent-workspaces": {
-      "1": [], "2": [], "3": [], "4": [], "5": []
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": []
     }
   },
   "sway/mode": {
@@ -108,19 +112,19 @@
     "return-type": "json",
     "interval": 10
   },
-  "custom/gammastep": {
-    "exec": "bash ~/.local/bin/swayfx-waybar-gammastep",
-    "return-type": "json",
-    "interval": "once",
-    "signal": 3,
-    "on-click": "bash ~/.local/bin/swayfx-gammastep-toggle"
-  },
   "custom/touchpad": {
     "exec": "bash ~/.local/bin/swayfx-waybar-touchpad",
     "return-type": "json",
     "interval": "once",
     "signal": 4,
     "on-click": "bash ~/.local/bin/swayfx-touchpad-toggle"
+  },
+  "custom/gammastep": {
+    "exec": "bash ~/.local/bin/swayfx-waybar-gammastep",
+    "return-type": "json",
+    "interval": "once",
+    "signal": 3,
+    "on-click": "bash ~/.local/bin/swayfx-gammastep-toggle"
   },
   "custom/notifications": {
     "exec": "bash ~/.local/bin/swayfx-waybar-notifications",

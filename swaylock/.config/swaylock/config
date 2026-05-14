@@ -8,7 +8,7 @@ clock
 indicator
 hide-keyboard-layout
 
-indicator-radius=200
+indicator-radius=180
 indicator-thickness=10
 
 effect-blur=8x4
@@ -25,7 +25,7 @@ text-caps-lock-color=00000000
 text-clear-color=00000000
 
 ring-color=1f1f24
-inside-color=00000088
+inside-color=00000099
 
 key-hl-color=dcf0c5
 

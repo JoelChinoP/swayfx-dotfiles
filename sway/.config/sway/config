@@ -115,6 +115,9 @@ exec swayidle -w timeout 300 'swaylock -f' timeout 600 'swaymsg "output * power 
 # Two Waybar instances.
 exec_always sh -lc 'export PATH="$HOME/.local/bin:$PATH"; pkill -x waybar || true; waybar -c "$HOME/.config/waybar/top.jsonc" -s "$HOME/.config/waybar/top.css" & waybar -c "$HOME/.config/waybar/bottom.jsonc" -s "$HOME/.config/waybar/bottom.css" &'
 
+# Refresca módulo touchpad de waybar tras arranque completo (evita estado desactualizado).
+exec_always bash -c 'sleep 2 && kill -SIGRTMIN+4 $(pgrep -x waybar) 2>/dev/null || true'
+
 # Floating placement and border policy.
 exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-placement-daemon
 

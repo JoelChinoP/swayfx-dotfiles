@@ -29,9 +29,9 @@ if command -v wlogout >/dev/null 2>&1 && [[ "${SWAYFX_POWERMENU_FORCE_DMENU:-0}"
     exec wlogout -b 2 \
         --margin-top 300 \
         --margin-bottom 300 \
-        --margin-left 200 \
-        --margin-right 200 \
-        --column-spacing 10 \
+        --margin-left 500 \
+        --margin-right 500 \
+        --column-spacing 20 \
         --row-spacing 10
 fi
 

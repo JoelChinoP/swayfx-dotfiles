@@ -31,7 +31,7 @@ client.unfocused         $surface $bg $text $surface $surface
 client.urgent            $crit    $bg $text $crit $crit
 
 # SwayFX visuals.
-default_border pixel 2
+default_border pixel 3
 smart_borders no
 default_floating_border pixel 3
 floating_modifier $mod normal

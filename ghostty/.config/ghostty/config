@@ -17,5 +17,5 @@ selection-foreground = #ffffff
 
 gtk-single-instance = true
 window-decoration = client
-confirm-close-surface = false
+confirm-close-surface = true
 copy-on-select = clipboard

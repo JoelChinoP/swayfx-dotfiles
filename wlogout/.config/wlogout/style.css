@@ -2,7 +2,7 @@
   background-image: none;
   box-shadow: none;
   font-family: "Inter", "JetBrainsMono Nerd Font";
-  font-size: 13px;
+  font-size: 24px;
 }
 
 window {
@@ -13,7 +13,7 @@ button {
   background-color: #0e0e10;
   background-position: center 38%;
   background-repeat: no-repeat;
-  background-size: 40px 40px;
+  background-size: 72px 72px;
   border: 1px solid #1f1f24;
   border-radius: 8px;
   color: #e6e6e6;

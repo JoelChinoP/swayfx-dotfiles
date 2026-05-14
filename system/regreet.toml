@@ -13,7 +13,9 @@ icon_theme_name = "Papirus-Dark"
 font_name = "Inter 14"
 css_path = "/etc/greetd/regreet.css"
 
-# ReGreet no soporta bloquear la sesión desde config.
-# Si solo existe UN archivo .desktop en /usr/share/wayland-sessions/
-# (o /usr/share/xsessions/), ReGreet lo preselecciona automáticamente
-# y el dropdown queda oculto. Complementar con el CSS para colapsar el widget.
+[default_session]
+command = "sway"
+name = "sway"
+
+# Si solo existe UN .desktop en /usr/share/wayland-sessions/ el dropdown
+# queda oculto automáticamente. Con default_session se preselecciona siempre.

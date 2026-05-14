@@ -114,8 +114,8 @@ entry {
   border-radius: 12px;
   color: #e6e6e6;
   caret-color: #89b4fa;
-  padding: 13px 18px;
-  font-size: 22px;
+  padding: 11px 16px;
+  font-size: 18px;
   font-family: "Inter", sans-serif;
   box-shadow:
     inset 0 1px 4px rgba(0, 0, 0, 0.25),
@@ -153,8 +153,8 @@ button {
   border: 1px solid #1f1f24;
   border-radius: 12px;
   color: #e6e6e6;
-  padding: 10px 22px;
-  font-size: 22px;
+  padding: 9px 20px;
+  font-size: 18px;
   font-family: "Inter", sans-serif;
   font-weight: 600;
   letter-spacing: 0.15px;
@@ -189,8 +189,8 @@ button.suggested-action {
   color: #e6e6e6;
   font-weight: 700;
   letter-spacing: 0.2px;
-  font-size: 20px;
-  padding: 12px 36px;
+  font-size: 17px;
+  padding: 11px 34px;
   box-shadow:
     0 6px 20px rgba(0, 0, 0, 0.30),
     inset 0 1px 0 rgba(230, 230, 230, 0.08);
@@ -216,7 +216,7 @@ button.destructive-action {
   border-color: #1f1f24;
   color: #f38ba8;
   font-weight: 600;
-  font-size: 20px;
+  font-size: 17px;
 }
 
 button.destructive-action:hover {
@@ -233,8 +233,8 @@ dropdownbutton {
   border: 1px solid #1f1f24;
   border-radius: 12px;
   color: #e6e6e6;
-  padding: 10px 16px;
-  font-size: 22px;
+  padding: 9px 14px;
+  font-size: 18px;
   font-family: "Inter", sans-serif;
   font-weight: 500;
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.20);

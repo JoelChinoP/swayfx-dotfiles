@@ -38,7 +38,7 @@ floating_modifier $mod normal
 focus_follows_mouse no
 focus_on_window_activation focus
 gaps inner 0
-gaps outer 4
+gaps outer 0
 smart_gaps on
 corner_radius 10
 shadows disable

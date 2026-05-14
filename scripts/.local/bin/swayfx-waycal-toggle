@@ -20,15 +20,17 @@ disown
 command -v swaymsg >/dev/null 2>&1 || exit 0
 
 (
-    # Wait for waycal startup noise before monitoring focus changes.
-    sleep 0.8
     pgrep -x waycal >/dev/null 2>&1 || exit 0
 
-    # Close waycal on the first focus-change event (window or workspace).
-    # Parse the event line directly — no swaymsg round-trips per event.
+    # Subscribe immediately so no click event is missed.
+    # Discard events in the first 600 ms — the opening click and waycal's
+    # initial focus grab would otherwise close the calendar at once.
+    start_ns=$(date +%s%N)
     swaymsg -t subscribe '["window","workspace"]' 2>/dev/null |
         while IFS= read -r line; do
             pgrep -x waycal >/dev/null 2>&1 || exit 0
+            elapsed_ms=$(( ( $(date +%s%N) - start_ns ) / 1000000 ))
+            [[ $elapsed_ms -lt 600 ]] && continue
             if printf '%s' "$line" | grep -q '"change":"focus"'; then
                 pkill -x waycal
                 exit 0

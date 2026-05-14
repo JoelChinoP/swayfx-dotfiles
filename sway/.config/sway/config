@@ -47,6 +47,9 @@ shadows disable
 default_dim_inactive 0.05
 dim_inactive_colors.unfocused #000000FF
 
+# Floating windows keep subtle depth; maximized windows disable shadows.
+for_window [floating] shadows enable, shadow_blur_radius 20, shadow_color #00000060
+
 # DEVIATION: wlogout uses layer blur to make the power menu feel modal.
 # The rest of the layer-shell UI stays unblurred.
 layer_effects "wlogout" {
@@ -111,6 +114,9 @@ exec swayidle -w timeout 300 'swaylock -f' timeout 600 'swaymsg "output * power 
 # Two Waybar instances.
 exec_always sh -lc 'export PATH="$HOME/.local/bin:$PATH"; pkill -x waybar || true; waybar -c "$HOME/.config/waybar/top.jsonc" -s "$HOME/.config/waybar/top.css" & waybar -c "$HOME/.config/waybar/bottom.jsonc" -s "$HOME/.config/waybar/bottom.css" &'
 
+# Floating placement and border policy.
+exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-placement-daemon
+
 # Application launchers.
 bindsym --release Super_L exec $launcher
 bindsym --release Super_R exec $launcher
@@ -123,6 +129,7 @@ bindsym $mod+b exec $browser
 # Desktop-like actions.
 bindsym $mod+q kill
 bindsym $mod+f fullscreen toggle
+bindsym $mod+Shift+f exec ~/.local/bin/swayfx-maximize
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+m move scratchpad
 bindsym $mod+Shift+m scratchpad show
@@ -208,8 +215,8 @@ bindsym $mod+Shift+r restart
 bindsym $mod+Shift+q exec ~/.local/bin/swayfx-powermenu
 
 # Floating rules.
-for_window [app_id=".*"] floating enable, resize set 1280 720, move position center
-for_window [class=".*"] floating enable, resize set 1280 720, move position center
+for_window [app_id=".*"] floating enable, resize set 1280 720
+for_window [class=".*"] floating enable, resize set 1280 720
 
 # Desktop workflow: Brave starts tiled/maximized inside the workspace so
 # the top bar remains visible. Use browser F11 for true fullscreen.

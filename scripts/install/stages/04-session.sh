@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Stage 04 - Session helpers.
 #
-# Installs the launcher, notification daemon, and XDG portals needed for
-# a usable Wayland session. Dotfiles still remain deferred to stage 10.
+# Installs the launcher, notification daemon, IPC helper library, and XDG
+# portals needed for a usable Wayland session. Dotfiles still remain
+# deferred to stage 10.
 #
-# Verified against: .claude/PLAN.md §2 stage 04
-# Reviewed: 2026-05-11
+# Verified against: .claude/PLAN.md §2 stage 04 and Arch python-i3ipc
+# Reviewed: 2026-05-14
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -27,6 +28,7 @@ fi
 
 SESSION_PKGS=(
     fuzzel mako
+    python-i3ipc
     xdg-desktop-portal xdg-desktop-portal-wlr xdg-desktop-portal-gtk
 )
 pacman_install "${SESSION_PKGS[@]}"
@@ -100,6 +102,13 @@ for pkg in xdg-desktop-portal xdg-desktop-portal-wlr xdg-desktop-portal-gtk; do
         (( ++errs ))
     fi
 done
+
+if python -c 'import i3ipc' >/dev/null 2>&1; then
+    log_ok "python i3ipc module is installed"
+else
+    log_error "python i3ipc module is not importable"
+    (( ++errs ))
+fi
 
 if [[ -f /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 ]]; then
     log_ok "polkit-gnome authentication agent present"

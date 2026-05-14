@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Restart a user daemon if it exits, without spawning duplicates on reload.
+#
+# Verified against: flock(1)
+# Reviewed: 2026-05-14
+
+set -euo pipefail
+IFS=$'\n\t'
+
+daemon="${1:?usage: swayfx-daemon-watch <daemon-path>}"
+name="$(basename "$daemon")"
+runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
+lock_file="$runtime_dir/${name}.lock"
+
+exec 9>"$lock_file"
+flock -n 9 || exit 0
+
+while true; do
+    "$daemon" || true
+    sleep 1
+done

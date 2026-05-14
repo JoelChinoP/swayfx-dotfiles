@@ -149,8 +149,8 @@ the left, workspace pills in the center, status pills on the right):
   and unblurred.
 - **Opacity**: only on the terminal, **0.85** (do not drop to 0.75 — text
   becomes hard to read on light backgrounds behind it).
-- **Shadows**: disabled (no visible benefit on a pure-black UI; saves GPU
-  on Vega 8).
+- **Shadows**: disabled globally, then enabled only for non-maximized
+  floating windows. Maximized floating windows disable shadows again.
 - **Corners**: `corner_radius 10`.
 - **Borders**: `default_border pixel 2`, `default_floating_border pixel 2`,
   `smart_borders on`.
@@ -176,6 +176,8 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Notifications**: mako.
 - **Bars**: two waybar instances (top: status; bottom: pinned + taskbar).
 - **Calendar popup**: `waycal` (AUR), launched from the top bar clock.
+- **Window IPC helpers**: `python-i3ipc` for floating placement and border
+  policy daemons.
 - **Lock**: `swaylock-effects` (AUR).
 - **Idle**: `swayidle`.
 - **Power menu**: `wlogout`. Lightweight fallback: `fuzzel --dmenu` script.
@@ -369,8 +371,9 @@ swayfx-dotfile/
 - **Do not** drop terminal opacity below `0.85`.
 - **Do not** install `swaylock` (official) alongside `swaylock-effects`
   (AUR) — they conflict. Stick to `swaylock-effects`.
-- **Do not** enable `shadows`. The plain-black UI does not benefit and
-  Vega 8 takes the cost.
+- **Do not** enable global `shadows`. Only the documented non-maximized
+  floating-window rule may enable shadows, and maximized windows must
+  disable them again.
 - **Do not** install `power-profiles-daemon`, `tlp` or `auto-cpufreq`
   in the main path. Stage 00 removes them when confirmed. CPU policy is
   handled by the project cpupower helper.

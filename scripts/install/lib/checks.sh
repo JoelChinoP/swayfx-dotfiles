@@ -72,6 +72,7 @@ check_cmd "dark color scheme set" bash -c '[ "$(gsettings get org.gnome.desktop.
 check_cmd "FiraCode Nerd Font installed" bash -c "fc-match -f '%{family}\n' 'FiraCode Nerd Font Mono' | grep -qi 'FiraCode.*Nerd'"
 check_cmd "JetBrainsMono Nerd Font installed" bash -c "fc-match -f '%{family}\n' 'JetBrainsMono Nerd Font' | grep -qi 'JetBrains.*Nerd'"
 check_cmd "Inter font installed" bash -c "fc-match -f '%{family}\n' 'Inter' | grep -qi 'Inter'"
+check_cmd "Python i3ipc module installed" python -c 'import i3ipc'
 check_cmd "cpupower installed" command -v cpupower
 check_cmd "CPU frequency ceiling service enabled" systemctl is-enabled swayfx-cpu-frequency-limit.service
 check_cmd "CPU frequency ceiling active" bash -c '
@@ -111,6 +112,9 @@ grep -q "\"label\"" "$layout" || exit 1
 for helper in \
     swayfx-cpu-cap \
     swayfx-powermenu \
+    swayfx-maximize \
+    swayfx-daemon-watch \
+    swayfx-placement-daemon \
     swayfx-screenshot \
     swayfx-cliphist-menu \
     swayfx-waybar-notifications \

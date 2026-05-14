@@ -296,11 +296,13 @@ sway --version 2>/dev/null | grep -qi swayfx \
 ### Stage 04 — `04-session.sh`
 
 **What.** Tools needed for a usable session: launcher, notification
-daemon, XDG portals (with the gtk + wlr split), polkit agent autostart.
+daemon, Python IPC helpers, XDG portals (with the gtk + wlr split),
+polkit agent autostart.
 
 ```bash
 sudo pacman -S --needed --noconfirm \
   fuzzel mako \
+  python-i3ipc \
   xdg-desktop-portal xdg-desktop-portal-wlr xdg-desktop-portal-gtk
 
 mkdir -p ~/.config/xdg-desktop-portal
@@ -317,6 +319,7 @@ EOF
 ```bash
 command -v fuzzel    || exit 1
 command -v mako      || exit 1
+python -c 'import i3ipc' || exit 1
 [ -f /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 ] || exit 1
 ```
 
@@ -624,6 +627,9 @@ shadows              disable
 default_dim_inactive 0.05
 dim_inactive_colors.unfocused #000000FF
 
+# Floating windows keep subtle depth; maximized windows disable shadows.
+for_window [floating] shadows enable, shadow_blur_radius 20, shadow_color #00000060
+
 # DEVIATION: wlogout uses layer blur to make the power menu feel modal.
 # The rest of the layer-shell UI stays unblurred.
 layer_effects "wlogout" {
@@ -648,13 +654,16 @@ for_window [app_id="com.obsproject.Studio"]    blur disable, opacity set 1.0
 for_window [app_id="virt-manager"]             blur disable, opacity set 1.0
 for_window [app_id="mpv"]                      blur disable, opacity set 1.0
 
+# === Dynamic floating-window policy ===
+exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-placement-daemon
+
 # === "Desktop-like" behavior ===
 # DEVIATION: upstream marks scratchpad_minimize as experimental.
 # We enable it because it is the only way to get true minimize-from-CSD.
 # If quirks appear, set to disable and rely on wlr/taskbar raise/lower.
 scratchpad_minimize  enable
-for_window [app_id=".*"] floating enable, resize set 1280 720, move position center
-for_window [class=".*"] floating enable, resize set 1280 720, move position center
+for_window [app_id=".*"] floating enable, resize set 1280 720
+for_window [class=".*"] floating enable, resize set 1280 720
 for_window [app_id="^brave-browser$"] floating disable
 for_window [app_id="^brave$"] floating disable
 for_window [class="^Brave-browser$"] floating disable
@@ -662,6 +671,7 @@ for_window [class="^Brave-browser$"] floating disable
 bindsym $mod+m            move scratchpad
 bindsym $mod+Shift+m      scratchpad show
 bindsym $mod+f            fullscreen toggle
+bindsym $mod+Shift+f      exec ~/.local/bin/swayfx-maximize
 bindsym $mod+Shift+space  floating toggle
 bindsym $mod+Shift+b      exec ~/.local/bin/swayfx-waybar-bottom-toggle
 
@@ -930,6 +940,9 @@ scripts/.local/bin/
 ├── powermenu              # invoked by wlogout or $mod+Shift+e
 ├── screenshot-full        # grim → ~/Pictures
 ├── screenshot-area        # grim -g "$(slurp)" → ~/Pictures + satty
+├── swayfx-daemon-watch    # restart wrapper for user IPC daemons
+├── swayfx-placement-daemon # floating placement + border policy
+├── swayfx-maximize        # floating maximize/restore toggle
 ├── swayfx-waycal-toggle   # opens/closes the top-clock calendar popup
 └── wallpaper-pick         # optional: change wallpaper via fuzzel
 ```

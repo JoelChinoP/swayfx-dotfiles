@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Toggle floating maximize without entering Sway fullscreen.
+#
+# Verified against: swaymsg(1), sway-ipc(7)
+# Reviewed: 2026-05-14
+
+set -euo pipefail
+IFS=$'\n\t'
+
+TOP_BAR_HEIGHT=32
+RESTORE_WIDTH=1280
+RESTORE_HEIGHT=720
+RESTORE_BORDER=3
+MARK_NAME="maximize"
+
+require_cmd() {
+    command -v "$1" >/dev/null 2>&1 || {
+        printf 'missing command: %s\n' "$1" >&2
+        exit 127
+    }
+}
+
+require_cmd swaymsg
+require_cmd jq
+
+focused_json="$(
+    swaymsg -t get_tree |
+        jq -c 'recurse(.nodes[]?, .floating_nodes[]?) | select(.focused == true)' |
+        tail -n 1
+)"
+
+if [[ -z "$focused_json" ]]; then
+    exit 0
+fi
+
+con_id="$(jq -r '.id' <<< "$focused_json")"
+
+if jq -e --arg mark "$MARK_NAME" '(.marks // []) | index($mark)' <<< "$focused_json" >/dev/null; then
+    swaymsg "[con_id=$con_id] floating enable, resize set $RESTORE_WIDTH $RESTORE_HEIGHT, move position center, border pixel $RESTORE_BORDER, shadows enable, unmark $MARK_NAME" >/dev/null
+    exit 0
+fi
+
+output_json="$(swaymsg -t get_outputs | jq -c '.[] | select(.focused == true)' | head -n 1)"
+if [[ -z "$output_json" ]]; then
+    exit 0
+fi
+
+x="$(jq -r '.rect.x' <<< "$output_json")"
+y="$(jq -r '.rect.y' <<< "$output_json")"
+width="$(jq -r '.rect.width' <<< "$output_json")"
+height="$(jq -r '.rect.height' <<< "$output_json")"
+
+usable_height=$(( height - TOP_BAR_HEIGHT ))
+target_y=$(( y + TOP_BAR_HEIGHT ))
+
+swaymsg "[con_id=$con_id] floating enable, resize set $width $usable_height, move position $x $target_y, border none, shadows disable, mark --add $MARK_NAME" >/dev/null

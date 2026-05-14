@@ -91,6 +91,7 @@ lm_sensors cpupower
 #### Stage 04 — session
 ```
 fuzzel mako
+python-i3ipc
 xdg-desktop-portal xdg-desktop-portal-wlr xdg-desktop-portal-gtk
 ```
 
@@ -209,7 +210,13 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
 - **waycal**: small GTK4 layer-shell calendar popup launched by clicking
   the top bar clock. It avoids using a separate persistent calendar daemon.
 
-### 3.3. Notifications: mako (not Dunst, not SwayNC)
+### 3.3. Floating window IPC helpers
+
+- **python-i3ipc**: small Python IPC library used by the SwayFX placement
+  daemon to cascade new floating windows and apply border visibility
+  policy without polling.
+
+### 3.4. Notifications: mako (not Dunst, not SwayNC)
 
 - **Dunst**: X-first; on Wayland it works through xdg-desktop-portal but
   feels less native and weighs more.
@@ -217,7 +224,7 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
   popups.
 - **mako**: layer-shell native, ~6–10 MB, scriptable via `makoctl`.
 
-### 3.4. Power management: cpupower helper (not PPD/TLP)
+### 3.5. Power management: cpupower helper (not PPD/TLP)
 
 - **cpupower**: sets a hard CPU scaling maximum. The project caps the CPU
   at 2 GHz on battery and 3 GHz on AC via a systemd/udev helper.
@@ -227,7 +234,7 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
 - **TLP / auto-cpufreq**: rejected because they add another policy layer.
 - **RyzenAdj**: deferred for explicit low-level TDP experiments only.
 
-### 3.5. Display: TTY1 + `.zprofile` (greetd as optional)
+### 3.6. Display: TTY1 + `.zprofile` (greetd as optional)
 
 - **No DM**: lowest RAM cost, simplest. Login on TTY1 fires Sway via
   `.zprofile`. Ideal until the rest of the desktop is stable.
@@ -236,7 +243,7 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
 - **SDDM/GDM**: pulls in Qt or GTK + their dependencies; overkill for a
   single-user laptop.
 
-### 3.6. Browser: Brave (not Firefox / not Chromium)
+### 3.7. Browser: Brave (not Firefox / not Chromium)
 
 - **Brave**: ad-blocking by default; works well with VAAPI on Wayland;
   the user explicitly chose it. Pulls some Chromium dependencies.
@@ -252,27 +259,27 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
   --enable-features=WebUIDarkMode
   ```
 
-### 3.7. Terminal: Ghostty
+### 3.8. Terminal: Ghostty
 
 - **Ghostty** es el terminal principal. GPU rendering, soporte de temas,
   `gtk-single-instance = true`, formato de configuración maduro.
 - `$mod+Return` lanza Ghostty.
 
-### 3.8. File manager: Nautilus (preferred), Thunar (lighter alt)
+### 3.9. File manager: Nautilus (preferred), Thunar (lighter alt)
 
 - **Nautilus**: matches the user's stated preference; integrates well
   with GNOME apps (gnome-text-editor, papers, loupe).
 - **Thunar**: ~1/3 the memory; honors CSD on SwayFX more cleanly. Swap
   in stage 07 if RAM becomes tight.
 
-### 3.9. Lock: swaylock-effects (AUR), not swaylock
+### 3.10. Lock: swaylock-effects (AUR), not swaylock
 
 - Official `swaylock` works but does not blur. swaylock-effects adds
   `--screenshots`, `--effect-blur`, `--effect-pixelate`,
   `--effect-vignette`, and is what every reference uses.
 - The two packages **conflict**. Install only `swaylock-effects`.
 
-### 3.10. ZRAM tuning: zstd + 4 GB + aggressive zram use
+### 3.11. ZRAM tuning: zstd + 4 GB + aggressive zram use
 
 - `zstd` keeps a good compression ratio without making the desktop feel
   CPU-bound.
@@ -283,7 +290,7 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
 - `vm.page-cluster=0` disables swap readahead, which is appropriate for
   memory-backed zram.
 
-### 3.11. Resource monitors: mission-center + btop
+### 3.12. Resource monitors: mission-center + btop
 
 - **mission-center**: GUI, GNOME-native, replaces gnome-system-monitor
   with a lighter footprint.

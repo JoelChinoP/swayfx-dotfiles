@@ -1,0 +1,208 @@
+#!/usr/bin/env python3
+"""SwayFX floating-window placement and border policy daemon."""
+
+# Verified against: https://github.com/altdesktop/i3ipc-python, sway-ipc(7)
+# Reviewed: 2026-05-14
+
+from __future__ import annotations
+
+import importlib
+import os
+import subprocess
+import sys
+import time
+from typing import Iterable, Optional
+
+
+CASCADE_STEP = 25
+SIDE_MARGIN = 80
+TOP_BAR_HEIGHT = 32
+DEFAULT_FLOATING_BORDER = 3
+DEFAULT_WINDOW_WIDTH = 1280
+DEFAULT_WINDOW_HEIGHT = 720
+MAXIMIZE_MARK = "maximize"
+
+
+def ensure_i3ipc():
+    try:
+        return importlib.import_module("i3ipc")
+    except ImportError:
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "--version"])
+        except subprocess.CalledProcessError:
+            subprocess.check_call([sys.executable, "-m", "ensurepip", "--user"])
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "--user", "i3ipc"]
+        )
+        os.execv(sys.executable, [sys.executable, *sys.argv])
+
+
+i3ipc = ensure_i3ipc()
+
+
+class CascadeState:
+    def __init__(self) -> None:
+        self.index = 0
+
+
+state = CascadeState()
+
+
+def walk(con) -> Iterable:
+    yield con
+    for child in getattr(con, "nodes", []) or []:
+        yield from walk(child)
+    for child in getattr(con, "floating_nodes", []) or []:
+        yield from walk(child)
+
+
+def find_by_id(root, con_id: int):
+    for con in walk(root):
+        if getattr(con, "id", None) == con_id:
+            return con
+    return None
+
+
+def is_window(con) -> bool:
+    return bool(getattr(con, "window", None) or getattr(con, "app_id", None))
+
+
+def is_floating(con) -> bool:
+    return str(getattr(con, "floating", "")).endswith("_on")
+
+
+def has_mark(con, mark: str) -> bool:
+    return mark in (getattr(con, "marks", None) or [])
+
+
+def focused_workspace(conn):
+    focused = conn.get_tree().find_focused()
+    return focused.workspace() if focused else None
+
+
+def workspace_for(con, conn):
+    try:
+        ws = con.workspace()
+        if ws is not None:
+            return ws
+    except Exception:
+        pass
+    return focused_workspace(conn)
+
+
+def safe_position_for(con, conn) -> Optional[tuple[int, int]]:
+    ws = workspace_for(con, conn)
+    if ws is None:
+        return None
+
+    rect = ws.rect
+    width = max(getattr(con.rect, "width", 0) or DEFAULT_WINDOW_WIDTH, 1)
+    height = max(getattr(con.rect, "height", 0) or DEFAULT_WINDOW_HEIGHT, 1)
+
+    min_x = rect.x + SIDE_MARGIN
+    min_y = rect.y + SIDE_MARGIN + TOP_BAR_HEIGHT
+    max_x = rect.x + rect.width - SIDE_MARGIN - width
+    max_y = rect.y + rect.height - SIDE_MARGIN - height
+
+    if max_x < min_x:
+        max_x = min_x
+    if max_y < min_y:
+        max_y = min_y
+
+    x = min_x + (state.index * CASCADE_STEP)
+    y = min_y + (state.index * CASCADE_STEP)
+
+    if x > max_x or y > max_y:
+        state.index = 0
+        x = min_x
+        y = min_y
+
+    state.index += 1
+    return x, y
+
+
+def place_floating_window(conn, con) -> None:
+    pos = safe_position_for(con, conn)
+    if pos is None:
+        return
+    x, y = pos
+    con.command(f"move position {x} {y}")
+
+
+def visible_workspace_windows(ws) -> list:
+    if ws is None:
+        return []
+    return [con for con in walk(ws) if is_window(con)]
+
+
+def set_border(con, style: str) -> None:
+    current = getattr(con, "border", "")
+    current_width = getattr(con, "current_border_width", -1)
+
+    if style == "none":
+        if current != "none" or current_width != 0:
+            con.command("border none")
+        return
+
+    if current != "pixel" or current_width != DEFAULT_FLOATING_BORDER:
+        con.command(f"border pixel {DEFAULT_FLOATING_BORDER}")
+
+
+def update_borders(conn) -> None:
+    tree = conn.get_tree()
+    focused = tree.find_focused()
+    if focused is None:
+        return
+
+    ws = focused.workspace()
+    windows = visible_workspace_windows(ws)
+    visible_count = len(windows)
+
+    for con in windows:
+        if not is_floating(con):
+            continue
+        if has_mark(con, MAXIMIZE_MARK) or getattr(con, "fullscreen_mode", 0):
+            set_border(con, "none")
+        elif visible_count == 1 and getattr(con, "id", None) == getattr(focused, "id", None):
+            set_border(con, "none")
+        else:
+            set_border(con, "pixel")
+
+
+def refreshed_container(conn, con):
+    root = conn.get_tree()
+    return find_by_id(root, con.id) or con
+
+
+def on_new_or_floating(conn, event) -> None:
+    time.sleep(0.08)
+    con = refreshed_container(conn, event.container)
+    if is_window(con) and is_floating(con) and not has_mark(con, MAXIMIZE_MARK):
+        place_floating_window(conn, con)
+    update_borders(conn)
+
+
+def on_layout_event(conn, _event) -> None:
+    update_borders(conn)
+
+
+def main() -> int:
+    conn = i3ipc.Connection()
+    for event_name in ("window::new", "window::floating"):
+        conn.on(event_name, on_new_or_floating)
+    for event_name in (
+        "window::focus",
+        "window::close",
+        "window::move",
+        "window::fullscreen_mode",
+        "workspace::focus",
+    ):
+        conn.on(event_name, on_layout_event)
+
+    update_borders(conn)
+    conn.main()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

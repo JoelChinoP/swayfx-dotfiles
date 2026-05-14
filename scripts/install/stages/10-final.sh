@@ -35,11 +35,18 @@ PKGS=(
     mpv
     brave
     scripts
+    desktop-overrides
 )
 
 for pkg in "${PKGS[@]}"; do
     stow_package "$pkg"
 done
+
+if command -v update-desktop-database >/dev/null 2>&1; then
+    run update-desktop-database "$HOME/.local/share/applications/"
+else
+    log_warn "update-desktop-database missing; desktop overrides may not be indexed"
+fi
 
 if command -v xdg-user-dirs-update >/dev/null 2>&1; then
     run xdg-user-dirs-update

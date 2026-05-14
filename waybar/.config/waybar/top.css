@@ -1,8 +1,8 @@
-/* Top bar.
+/* Top bar — estilo cinta (ribbon)
+ * No usa _pill.css; el bar es opaco edge-to-edge.
  * Verified against: waybar(5)
  * Reviewed: 2026-05-13
  */
-@import url("_pill.css");
 
 * {
   border: none;
@@ -12,56 +12,86 @@
 }
 
 window#waybar {
+  background: #000000;
+  color: #cdd6f4;
+  /* @text si tienes paleta */
+}
+
+/* Padding lateral para que los módulos de los extremos
+ * no peguen al borde del monitor */
+.modules-left {
+  padding-left: 10px;
+}
+
+.modules-right {
+  padding-right: 10px;
+}
+
+/* Todos los módulos planos sobre la cinta */
+#custom-distro,
+#clock,
+#network,
+#pulseaudio,
+#battery,
+#custom-cpucap,
+#custom-notifications,
+#custom-power,
+#mode {
   background: transparent;
-  color: @text;
+  padding: 0 8px;
 }
 
 #custom-distro {
-  border-radius: 999px;
   font-size: 16px;
-  min-width: 18px;
-  padding: 2px 4px;
+  padding: 0 10px;
 }
 
-/* Sin font-weight: bold — desplaza métricas del glifo Nerd Font.
- * El icono va después del tiempo en format (ver config.jsonc). */
 #clock {
   font-size: 16px;
 }
 
+/* Workspaces */
 #workspaces button {
   background: transparent;
-  border-radius: 14px;
-  color: @text-dim;
-  margin: 0 1px;
-  padding: 0 4px;
+  color: #6c7086;
+  /* @text-dim */
+  border-radius: 6px;
+  margin: 4px 1px;
+  padding: 0 6px;
 }
 
 #workspaces button.focused,
 #workspaces button.active {
-  background: @accent;
-  color: @bg;
+  background: #89b4fa;
+  /* @accent */
+  color: #1e1e2e;
+  /* @bg */
 }
 
 #workspaces button.urgent {
-  background: @crit;
-  color: @bg;
+  background: #f38ba8;
+  /* @crit */
+  color: #1e1e2e;
 }
 
 #mode {
-  color: @warn;
+  color: #f9e2af;
 }
+
+/* @warn */
 
 #battery.warning,
 #custom-cpucap.battery {
-  color: @warn;
+  color: #f9e2af;
 }
 
 #battery.critical,
 #custom-notifications.dnd {
-  color: @crit;
+  color: #f38ba8;
 }
 
 #custom-cpucap.ac {
-  color: @ok;
+  color: #a6e3a1;
 }
+
+/* @ok */

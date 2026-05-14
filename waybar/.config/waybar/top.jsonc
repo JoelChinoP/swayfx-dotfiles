@@ -9,9 +9,6 @@
   "expand-right": true,
   "height": 32,
   "spacing": 0,
-  "margin-top": 2,
-  "margin-left": 10,
-  "margin-right": 10,
   "modules-left": [
     "custom/distro",
     "sway/workspaces",

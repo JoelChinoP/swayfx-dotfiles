@@ -1,7 +1,7 @@
 /* Top bar — estilo cinta (ribbon)
  * No usa _pill.css; el bar es opaco edge-to-edge.
  * Verified against: waybar(5)
- * Reviewed: 2026-05-14
+ * Reviewed: 2026-05-13
  */
 
 * {
@@ -14,7 +14,7 @@
 
 window#waybar {
   background: #000000;
-  color: #e6e6e6;
+  color: #cdd6f4;
   margin: 0 0 0 0;
   /* @text si tienes paleta */
 }
@@ -32,6 +32,7 @@ window#waybar {
 /* Todos los módulos planos sobre la cinta */
 #custom-distro,
 #clock,
+#custom-waycal,
 #network,
 #pulseaudio,
 #battery,
@@ -54,26 +55,8 @@ window#waybar {
 }
 
 #clock {
-  background: #0e0e10;
-  border: 1px solid #1f1f24;
-  border-radius: 999px;
-  color: #e6e6e6;
   font-size: 18px;
   padding: 0 8px;
-}
-
-tooltip {
-  background: #0e0e10;
-  border: 1px solid #1f1f24;
-  border-radius: 18px;
-  padding: 10px 12px;
-}
-
-tooltip label {
-  color: #e6e6e6;
-  font-family: "JetBrainsMono Nerd Font", "Inter", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
 }
 
 /* Workspaces */
@@ -83,7 +66,7 @@ tooltip label {
 
 #workspaces button {
   background: transparent;
-  color: #9a9aa6;
+  color: #6c7086;
   /* @text-dim */
   border-radius: 14px;
   margin: 4px 2px;
@@ -96,14 +79,14 @@ tooltip label {
 #workspaces button.active {
   background: #89b4fa;
   /* @accent */
-  color: #000000;
+  color: #1e1e2e;
   /* @bg */
 }
 
 #workspaces button.urgent {
   background: #f38ba8;
   /* @crit */
-  color: #000000;
+  color: #1e1e2e;
 }
 
 #mode {
@@ -127,16 +110,3 @@ tooltip label {
 }
 
 /* @ok */
-
-#custom-notifications {
-  font-size: 19px;
-  min-width: 20px;
-}
-
-#custom-notifications.off {
-  color: #9a9aa6;
-}
-
-#custom-notifications.has-notifications {
-  color: #89b4fa;
-}

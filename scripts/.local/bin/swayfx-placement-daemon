@@ -101,9 +101,10 @@ def maximize_window(conn, con) -> None:
     w = out.rect.width
     h = out.rect.height - TOP_BAR_HEIGHT
     con.command(
-        f"floating enable, resize set {w} {h}, "
+        f"floating enable, mark --add {MAXIMIZE_MARK}, "
+        f"resize set {w} {h}, "
         f"move position 0 {TOP_BAR_HEIGHT}, "
-        f"border none, shadows disable, mark --add {MAXIMIZE_MARK}"
+        f"border none, shadows disable"
     )
 
 

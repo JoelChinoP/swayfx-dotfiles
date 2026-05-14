@@ -36,7 +36,7 @@ fi
 con_id="$(jq -r '.id' <<< "$focused_json")"
 
 if jq -e --arg mark "$MARK_NAME" '(.marks // []) | index($mark)' <<< "$focused_json" >/dev/null; then
-    swaymsg "[con_id=$con_id] floating enable, resize set $RESTORE_WIDTH $RESTORE_HEIGHT, move position center, border pixel $RESTORE_BORDER, shadows enable, unmark $MARK_NAME" >/dev/null
+    swaymsg "[con_id=$con_id] floating enable, unmark $MARK_NAME, resize set $RESTORE_WIDTH $RESTORE_HEIGHT, move position center, border pixel $RESTORE_BORDER, shadows enable" >/dev/null
     exit 0
 fi
 
@@ -53,4 +53,4 @@ height="$(jq -r '.rect.height' <<< "$output_json")"
 usable_height=$(( height - TOP_BAR_HEIGHT ))
 target_y=$(( y + TOP_BAR_HEIGHT ))
 
-swaymsg "[con_id=$con_id] floating enable, resize set $width $usable_height, move position $x $target_y, border none, shadows disable, mark --add $MARK_NAME" >/dev/null
+swaymsg "[con_id=$con_id] floating enable, mark --add $MARK_NAME, resize set $width $usable_height, move position $x $target_y, border none, shadows disable" >/dev/null

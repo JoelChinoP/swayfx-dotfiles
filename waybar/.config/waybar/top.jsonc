@@ -5,6 +5,8 @@
   "layer": "top",
   "position": "top",
   "fixed-center": true,
+  "expand-left": true,
+  "expand-right": true,
   "height": 32,
   "spacing": 0,
   "margin-top": 2,

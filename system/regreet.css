@@ -174,16 +174,16 @@ button.suggested-action:active {
 
 /* Reboot / poweroff */
 button.destructive-action {
-  background: rgba(243, 87, 87, 0.08);
-  border-color: rgba(243, 87, 87, 0.28);
-  color: #ffb3c1;
+  background: rgba(243, 87, 87, 0.24);
+  border-color: rgba(243, 87, 87, 0.38);
+  color: #fffffa;
   font-weight: 600;
 }
 
 button.destructive-action:hover {
-  background: rgba(243, 87, 87, 0.14);
-  border-color: rgba(243, 87, 87, 0.42);
-  color: #ffd0da;
+  background: rgba(243, 87, 87, 0.36);
+  border-color: rgba(243, 87, 87, 0.52);
+  color: #ffffaa;
 }
 
 /* ── Dropdowns: sesión + usuario ─────────────────────────────────── */

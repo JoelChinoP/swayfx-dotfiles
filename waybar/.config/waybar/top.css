@@ -5,9 +5,9 @@
 
 @import url("_pill.css");
 
-* {
+  {
   border: none;
-  font-family: "JetBrainsMono Nerd Font", "Inter", sans-serif;
+  font-family: "JetBrainsMono Nerd Font Propo", "JetBrainsMono Nerd Font", "Symbols Nerd Font", "Inter", sans-serif;
   font-size: 15px;
   min-height: 0;
 }
@@ -24,7 +24,6 @@ window#waybar {
   padding: 2px 6px;
 }
 
-/* Clock: negrita y 2px más grande que el base (14 → 16px) */
 #clock {
   font-size: 16px;
   font-weight: bold;

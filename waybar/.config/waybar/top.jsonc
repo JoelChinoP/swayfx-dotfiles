@@ -23,6 +23,7 @@
     "battery",
     "custom/cpucap",
     "custom/gammastep",
+    "custom/touchpad",
     "custom/notifications",
     "custom/power"
   ],
@@ -113,6 +114,13 @@
     "interval": "once",
     "signal": 3,
     "on-click": "bash ~/.local/bin/swayfx-gammastep-toggle"
+  },
+  "custom/touchpad": {
+    "exec": "bash ~/.local/bin/swayfx-waybar-touchpad",
+    "return-type": "json",
+    "interval": "once",
+    "signal": 4,
+    "on-click": "bash ~/.local/bin/swayfx-touchpad-toggle"
   },
   "custom/notifications": {
     "exec": "bash ~/.local/bin/swayfx-waybar-notifications",

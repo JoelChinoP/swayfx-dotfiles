@@ -89,6 +89,7 @@ input type:touchpad {
     natural_scroll enabled
     middle_emulation enabled
     dwt enabled
+    events disabled_on_external_mouse
 }
 
 # Outputs are intentionally not hardcoded.
@@ -198,6 +199,14 @@ bindsym $mod+Shift+0 move container to workspace number $ws10
 bindsym $mod+Ctrl+Right workspace next
 bindsym $mod+Ctrl+Left  workspace prev
 bindsym $mod+Tab        workspace back_and_forth
+
+# Super+Scroll cambia workspace sobre cualquier ventana.
+bindsym --whole-window $mod+button4 workspace prev
+bindsym --whole-window $mod+button5 workspace next
+
+# Gestos touchpad: 3 dedos izquierda/derecha cambian workspace.
+bindgesture swipe:3:left  workspace next
+bindgesture swipe:3:right workspace prev
 
 # Utilities.
 bindsym $mod+Ctrl+l exec swaylock -f

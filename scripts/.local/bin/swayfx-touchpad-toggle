@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Cicla el estado del touchpad: auto → siempre-activo → siempre-inactivo → auto
+# "auto" = disabled_on_external_mouse (libinput desactiva al detectar mouse externo).
+set -euo pipefail
+
+setting=$(swaymsg -t get_inputs 2>/dev/null | python3 -c "
+import json, sys
+for d in json.load(sys.stdin):
+    if d.get('type') == 'touchpad':
+        print(d.get('libinput', {}).get('send_events', 'enabled'))
+        break
+else:
+    print('none')
+" 2>/dev/null || echo none)
+
+case "$setting" in
+    none) exit 0 ;;
+    disabled_on_external_mouse) swaymsg input type:touchpad events enabled ;;
+    enabled)                    swaymsg input type:touchpad events disabled ;;
+    *)                          swaymsg input type:touchpad events disabled_on_external_mouse ;;
+esac
+
+kill -SIGRTMIN+4 "$(pgrep -x waybar)" 2>/dev/null || true

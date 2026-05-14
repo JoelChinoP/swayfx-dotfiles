@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Emite JSON para el módulo custom/touchpad de waybar.
+# Estados: on (activo), off (inactivo), absent (sin touchpad).
+set -euo pipefail
+
+swaymsg -t get_inputs 2>/dev/null | python3 -c "
+import json, sys
+
+data = json.load(sys.stdin)
+
+has_mouse = any(
+    d.get('type') == 'pointer'
+    and 'trackpoint' not in d.get('name', '').lower()
+    and 'virtual'    not in d.get('name', '').lower()
+    for d in data
+)
+
+tp = next((d for d in data if d.get('type') == 'touchpad'), None)
+
+if tp is None:
+    out = {'text': '', 'tooltip': 'Sin touchpad', 'class': 'absent'}
+else:
+    se = tp.get('libinput', {}).get('send_events', 'enabled')
+    mouse = ' · Mouse conectado' if has_mouse else ''
+
+    if se == 'disabled_on_external_mouse':
+        if has_mouse:
+            out = {'text': '󰍾', 'tooltip': 'Touchpad auto · Mouse conectado — clic: forzar activo', 'class': 'off'}
+        else:
+            out = {'text': '󰍽', 'tooltip': 'Touchpad auto · Sin mouse — clic: desactivar', 'class': 'on'}
+    elif se == 'enabled':
+        out = {'text': '󰍽', 'tooltip': f'Touchpad activo{mouse} — clic: desactivar', 'class': 'on'}
+    else:
+        out = {'text': '󰍾', 'tooltip': f'Touchpad inactivo{mouse} — clic: modo auto', 'class': 'off'}
+
+print(json.dumps(out, ensure_ascii=False))
+" 2>/dev/null || printf '{"text":"󰍽","tooltip":"Error","class":"on"}\n'

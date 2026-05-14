@@ -38,6 +38,7 @@ window#waybar {
 #battery,
 #custom-cpucap,
 #custom-gammastep,
+#custom-touchpad,
 #custom-notifications,
 #custom-power,
 #mode {
@@ -118,4 +119,18 @@ window#waybar {
 
 #custom-gammastep.off {
   color: #45475a;
+}
+
+#custom-touchpad.on {
+  color: #cdd6f4;
+}
+
+#custom-touchpad.off {
+  color: #45475a;
+}
+
+#custom-touchpad.absent {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
 }

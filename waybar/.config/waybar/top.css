@@ -50,6 +50,7 @@ window#waybar {
 
 #clock {
   font-size: 18px;
+  padding-left: 0px;
 }
 
 /* Workspaces */
@@ -62,7 +63,7 @@ window#waybar {
   color: #6c7086;
   /* @text-dim */
   border-radius: 14px;
-  margin: 0px 4px;
+  margin: 0px;
   padding: 2px 2px;
 }
 

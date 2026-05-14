@@ -13,6 +13,11 @@ picture {
   opacity: 0.82;
 }
 
+headerbar {
+  opacity: 0;
+  min-height: 0;
+  padding: 0;
+}
 
 /* ── Login card ─────────────────────────────────────────────────────
  * Opacidad bajada para que el wallpaper oscuro-medio se integre mejor.
@@ -138,49 +143,47 @@ button:active {
   box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.30);
 }
 
-/* Login / acción primaria — vidrio oscuro con borde sage */
+/* Login / acción primaria */
 button.suggested-action {
-  background: rgba(6, 10, 6, 0.72);
-  border-color: rgba(220, 240, 197, 0.55);
-  color: #dcf0c5;
+  background: linear-gradient(155deg, #dcf0c5 0%, #c4dea8 100%);
+  border-color: rgba(220, 240, 197, 0.40);
+  color: #0b160a;
   font-weight: 700;
   letter-spacing: 0.2px;
   padding: 12px 44px;
   box-shadow:
-    0 0 0 1px rgba(220, 240, 197, 0.12),
-    0 4px 16px rgba(0, 0, 0, 0.50),
-    inset 0 1px 0 rgba(220, 240, 197, 0.08);
+    0 2px 8px rgba(220, 240, 197, 0.20),
+    0 6px 20px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 button.suggested-action:hover {
-  background: rgba(220, 240, 197, 0.14);
-  border-color: rgba(220, 240, 197, 0.75);
-  color: #eafad6;
+  background: linear-gradient(155deg, #eafad8 0%, #d0eab4 100%);
+  color: #0b160a;
   box-shadow:
-    0 0 0 1px rgba(220, 240, 197, 0.20),
-    0 6px 20px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(220, 240, 197, 0.12);
+    0 4px 14px rgba(220, 240, 197, 0.28),
+    0 10px 28px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.50);
 }
 
 button.suggested-action:active {
-  background: rgba(220, 240, 197, 0.08);
-  border-color: rgba(220, 240, 197, 0.45);
-  color: #dcf0c5;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+  background: #bcd89a;
+  color: #0b160a;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
-/* Reboot / poweroff — rojo más visible */
+/* Reboot / poweroff */
 button.destructive-action {
-  background: rgba(243, 87, 87, 0.24);
-  border-color: rgba(243, 87, 87, 0.58);
-  color: #ff9090;
+  background: rgba(243, 87, 87, 0.08);
+  border-color: rgba(243, 87, 87, 0.28);
+  color: #ffb3c1;
   font-weight: 600;
 }
 
 button.destructive-action:hover {
-  background: rgba(243, 87, 87, 0.38);
-  border-color: rgba(243, 87, 87, 0.75);
-  color: #ffb8b8;
+  background: rgba(243, 87, 87, 0.14);
+  border-color: rgba(243, 87, 87, 0.42);
+  color: #ffd0da;
 }
 
 /* ── Dropdowns: sesión + usuario ─────────────────────────────────── */

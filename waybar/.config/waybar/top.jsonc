@@ -4,6 +4,7 @@
   "name": "top",
   "layer": "top",
   "position": "top",
+  "fixed-center": true,
   "height": 32,
   "spacing": 0,
   "margin-top": 2,

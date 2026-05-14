@@ -39,9 +39,12 @@
     "tooltip": false
   },
   "clock": {
-    "format": " {:%H:%M}",
-    "format-alt": " {:%A, %d %B %Y}",
-    "tooltip-format": "<big>{:%A, %d %B %Y}</big>\n<tt>{calendar}</tt>",
+    // Icono renderizado con el font base (sin bold), tiempo en bold via pango.
+    // Esto evita que bold desplace las métricas del glifo Nerd Font.
+    "format": " <b>{:%H:%M}</b>",
+    "format-alt": " <b>{:%A, %d %B %Y}</b>",
+    "tooltip": true,
+    "tooltip-format": "<big><b>{:%A, %d %B %Y}</b></big>\n<tt>{calendar}</tt>",
     "calendar": {
       "mode": "month",
       "mode-mon-col": 3,
@@ -52,10 +55,13 @@
         "days": "<span color='#cdd6f4'>{}</span>",
         "weeks": "<span color='#6c7086'><b>W{}</b></span>",
         "weekdays": "<span color='#89b4fa'><b>{}</b></span>",
-        "today": "<span color='#f38ba8'><b>{}</b></span>"
+        "today": "<span color='#f38ba8'><b><u>{}</u></b></span>"
       }
     },
     "actions": {
+      // Clic izquierdo: alterna formato hora ↔ fecha
+      "on-click": "mode",
+      // Clic derecho: abre/cierra el calendario en el tooltip
       "on-click-right": "mode",
       "on-scroll-up": "shift_up",
       "on-scroll-down": "shift_down"

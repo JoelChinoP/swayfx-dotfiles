@@ -2,12 +2,11 @@
  * Verified against: waybar(5)
  * Reviewed: 2026-05-13
  */
-
 @import url("_pill.css");
 
 * {
   border: none;
-  font-family: "JetBrainsMono Nerd Font", "Inter", sans-serif;
+  font-family: "JetBrainsMono Nerd Font Propo", "JetBrainsMono Nerd Font", "Symbols Nerd Font", "Inter", sans-serif;
   font-size: 15px;
   min-height: 0;
 }
@@ -24,10 +23,10 @@ window#waybar {
   padding: 2px 4px;
 }
 
-/* Clock: negrita y 2px más grande que el base (14 → 16px) */
+/* El icono va en el format con pango, aquí solo el tamaño base.
+ * font-weight: bold NO va aquí — desplaza los glifos Nerd Font. */
 #clock {
   font-size: 16px;
-  font-weight: bold;
 }
 
 #workspaces button {

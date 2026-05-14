@@ -1,5 +1,6 @@
 /* ReGreet login screen — SwayFX dotfiles
- * Accent: #89b4fa  |  Palette: pure-black project palette
+ * Verified against: greetd-regreet CSS hooks
+ * Accent: #89b4fa | Palette: Sway pure-black project palette
  * Reviewed: 2026-05-14
  */
 
@@ -46,14 +47,14 @@ headerbar *,
 #time {
   font-size: 48px;
   font-weight: 300;
-  color: #ffffff;
+  color: #e6e6e6;
   letter-spacing: -1px;
 }
 
 .date,
 #date {
   font-size: 48px;
-  color: rgba(255, 255, 255, 0.65);
+  color: #9a9aa6;
   letter-spacing: 0.2px;
 }
 
@@ -71,16 +72,15 @@ clamp>.login-box,
   padding: 56px 64px;
   min-width: 350px;
   box-shadow:
-    0 0 0 0.5px rgba(137, 180, 250, 0.10),
     0 8px 20px rgba(0, 0, 0, 0.30),
     0 28px 72px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(230, 230, 230, 0.06),
     inset 0 -1px 0 rgba(0, 0, 0, 0.20);
 }
 
 /* ── Typography ──────────────────────────────────────────────────── */
 label {
-  color: #ededf2;
+  color: #e6e6e6;
   font-family: "Inter", sans-serif;
 }
 
@@ -88,7 +88,7 @@ label.title-1,
 label.title-2 {
   font-size: 22px;
   font-weight: 700;
-  color: #ffffff;
+  color: #e6e6e6;
   letter-spacing: -0.4px;
 }
 
@@ -96,7 +96,7 @@ label.body,
 label.caption,
 label.dim-label {
   font-size: 22px;
-  color: #a8a8b4;
+  color: #9a9aa6;
   letter-spacing: 0.1px;
 }
 
@@ -119,7 +119,7 @@ entry {
   font-family: "Inter", sans-serif;
   box-shadow:
     inset 0 1px 4px rgba(0, 0, 0, 0.25),
-    0 1px 0 rgba(255, 255, 255, 0.04);
+    0 1px 0 rgba(230, 230, 230, 0.04);
   transition:
     border-color 160ms ease,
     background 160ms ease,
@@ -135,7 +135,7 @@ entry:focus {
 }
 
 entry::placeholder {
-  color: rgba(255, 255, 255, 0.28);
+  color: rgba(154, 154, 166, 0.72);
 }
 
 row>box>entry,
@@ -160,7 +160,7 @@ button {
   letter-spacing: 0.15px;
   box-shadow:
     0 1px 4px rgba(0, 0, 0, 0.20),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(230, 230, 230, 0.06);
   transition:
     background 140ms ease,
     border-color 140ms ease,
@@ -170,21 +170,21 @@ button {
 button:hover {
   background: #15151a;
   border-color: #89b4fa;
-  color: #ffffff;
+  color: #e6e6e6;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    inset 0 1px 0 rgba(230, 230, 230, 0.08);
 }
 
 button:active {
   background: #1f1f24;
-  color: #ffffff;
+  color: #e6e6e6;
   box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.30);
 }
 
 /* Login / acción primaria */
 button.suggested-action {
-  background: #10131a;
+  background: #0e0e10;
   border-color: #89b4fa;
   color: #e6e6e6;
   font-weight: 700;
@@ -192,18 +192,16 @@ button.suggested-action {
   font-size: 20px;
   padding: 12px 36px;
   box-shadow:
-    0 2px 8px rgba(137, 180, 250, 0.18),
     0 6px 20px rgba(0, 0, 0, 0.30),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    inset 0 1px 0 rgba(230, 230, 230, 0.08);
 }
 
 button.suggested-action:hover {
   background: #15151a;
-  color: #ffffff;
+  color: #e6e6e6;
   box-shadow:
-    0 4px 14px rgba(137, 180, 250, 0.28),
     0 10px 28px rgba(0, 0, 0, 0.30),
-    inset 0 1px 0 rgba(255, 255, 255, 0.50);
+    inset 0 1px 0 rgba(230, 230, 230, 0.10);
 }
 
 button.suggested-action:active {
@@ -214,17 +212,17 @@ button.suggested-action:active {
 
 /* Reboot / poweroff */
 button.destructive-action {
-  background: #14090d;
-  border-color: rgba(243, 139, 168, 0.50);
+  background: #0e0e10;
+  border-color: #1f1f24;
   color: #f38ba8;
   font-weight: 600;
   font-size: 20px;
 }
 
 button.destructive-action:hover {
-  background: #1d0d13;
+  background: #15151a;
   border-color: #f38ba8;
-  color: #ffffff;
+  color: #e6e6e6;
 }
 
 /* ── Dropdowns: sesión + usuario ─────────────────────────────────── */
@@ -234,7 +232,7 @@ dropdownbutton {
   background: #0e0e10;
   border: 1px solid #1f1f24;
   border-radius: 12px;
-  color: #f0f0f5;
+  color: #e6e6e6;
   padding: 10px 16px;
   font-size: 22px;
   font-family: "Inter", sans-serif;
@@ -247,7 +245,7 @@ dropdown>button:hover,
 dropdownbutton:hover {
   background: #15151a;
   border-color: #89b4fa;
-  color: #ffffff;
+  color: #e6e6e6;
 }
 
 /* Popup list */
@@ -266,7 +264,7 @@ popover row,
 popover modelbutton {
   border-radius: 10px;
   padding: 9px 16px;
-  color: #e8e8f0;
+  color: #e6e6e6;
   font-family: "Inter", sans-serif;
   font-size: 22px;
   transition: background 100ms ease, color 100ms ease;
@@ -274,13 +272,13 @@ popover modelbutton {
 
 popover row:hover,
 popover modelbutton:hover {
-  background: rgba(137, 180, 250, 0.14);
-  color: #89b4fa;
+  background: #15151a;
+  color: #e6e6e6;
 }
 
 popover row:selected,
 popover modelbutton:checked {
-  background: rgba(137, 180, 250, 0.20);
+  background: rgba(137, 180, 250, 0.14);
   color: #89b4fa;
   font-weight: 600;
 }
@@ -288,10 +286,10 @@ popover modelbutton:checked {
 /* ── List rows (libadwaita) ──────────────────────────────────────── */
 listview row,
 listbox row {
-  background: rgba(255, 255, 255, 0.05);
+  background: #0e0e10;
   border-radius: 12px;
   margin-bottom: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid #1f1f24;
   transition: border-color 160ms ease, background 160ms ease;
 }
 

@@ -20,4 +20,4 @@ case "$setting" in
     *)                          swaymsg input type:touchpad events disabled_on_external_mouse ;;
 esac
 
-kill -SIGRTMIN+4 "$(pgrep -x waybar)" 2>/dev/null || true
+kill -SIGRTMIN+4 $(pgrep -x waybar) 2>/dev/null || true

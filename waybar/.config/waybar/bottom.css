@@ -52,7 +52,7 @@ window#waybar {
 }
 
 #taskbar button.active {
-  background: rgba(137, 180, 250, 0.65);
+  background: rgba(255, 255, 170, 0.45);
   /* background: @accent;
   border-color: @accent; */
   color: @text;

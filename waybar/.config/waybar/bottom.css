@@ -38,16 +38,16 @@ window#waybar {
 
 #taskbar {
   border-radius: 26px;
-  margin: 0px;
-  padding: 0;
+  margin: 14px 3px 14px 3px;
 }
 
 #taskbar button {
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 24px;
+  border-radius: 16px;
   color: @text-dim;
-  margin: 0;
+  margin: 0 3px;
+  padding: 0;
 }
 
 #taskbar button.active {

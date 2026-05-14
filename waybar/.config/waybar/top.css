@@ -59,13 +59,7 @@ window#waybar {
   border-radius: 999px;
   color: #e6e6e6;
   font-size: 18px;
-  margin: 3px 6px;
-  padding: 0 14px;
-}
-
-#clock:hover {
-  background: #15151a;
-  border-color: #89b4fa;
+  padding: 0 8px;
 }
 
 tooltip {

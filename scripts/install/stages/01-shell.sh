@@ -24,7 +24,7 @@ log_info "Stage 01 — shell (zsh + starship + plugins)"
 SHELL_PKGS=(
     zsh starship
     zsh-completions zsh-syntax-highlighting zsh-autosuggestions
-    ttf-firacode-nerd ttf-jetbrains-mono-nerd inter-font
+    ttf-firacode-nerd fontconfig ttf-jetbrains-mono-nerd inter-font
 )
 pacman_install "${SHELL_PKGS[@]}"
 

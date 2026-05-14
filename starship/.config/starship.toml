@@ -3,7 +3,7 @@
 # Verified against: https://starship.rs/config/
 # Reviewed: 2026-05-12
 
-add_newline = true
+add_newline = false
 scan_timeout = 30
 command_timeout = 200
 
@@ -13,62 +13,63 @@ $git_branch$git_status\
 $nodejs$python$rust$golang\
 $cmd_duration\
 $line_break\
-$character"""
+$character
+"""
 
 [character]
 success_symbol = "[>](bold #a6e3a1)"
-error_symbol   = "[>](bold #f38ba8)"
-vimcmd_symbol  = "[<](bold #89b4fa)"
+error_symbol = "[>](bold #f38ba8)"
+vimcmd_symbol = "[<](bold #89b4fa)"
 
 [directory]
-format                 = " [$path]($style)[$read_only]($read_only_style) "
-home_symbol            = "~"
-truncation_length      = 10
-truncate_to_repo       = false
-truncation_symbol      = ".../"
-style                  = "bold #89b4fa"
-read_only              = " "
-read_only_style        = "#f38ba8"
+format = " [$path]($style)[$read_only]($read_only_style) "
+home_symbol = "~"
+truncation_length = 10
+truncate_to_repo = false
+truncation_symbol = ".../"
+style = "bold #89b4fa"
+read_only = " "
+read_only_style = "#f38ba8"
 
 [git_branch]
 symbol = "  "
-style  = "#f9e2af"
+style = "#f9e2af"
 format = "[$symbol$branch]($style) "
 
 [git_status]
-format     = '([\[](#9a9aa6)$all_status$ahead_behind[\]](#9a9aa6) )'
-modified   = "[✱${count}](#89b4fa)"
-staged     = "[+${count}](#a6e3a1)"
-untracked  = "[?${count}](#f9e2af)"
-ahead      = "[⇡${count}](#89b4fa)"
-behind     = "[⇣${count}](#9a9aa6)"
+format = '([\[](#9a9aa6)$all_status$ahead_behind[\]](#9a9aa6) )'
+modified = "[✱${count}](#89b4fa)"
+staged = "[+${count}](#a6e3a1)"
+untracked = "[?${count}](#f9e2af)"
+ahead = "[⇡${count}](#89b4fa)"
+behind = "[⇣${count}](#9a9aa6)"
 conflicted = "[✖${count}](#f38ba8)"
-diverged   = "[⇕${count}](#f38ba8)"
-stashed    = ""
-deleted    = ""
-renamed    = ""
+diverged = "[⇕${count}](#f38ba8)"
+stashed = ""
+deleted = ""
+renamed = ""
 
 [cmd_duration]
-min_time           = 2000
-style              = "#9a9aa6"
-show_milliseconds  = false
-format             = "[$duration]($style) "
+min_time = 2000
+style = "#9a9aa6"
+show_milliseconds = false
+format = "[$duration]($style) "
 
 [nodejs]
 symbol = " "
-style  = "#a6e3a1"
+style = "#a6e3a1"
 format = "[$symbol($version )]($style)"
 
 [python]
-symbol            = " "
-style             = "#f9e2af"
-format            = "[$symbol($version )(\\($virtualenv\\) )]($style)"
-python_binary     = ["python3", "python"]
+symbol = " "
+style = "#f9e2af"
+format = "[$symbol($version )(\\($virtualenv\\) )]($style)"
+python_binary = ["python3", "python"]
 
 [rust]
 symbol = " "
-style  = "#f5a97f"
+style = "#f5a97f"
 
 [golang]
 symbol = " "
-style  = "#89dceb"
+style = "#89dceb"

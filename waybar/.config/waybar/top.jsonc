@@ -22,8 +22,8 @@
     "pulseaudio",
     "battery",
     "custom/cpucap",
-    "custom/gammastep",
     "custom/touchpad",
+    "custom/gammastep",
     "custom/notifications",
     "custom/power"
   ],

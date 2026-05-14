@@ -4,7 +4,7 @@
 > CONTEXT wins. Package decisions live in [STACK.md](STACK.md). Reference
 > repo notes and upstream SwayFX syntax live in [REFERENCES.md](REFERENCES.md).
 >
-> Last reviewed: 2026-05-13.
+> Last reviewed: 2026-05-14.
 
 Hardware: ASUS · Ryzen 7 7730U · Vega 8 · 12 GB RAM · Arch Linux.
 Goal: SwayFX desktop usable as a conventional desktop, dark-only,
@@ -621,6 +621,15 @@ corner_radius        10
 shadows              disable
 default_dim_inactive 0.05
 dim_inactive_colors.unfocused #000000FF
+
+# DEVIATION: wlogout uses layer blur to make the power menu feel modal.
+# The rest of the layer-shell UI stays unblurred.
+layer_effects "wlogout" {
+  blur enable
+  blur_passes 3
+  blur_radius 6
+  shadows disable
+}
 
 # Blur ONLY on the terminal
 blur                 disable

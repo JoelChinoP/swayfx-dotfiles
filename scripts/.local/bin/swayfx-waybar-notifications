@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Verified against: waybar-custom(5), makoctl(1)
-# Reviewed: 2026-05-12
+# Reviewed: 2026-05-14
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -9,15 +9,43 @@ json() {
     printf '{"text":"%s","class":"%s","tooltip":"%s"}\n' "$1" "$2" "$3"
 }
 
+notification_count() {
+    local list count
+
+    list="$(makoctl list 2>/dev/null || true)"
+    [[ -n "$list" ]] || {
+        printf '0'
+        return 0
+    }
+
+    if command -v jq >/dev/null 2>&1; then
+        count="$(
+            jq '[.. | objects | select(has("app-name"))] | length' <<< "$list" 2>/dev/null || true
+        )"
+        if [[ "$count" =~ ^[0-9]+$ ]]; then
+            printf '%s' "$count"
+            return 0
+        fi
+    fi
+
+    count="$(grep -c '"app-name"' <<< "$list" 2>/dev/null || true)"
+    printf '%s' "${count:-0}"
+}
+
 if ! command -v makoctl >/dev/null 2>&1; then
-    json "Noti" "off" "makoctl no esta disponible"
+    json "\\uf0f3" "off" "makoctl no esta disponible"
     exit 0
 fi
 
 modes="$(makoctl mode 2>/dev/null || true)"
 
 if printf '%s\n' "$modes" | grep -qx 'do-not-disturb'; then
-    json "DND" "dnd" "No molestar activado"
+    json "\\uf1f6" "dnd" "No molestar activado"
 else
-    json "Noti" "default" "Notificaciones activas"
+    count="$(notification_count)"
+    if [[ "$count" =~ ^[0-9]+$ && "$count" -gt 0 ]]; then
+        json "\\uf0f3 $count" "has-notifications" "$count notificaciones"
+    else
+        json "\\uf0f3" "default" "Sin notificaciones pendientes"
+    fi
 fi

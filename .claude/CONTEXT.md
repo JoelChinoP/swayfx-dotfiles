@@ -5,7 +5,7 @@
 > **this file wins**. If anything is ambiguous, leave a `TODO:` and explain why
 > instead of guessing.
 >
-> Last reviewed: 2026-05-13.
+> Last reviewed: 2026-05-14.
 
 ---
 
@@ -144,7 +144,9 @@ the left, workspace pills in the center, status pills on the right):
 
 ### 4.4. Blur, opacity, shadows, corners
 
-- **Blur**: only on the terminal. Other apps stay opaque and unblurred.
+- **Blur**: only on the terminal, plus the `wlogout` layer-shell power
+  menu as a documented modal overlay deviation. Other apps stay opaque
+  and unblurred.
 - **Opacity**: only on the terminal, **0.85** (do not drop to 0.75 — text
   becomes hard to read on light backgrounds behind it).
 - **Shadows**: disabled (no visible benefit on a pure-black UI; saves GPU
@@ -388,6 +390,7 @@ swayfx-dotfile/
   optional.
 - **Do not** apply blur or opacity to layer-shell surfaces (waybar, mako,
   swaybg). They stay opaque/transparent as configured by their own CSS.
+  The only exception is the documented `wlogout` modal overlay blur.
 - **Do** annotate every deviation from upstream with `# DEVIATION:`
   followed by the rationale.
 

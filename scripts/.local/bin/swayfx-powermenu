@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Verified against: wlogout(1), fuzzel --dmenu
-# Reviewed: 2026-05-12
+# Reviewed: 2026-05-14
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -26,7 +26,7 @@ run_choice() {
 }
 
 if command -v wlogout >/dev/null 2>&1 && [[ "${SWAYFX_POWERMENU_FORCE_DMENU:-0}" != "1" ]]; then
-    exec wlogout -b 2 \
+    exec wlogout -b 4 \
         --margin-top 300 \
         --margin-bottom 300 \
         --margin-left 700 \

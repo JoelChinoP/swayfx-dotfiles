@@ -1,7 +1,7 @@
 # SwayFX desktop config.
 #
 # Verified against: https://github.com/WillPower3309/swayfx, sway(5)
-# Reviewed: 2026-05-13
+# Reviewed: 2026-05-14
 
 set $mod Mod4
 set $term ghostty
@@ -46,6 +46,15 @@ corner_radius 10
 shadows disable
 default_dim_inactive 0.05
 dim_inactive_colors.unfocused #000000FF
+
+# DEVIATION: wlogout uses layer blur to make the power menu feel modal.
+# The rest of the layer-shell UI stays unblurred.
+layer_effects "wlogout" {
+    blur enable
+    blur_passes 3
+    blur_radius 6
+    shadows disable
+}
 
 # Blur only on the terminal.
 blur disable
@@ -232,11 +241,3 @@ mode "resize" {
     bindsym Escape mode "default"
 }
 bindsym $mod+r mode "resize"
-
-# DEVIATION: wlogout uses layer blur to make the power menu feel modal.
-layer_effects "wlogout" {
-    blur enable
-    blur_passes 3
-    blur_radius 6
-    shadows disable
-}

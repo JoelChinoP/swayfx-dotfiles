@@ -9,9 +9,9 @@ window-padding-x = 4
 window-padding-y = 4
 
 background = #000000
-foreground = #ffffff          # blanco puro (antes #e6e6e6)
+foreground = #ffffff
 background-opacity = 1.0
-cursor-color = #b4d0ff        # azul más claro (antes #89b4fa)
+cursor-color = #b4d0ff
 selection-background = #1e1e2e
 selection-foreground = #ffffff
 

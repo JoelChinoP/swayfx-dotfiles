@@ -33,12 +33,13 @@ client.urgent            $crit    $bg $text $crit $crit
 # SwayFX visuals.
 default_border pixel 2
 smart_borders no
-default_floating_border pixel 2
+default_floating_border pixel 3
 floating_modifier $mod normal
 focus_follows_mouse no
 focus_on_window_activation focus
 gaps inner 6
-gaps outer 2
+gaps horizontal 1
+gaps vertical 1
 # smart_gaps on
 smart_gaps off
 corner_radius 10

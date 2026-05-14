@@ -63,7 +63,7 @@ window#waybar {
   /* @text-dim */
   border-radius: 14px;
   margin: 0px 4px;
-  padding: 0 2px;
+  padding: 0;
 }
 
 #workspaces button.focused,

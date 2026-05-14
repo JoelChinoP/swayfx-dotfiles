@@ -39,7 +39,8 @@ focus_follows_mouse no
 focus_on_window_activation focus
 gaps inner 0
 gaps outer 0
-smart_gaps on
+# smart_gaps on
+smart_gaps off
 corner_radius 10
 shadows disable
 default_dim_inactive 0.05

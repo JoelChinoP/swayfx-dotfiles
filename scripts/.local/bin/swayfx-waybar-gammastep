@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Emite estado JSON para el módulo custom/gammastep de waybar.
+if pgrep -x gammastep >/dev/null 2>&1; then
+    printf '{"text":"󰛨","tooltip":"Filtro activo — clic para desactivar","class":"on"}\n'
+else
+    printf '{"text":"󰛨","tooltip":"Sin filtro de luz azul — clic para activar","class":"off"}\n'
+fi

@@ -37,6 +37,7 @@ window#waybar {
 #pulseaudio,
 #battery,
 #custom-cpucap,
+#custom-gammastep,
 #custom-notifications,
 #custom-power,
 #mode {
@@ -110,3 +111,11 @@ window#waybar {
 }
 
 /* @ok */
+
+#custom-gammastep.on {
+  color: #f9e2af;
+}
+
+#custom-gammastep.off {
+  color: #45475a;
+}

@@ -22,6 +22,7 @@
     "pulseaudio",
     "battery",
     "custom/cpucap",
+    "custom/gammastep",
     "custom/notifications",
     "custom/power"
   ],
@@ -105,6 +106,13 @@
     "exec": "bash ~/.local/bin/swayfx-cpu-cap",
     "return-type": "json",
     "interval": 10
+  },
+  "custom/gammastep": {
+    "exec": "bash ~/.local/bin/swayfx-waybar-gammastep",
+    "return-type": "json",
+    "interval": "once",
+    "signal": 3,
+    "on-click": "bash ~/.local/bin/swayfx-gammastep-toggle"
   },
   "custom/notifications": {
     "exec": "bash ~/.local/bin/swayfx-waybar-notifications",

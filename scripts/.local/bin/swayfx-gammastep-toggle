@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Habilita o deshabilita gammastep y notifica a waybar para actualizar el icono.
+set -euo pipefail
+
+if pgrep -x gammastep >/dev/null 2>&1; then
+    pkill -x gammastep
+else
+    gammastep >/dev/null 2>&1 &
+    disown
+fi
+
+# Señal SIGRTMIN+3 → waybar recarga el módulo custom/gammastep.
+pkill -SIGRTMIN+3 waybar 2>/dev/null || true

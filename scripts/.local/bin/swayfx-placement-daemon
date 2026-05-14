@@ -73,11 +73,6 @@ def has_mark(con, mark: str) -> bool:
     return mark in (getattr(con, "marks", None) or [])
 
 
-def focused_workspace(conn):
-    focused = conn.get_tree().find_focused()
-    return focused.workspace() if focused else None
-
-
 def workspace_for(con, conn):
     try:
         ws = con.workspace()
@@ -85,7 +80,8 @@ def workspace_for(con, conn):
             return ws
     except Exception:
         pass
-    return focused_workspace(conn)
+    focused = conn.get_tree().find_focused()
+    return focused.workspace() if focused else None
 
 
 def safe_position_for(con, conn) -> Optional[tuple[int, int]]:
@@ -146,8 +142,9 @@ def set_border(con, style: str) -> None:
         con.command(f"border pixel {DEFAULT_FLOATING_BORDER}")
 
 
-def update_borders(conn) -> None:
-    tree = conn.get_tree()
+def update_borders(conn, tree=None) -> None:
+    if tree is None:
+        tree = conn.get_tree()
     focused = tree.find_focused()
     if focused is None:
         return
@@ -167,16 +164,25 @@ def update_borders(conn) -> None:
             set_border(con, "pixel")
 
 
-def refreshed_container(conn, con):
-    root = conn.get_tree()
-    return find_by_id(root, con.id) or con
-
-
 def on_new_or_floating(conn, event) -> None:
     time.sleep(0.08)
-    con = refreshed_container(conn, event.container)
+    # Single get_tree() shared between placement and border update.
+    tree = conn.get_tree()
+    con = find_by_id(tree, event.container.id) or event.container
     if is_window(con) and is_floating(con) and not has_mark(con, MAXIMIZE_MARK):
         place_floating_window(conn, con)
+    update_borders(conn, tree=tree)
+
+
+def on_focus(conn, event) -> None:
+    # Explicitly raise the focused floating window so it comes to the front.
+    # Sway should do this natively, but some SwayFX builds need the nudge.
+    con = event.container
+    if is_floating(con) and not has_mark(con, MAXIMIZE_MARK):
+        try:
+            con.command("raise")
+        except Exception:
+            pass
     update_borders(conn)
 
 
@@ -188,8 +194,9 @@ def main() -> int:
     conn = i3ipc.Connection()
     for event_name in ("window::new", "window::floating"):
         conn.on(event_name, on_new_or_floating)
+    # Focus gets its own handler for the raise+border update.
+    conn.on("window::focus", on_focus)
     for event_name in (
-        "window::focus",
         "window::close",
         "window::move",
         "window::fullscreen_mode",

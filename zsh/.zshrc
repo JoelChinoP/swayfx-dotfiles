@@ -82,12 +82,24 @@ if command -v starship >/dev/null 2>&1; then
 fi
 
 # Keep Starship's add_newline=false, but separate command output from
-# the next prompt after the command has finished.
+# the next prompt after the command has finished (except clear/reset).
 autoload -Uz add-zsh-hook
+_swayfx_last_cmd=""
+_swayfx_capture_last_command() {
+    local cmd="${1#"${1%%[![:space:]]*}"}"
+    _swayfx_last_cmd="$cmd"
+}
 _swayfx_prompt_spacing_after_command() {
     if [[ -n "${_SWAYFX_PROMPT_SPACING_READY:-}" ]]; then
-        print
+        case "$_swayfx_last_cmd" in
+            (clear|clear\ *|reset|reset\ *|tput\ clear*|tput\ reset*)
+                ;;
+            (*)
+                print
+                ;;
+        esac
     fi
     _SWAYFX_PROMPT_SPACING_READY=1
 }
+add-zsh-hook preexec _swayfx_capture_last_command
 add-zsh-hook precmd _swayfx_prompt_spacing_after_command

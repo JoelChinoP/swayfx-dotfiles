@@ -23,8 +23,8 @@ window#waybar {
   padding: 2px 4px;
 }
 
-/* El icono va en el format con pango, aquí solo el tamaño base.
- * font-weight: bold NO va aquí — desplaza los glifos Nerd Font. */
+/* Sin font-weight: bold — desplaza métricas del glifo Nerd Font.
+ * El icono va después del tiempo en format (ver config.jsonc). */
 #clock {
   font-size: 16px;
 }

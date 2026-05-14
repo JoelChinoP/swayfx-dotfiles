@@ -21,7 +21,7 @@ window#waybar {
 #custom-browser,
 #custom-files,
 #custom-editor {
-  border-radius: 24px;
+  border-radius: 16px;
   min-width: 28px;
   /* padding: 4px 4px; */
   font-size: 24px;

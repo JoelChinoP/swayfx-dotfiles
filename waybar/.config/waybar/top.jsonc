@@ -1,4 +1,4 @@
-// Verified against: waybar(5), waybar-sway-workspaces(5)
+// Verified against: waybar(5), waybar-clock(5), waybar-sway-workspaces(5)
 // Reviewed: 2026-05-14
 {
   "name": "top",
@@ -42,6 +42,7 @@
     // Left click opens waycal; hover keeps Waybar's month-only calendar.
     "format": "<b>{:%H:%M}</b>",
     "format-alt": "<b>{:%A, %d %B %Y}</b>",
+    "locale": "es_PE.UTF-8",
     "tooltip": true,
     "tooltip-format": "<tt>{calendar}</tt>",
     "on-click": "sh -lc 'pkill -x waycal || waycal'",

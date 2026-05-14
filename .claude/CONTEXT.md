@@ -175,6 +175,7 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Launcher**: fuzzel.
 - **Notifications**: mako.
 - **Bars**: two waybar instances (top: status; bottom: pinned + taskbar).
+- **Calendar popup**: `waycal` (AUR), launched from the top bar clock.
 - **Lock**: `swaylock-effects` (AUR).
 - **Idle**: `swayidle`.
 - **Power menu**: `wlogout`. Lightweight fallback: `fuzzel --dmenu` script.

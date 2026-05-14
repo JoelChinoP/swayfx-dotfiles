@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Stage 05 - Bars.
 #
-# Installs Waybar and icon fonts. The actual top/bottom configs are
+# Installs Waybar, the calendar popup, and icon fonts. The actual top/bottom configs are
 # applied in stage 10 with Stow.
 #
-# Verified against: waybar(5), waybar-wlr-taskbar(5)
-# Reviewed: 2026-05-11
+# Verified against: waybar(5), waybar-wlr-taskbar(5), https://github.com/forrestknight/waycal
+# Reviewed: 2026-05-14
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -26,6 +26,7 @@ else
 fi
 
 pacman_install waybar otf-font-awesome
+paru_install waycal
 
 if (( DRY_RUN )); then
     log_warn "skipping post-install validation (dry-run)"
@@ -46,6 +47,13 @@ if pacman -Q waybar otf-font-awesome >/dev/null 2>&1; then
     log_ok "waybar and otf-font-awesome packages present"
 else
     log_error "missing waybar or otf-font-awesome package"
+    (( ++errs ))
+fi
+
+if command -v waycal >/dev/null 2>&1; then
+    log_ok "waycal is installed"
+else
+    log_error "waycal is not on PATH"
     (( ++errs ))
 fi
 

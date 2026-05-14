@@ -1,7 +1,7 @@
 # ~/.zshrc — read by interactive zsh shells.
 #
 # Verified against: ArchWiki "zsh", zshoptions(1)
-# Reviewed: 2026-05-12
+# Reviewed: 2026-05-14
 
 # ── History ───────────────────────────────────────────────────────────
 HISTFILE="$XDG_STATE_HOME/zsh/history"
@@ -76,3 +76,14 @@ alias zreload='exec zsh -l'
 if command -v starship >/dev/null 2>&1; then
     eval "$(starship init zsh)"
 fi
+
+# Keep Starship's add_newline=false, but separate command output from
+# the next prompt after the command has finished.
+autoload -Uz add-zsh-hook
+_swayfx_prompt_spacing_after_command() {
+    if [[ -n "${_SWAYFX_PROMPT_SPACING_READY:-}" ]]; then
+        print
+    fi
+    _SWAYFX_PROMPT_SPACING_READY=1
+}
+add-zsh-hook precmd _swayfx_prompt_spacing_after_command

@@ -158,6 +158,11 @@ paru                  # AUR helper itself, only if not present
 swayfx
 ```
 
+#### Stage 05 — bars
+```
+waycal                # top-clock calendar popup
+```
+
 #### Stage 06 — utils (optional)
 ```
 asusctl               # ASUS Fn keys (optional, WARN on failure)
@@ -201,6 +206,8 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
 - **Two waybar instances**: same engine, same CSS, same icons. Pinned
   apps via `custom/*` modules; active windows via `wlr/taskbar`. This
   matches the visual reference in one binary.
+- **waycal**: small GTK4 layer-shell calendar popup launched by clicking
+  the top bar clock. It avoids using a separate persistent calendar daemon.
 
 ### 3.3. Notifications: mako (not Dunst, not SwayNC)
 

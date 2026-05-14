@@ -324,12 +324,13 @@ command -v mako      || exit 1
 
 ### Stage 05 — `05-bars.sh`  ← **two waybars: status + pinned + taskbar**
 
-**What.** Install waybar and the icon font it relies on. The two configs
-(`top.jsonc` for status, `bottom.jsonc` for pinned launchers + taskbar)
-are applied in stage 10.
+**What.** Install waybar, the top-clock calendar popup, and the icon font
+it relies on. The two configs (`top.jsonc` for status, `bottom.jsonc`
+for pinned launchers + taskbar) are applied in stage 10.
 
 ```bash
 sudo pacman -S --needed --noconfirm waybar otf-font-awesome
+paru -S --needed --noconfirm waycal
 ```
 
 **Validation**:
@@ -337,6 +338,7 @@ sudo pacman -S --needed --noconfirm waybar otf-font-awesome
 ```bash
 { waybar --help 2>&1 || true; } | grep -q -- '--config' || exit 1
 pacman -Qi waybar | grep -q 'Architecture' || exit 1
+command -v waycal || exit 1
 ```
 
 ---

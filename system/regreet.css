@@ -52,7 +52,7 @@ headerbar *,
 
 .date,
 #date {
-  font-size: 32px;
+  font-size: 48px;
   color: rgba(255, 255, 255, 0.65);
   letter-spacing: 0.2px;
 }
@@ -149,6 +149,7 @@ adwentryrow entry {
 /* ── Buttons ─────────────────────────────────────────────────────── */
 button {
   background: #0e0e10;
+  cursor: pointer;
   border: 1px solid #1f1f24;
   border-radius: 12px;
   color: #e6e6e6;
@@ -188,7 +189,8 @@ button.suggested-action {
   color: #e6e6e6;
   font-weight: 700;
   letter-spacing: 0.2px;
-  padding: 12px 44px;
+  font-size: 20px;
+  padding: 12px 36px;
   box-shadow:
     0 2px 8px rgba(137, 180, 250, 0.18),
     0 6px 20px rgba(0, 0, 0, 0.30),
@@ -216,6 +218,7 @@ button.destructive-action {
   border-color: rgba(243, 139, 168, 0.50);
   color: #f38ba8;
   font-weight: 600;
+  font-size: 20px;
 }
 
 button.destructive-action:hover {

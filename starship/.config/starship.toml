@@ -14,6 +14,7 @@ $nodejs$python$rust$golang\
 $cmd_duration\
 $line_break\
 $character
+
 """
 
 [character]

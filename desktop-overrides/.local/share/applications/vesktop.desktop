@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Discord
+Name[es]=Discord
+Name[es_PE]=Discord
+Comment=Cliente de Discord
+Icon=vesktop
+Exec=vesktop
+Terminal=false
+Categories=Network;InstantMessaging;
+Keywords=discord;chat;voz;vesktop;
+StartupNotify=true
+StartupWMClass=Vesktop

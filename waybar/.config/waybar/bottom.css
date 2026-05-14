@@ -47,8 +47,8 @@ window#waybar {
   border: 1px solid transparent;
   border-radius: 26px;
   color: @text-dim;
-  margin: 0 3px;
-  padding: 1px;
+  margin: 0 4px;
+  padding: 4px;
 }
 
 #taskbar button.active {

@@ -30,7 +30,7 @@ mkdir -p "$XDG_CACHE_HOME/zsh"
 compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
 
 # Case-insensitive completion, group results by tag.
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*' menu select
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' group-name ''
@@ -64,6 +64,11 @@ ZSH_HIGHLIGHT_STYLES[path_prefix]=none
 #   st = sticky (no world-writable)   → azul subrayado
 eval "$(dircolors -b 2>/dev/null)" || true
 export LS_COLORS="${LS_COLORS}:ow=1;34:tw=1;36:st=4;34"
+
+# ── Functions ─────────────────────────────────────────────────────────
+vscode() {
+    code . --profile "${1:?usage: vscode <profile>}"
+}
 
 # ── Aliases ───────────────────────────────────────────────────────────
 alias ls='ls --color=auto --group-directories-first'

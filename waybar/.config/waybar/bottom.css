@@ -1,13 +1,22 @@
 /* Bottom taskbar.
  * Verified against: waybar(5), waybar-wlr-taskbar(5)
  * Reviewed: 2026-05-13
+ *
+ * NOTE: #taskbar usa GtkImage (icono real del icon theme) dentro de GtkButton
+ * → centra solo. Los #custom-* usan GtkLabel con glifos Nerd Font.
+ * La variante "Mono" tiene métricas verticales distintas que descentran el
+ * glifo dentro de su line box. Fix: usar la variante "Propo" (proporcional)
+ * en contextos GUI, o "Symbols Nerd Font" sin sufijo Mono.
+ * Ref: https://github.com/Alexays/Waybar/issues/3556
  */
 
 @import url("_pill.css");
 
 * {
   border: none;
-  font-family: "JetBrainsMono Nerd Font", "Inter", sans-serif;
+  /* Propo = variante proporcional de Nerd Font, correcta para GUI.
+   * Fallback a la Mono si Propo no está instalada. */
+  font-family: "JetBrainsMono Nerd Font Propo", "JetBrainsMono Nerd Font", "Symbols Nerd Font", "Inter", sans-serif;
   font-size: 15px;
   min-height: 0;
 }
@@ -25,19 +34,6 @@ window#waybar {
   min-width: 28px;
   font-size: 24px;
   margin: 14px 3px;
-}
-
-/* Fix: los módulos custom renderizan como GtkBox→GtkLabel.
- * El label interno no centra verticalmente por defecto cuando
- * el pill es más alto que el texto. min-height: 0 lo libera
- * para que GTK lo centre dentro del contenedor padre. */
-#custom-terminal label,
-#custom-browser label,
-#custom-files label,
-#custom-editor label {
-  min-height: 0;
-  margin: 0;
-  padding: 0;
 }
 
 #taskbar {

@@ -1,46 +1,48 @@
 /* ReGreet login screen — SwayFX dotfiles
- * Accent: #dcf0c5 (sage)  |  Palette: pure-black dark
- * Verified against: greetd-regreet GTK4/libadwaita CSS
+ * Accent: #dcf0c5 (sage)  |  Palette: dark, moderately-dark bg
  * Reviewed: 2026-05-13
  */
 
-/* ── Fondo: negro base + picture al 90% para oscurecer 10% el wallpaper ─ */
+/* ── Fondo ──────────────────────────────────────────────────────── */
 window,
 .background {
   background: #000000;
 }
 
 picture {
-  opacity: 0.9;
+  opacity: 0.82;
 }
 
-/* ── Login card ────────────────────────────────────────────────────
- * Dark glass panel.  The wallpaper (pre-blurred + darkened by the
- * install script) shows through the window behind this card.
+headerbar {
+  opacity: 0;
+  min-height: 0;
+  padding: 0;
+}
+
+/* ── Login card ─────────────────────────────────────────────────────
+ * Opacidad bajada para que el wallpaper oscuro-medio se integre mejor.
  */
 clamp>box,
 clamp>.login-box,
 .login-box {
-  background: linear-gradient(
-    155deg,
-    rgba(8, 8, 12, 0.96) 0%,
-    rgba(4, 4, 7, 0.98) 100%
-  );
-  border: 1px solid rgba(220, 240, 197, 0.16);
+  background: linear-gradient(155deg,
+      rgba(10, 10, 16, 0.88) 0%,
+      rgba(6, 6, 10, 0.92) 100%);
+  border: 1px solid rgba(220, 240, 197, 0.20);
   border-radius: 24px;
   padding: 56px 64px;
   min-width: 350px;
   box-shadow:
-    0 0 0 0.5px rgba(220, 240, 197, 0.06),
-    0 8px 20px rgba(0, 0, 0, 0.40),
-    0 28px 72px rgba(0, 0, 0, 0.70),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+    0 0 0 0.5px rgba(220, 240, 197, 0.08),
+    0 8px 20px rgba(0, 0, 0, 0.30),
+    0 28px 72px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.20);
 }
 
-/* ── Typography ───────────────────────────────────────────────── */
+/* ── Typography ──────────────────────────────────────────────────── */
 label {
-  color: #e6e6e6;
+  color: #ededf2;
   font-family: "Inter", sans-serif;
 }
 
@@ -56,7 +58,7 @@ label.body,
 label.caption,
 label.dim-label {
   font-size: 13px;
-  color: #9a9aa6;
+  color: #a8a8b4;
   letter-spacing: 0.1px;
 }
 
@@ -67,38 +69,37 @@ label.warning {
   font-weight: 500;
 }
 
-/* ── Input fields ─────────────────────────────────────────────── */
+/* ── Input fields ────────────────────────────────────────────────── */
 entry {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 12px;
-  color: #e6e6e6;
+  color: #f0f0f5;
   caret-color: #dcf0c5;
   padding: 13px 18px;
   font-size: 14px;
   font-family: "Inter", sans-serif;
   box-shadow:
-    inset 0 1px 4px rgba(0, 0, 0, 0.30),
-    0 1px 0 rgba(255, 255, 255, 0.03);
+    inset 0 1px 4px rgba(0, 0, 0, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.04);
   transition:
     border-color 160ms ease,
-    background   160ms ease,
-    box-shadow   160ms ease;
+    background 160ms ease,
+    box-shadow 160ms ease;
 }
 
 entry:focus {
   border-color: #dcf0c5;
-  background: rgba(220, 240, 197, 0.055);
+  background: rgba(220, 240, 197, 0.07);
   box-shadow:
-    inset 0 1px 4px rgba(0, 0, 0, 0.25),
-    0 0 0 3px rgba(220, 240, 197, 0.13);
+    inset 0 1px 4px rgba(0, 0, 0, 0.20),
+    0 0 0 3px rgba(220, 240, 197, 0.15);
 }
 
 entry::placeholder {
-  color: rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.28);
 }
 
-/* Libadwaita rows that contain entries */
 row>box>entry,
 adwentryrow entry {
   background: transparent;
@@ -107,107 +108,116 @@ adwentryrow entry {
   padding: 0;
 }
 
-/* ── Buttons ──────────────────────────────────────────────────── */
+/* ── Buttons ─────────────────────────────────────────────────────── */
 button {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.11);
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 12px;
-  color: #d0d0d8;
+  color: #ffffff;
   padding: 10px 22px;
   font-size: 13px;
   font-family: "Inter", sans-serif;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.15px;
   box-shadow:
-    0 1px 4px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 1px 4px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition:
-    background   140ms ease,
+    background 140ms ease,
     border-color 140ms ease,
-    box-shadow   140ms ease;
+    box-shadow 140ms ease;
 }
 
 button:hover {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.26);
+  color: #ffffff;
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.30),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    0 2px 8px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 button:active {
-  background: rgba(255, 255, 255, 0.13);
-  box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.30);
 }
 
-/* Login / primary action */
+/* Login / acción primaria */
 button.suggested-action {
   background: linear-gradient(155deg, #dcf0c5 0%, #c4dea8 100%);
-  border-color: rgba(220, 240, 197, 0.35);
+  border-color: rgba(220, 240, 197, 0.40);
   color: #0b160a;
   font-weight: 700;
   letter-spacing: 0.2px;
   padding: 12px 44px;
   box-shadow:
-    0 2px 8px rgba(220, 240, 197, 0.18),
-    0 6px 20px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.40);
+    0 2px 8px rgba(220, 240, 197, 0.20),
+    0 6px 20px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 button.suggested-action:hover {
-  background: linear-gradient(155deg, #e8f8d2 0%, #d0eab4 100%);
+  background: linear-gradient(155deg, #eafad8 0%, #d0eab4 100%);
+  color: #0b160a;
   box-shadow:
-    0 4px 14px rgba(220, 240, 197, 0.26),
-    0 10px 28px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    0 4px 14px rgba(220, 240, 197, 0.28),
+    0 10px 28px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.50);
 }
 
 button.suggested-action:active {
   background: #bcd89a;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.20);
+  color: #0b160a;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
 /* Reboot / poweroff */
 button.destructive-action {
-  background: rgba(243, 87, 87, 0.05);
-  border-color: rgba(243, 87, 87, 0.22);
-  color: #f38ba8;
+  background: rgba(243, 87, 87, 0.08);
+  border-color: rgba(243, 87, 87, 0.28);
+  color: #ffb3c1;
+  font-weight: 600;
 }
 
 button.destructive-action:hover {
-  background: rgba(243, 87, 87, 0.10);
-  border-color: rgba(243, 87, 87, 0.38);
+  background: rgba(243, 87, 87, 0.14);
+  border-color: rgba(243, 87, 87, 0.42);
+  color: #ffd0da;
 }
 
-/* ── Dropdowns: session + user selectors ──────────────────────── */
+/* ── Dropdowns: sesión + usuario ─────────────────────────────────── */
 combobox button,
 dropdown>button,
 dropdownbutton {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
-  color: #e6e6e6;
+  color: #f0f0f5;
   padding: 10px 16px;
   font-size: 13px;
   font-family: "Inter", sans-serif;
-  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.25);
+  font-weight: 500;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.20);
 }
 
 combobox button:hover,
 dropdown>button:hover,
 dropdownbutton:hover {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
 }
 
 /* Popup list */
 popover>contents,
 popover.menu>contents {
-  background: #0a0a0f;
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: #0e0e16;
+  border: 1px solid rgba(255, 255, 255, 0.11);
   border-radius: 14px;
   box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.35),
-    0 18px 48px rgba(0, 0, 0, 0.55);
+    0 4px 10px rgba(0, 0, 0, 0.30),
+    0 18px 48px rgba(0, 0, 0, 0.50);
   padding: 4px;
 }
 
@@ -215,7 +225,7 @@ popover row,
 popover modelbutton {
   border-radius: 10px;
   padding: 9px 16px;
-  color: #e6e6e6;
+  color: #e8e8f0;
   font-family: "Inter", sans-serif;
   font-size: 13px;
   transition: background 100ms ease, color 100ms ease;
@@ -223,45 +233,45 @@ popover modelbutton {
 
 popover row:hover,
 popover modelbutton:hover {
-  background: rgba(220, 240, 197, 0.10);
+  background: rgba(220, 240, 197, 0.12);
   color: #dcf0c5;
 }
 
 popover row:selected,
 popover modelbutton:checked {
-  background: rgba(220, 240, 197, 0.17);
+  background: rgba(220, 240, 197, 0.18);
   color: #dcf0c5;
   font-weight: 600;
 }
 
-/* ── List rows (libadwaita) ────────────────────────────────────── */
+/* ── List rows (libadwaita) ──────────────────────────────────────── */
 listview row,
 listbox row {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   margin-bottom: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   transition: border-color 160ms ease, background 160ms ease;
 }
 
 listview row:focus-within,
 listbox row:focus-within {
-  border-color: rgba(220, 240, 197, 0.32);
-  background: rgba(220, 240, 197, 0.045);
+  border-color: rgba(220, 240, 197, 0.35);
+  background: rgba(220, 240, 197, 0.05);
 }
 
 listview row:selected,
 listbox row:selected {
-  background: rgba(220, 240, 197, 0.09);
-  border-color: rgba(220, 240, 197, 0.18);
+  background: rgba(220, 240, 197, 0.10);
+  border-color: rgba(220, 240, 197, 0.22);
 }
 
-/* ── Spinner ──────────────────────────────────────────────────── */
+/* ── Spinner ─────────────────────────────────────────────────────── */
 spinner {
   color: #dcf0c5;
 }
 
-/* ── Scrollbars: hidden ───────────────────────────────────────── */
+/* ── Scrollbars: ocultos ─────────────────────────────────────────── */
 scrollbar,
 scrollbar slider {
   min-width: 0;

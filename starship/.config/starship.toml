@@ -14,13 +14,12 @@ $nodejs$python$rust$golang\
 $cmd_duration\
 $line_break\
 $character
-
 """
 
 [character]
-success_symbol = "[>](bold #a6e3a1)"
-error_symbol = "[>](bold #f38ba8)"
-vimcmd_symbol = "[<](bold #89b4fa)"
+success_symbol = "[>](bold #c3f0be)"
+error_symbol = "[>](bold #ffb3c6)"
+vimcmd_symbol = "[<](bold #b4d0ff)"
 
 [directory]
 format = " [$path]($style)[$read_only]($read_only_style) "
@@ -28,9 +27,9 @@ home_symbol = "~"
 truncation_length = 10
 truncate_to_repo = false
 truncation_symbol = ".../"
-style = "bold #89b4fa"
+style = "bold #b4d0ff"
 read_only = " "
-read_only_style = "#f38ba8"
+read_only_style = "#ffb3c6"
 
 [git_branch]
 symbol = "  "
@@ -38,39 +37,39 @@ style = "#f9e2af"
 format = "[$symbol$branch]($style) "
 
 [git_status]
-format = '([\[](#9a9aa6)$all_status$ahead_behind[\]](#9a9aa6) )'
-modified = "[✱${count}](#89b4fa)"
-staged = "[+${count}](#a6e3a1)"
-untracked = "[?${count}](#f9e2af)"
-ahead = "[⇡${count}](#89b4fa)"
-behind = "[⇣${count}](#9a9aa6)"
-conflicted = "[✖${count}](#f38ba8)"
-diverged = "[⇕${count}](#f38ba8)"
+format = '([\[](#c0c0cc)$all_status$ahead_behind[\]](#c0c0cc) )'
+modified = "[✱${count}](#b4d0ff)"                                # azul claro
+staged = "[+${count}](#c3f0be)"                                  # verde claro
+untracked = "[?${count}](#fdf0cc)"                               # amarillo claro
+ahead = "[⇡${count}](#b4d0ff)"                                   # azul claro
+behind = "[⇣${count}](#c0c0cc)"                                  # gris claro (antes #9a9aa6)
+conflicted = "[✖${count}](#ffb3c6)"                              # rosa claro
+diverged = "[⇕${count}](#ffb3c6)"                                # rosa claro
 stashed = ""
 deleted = ""
 renamed = ""
 
 [cmd_duration]
 min_time = 2000
-style = "#9a9aa6"
+style = "#c0c0cc"               # gris claro (antes #9a9aa6)
 show_milliseconds = false
 format = "[$duration]($style) "
 
 [nodejs]
 symbol = " "
-style = "#a6e3a1"
+style = "#c3f0be"                       # verde claro (antes #a6e3a1)
 format = "[$symbol($version )]($style)"
 
 [python]
 symbol = " "
-style = "#f9e2af"
+style = "#fdf0cc"                                           # amarillo claro (antes #f9e2af)
 format = "[$symbol($version )(\\($virtualenv\\) )]($style)"
 python_binary = ["python3", "python"]
 
 [rust]
 symbol = " "
-style = "#f5a97f"
+style = "#f9c4a3" # naranja claro (antes #f5a97f)
 
 [golang]
 symbol = " "
-style = "#89dceb"
+style = "#b0ecf5" # cyan claro (antes #89dceb)

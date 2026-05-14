@@ -1,12 +1,8 @@
-/* Verified against: wlogout style conventions
- * Compact layout
- */
-
 * {
   background-image: none;
   box-shadow: none;
   font-family: "Inter", "JetBrainsMono Nerd Font";
-  font-size: 16px;
+  font-size: 13px;
 }
 
 window {
@@ -14,51 +10,29 @@ window {
 }
 
 window>box {
-  spacing: 0;
   margin: 0;
   padding: 0;
 }
 
 button {
   background-color: #0e0e10;
-  background-position: center 35%;
+  background-position: center 30%;
   background-repeat: no-repeat;
-
-  /* ICONO */
-  background-size: 42px 42px;
-
+  background-size: 40px 40px;
   border: 1px solid #1f1f24;
   border-radius: 8px;
   color: #e6e6e6;
-
-  /* MENOS ESPACIO */
   margin: 6px;
-  padding: 0;
-
-  /* CUADRO MÁS PEQUEÑO */
-  min-width: 64px;
-  min-height: 64px;
+  padding: 8px 12px;
+  /* Tamaño fijo compacto */
+  min-width: 80px;
+  min-height: 80px;
+  max-width: 120px;
+  max-height: 120px;
 }
 
 button:hover,
 button:focus {
   background-color: #15151a;
   border-color: #89b4fa;
-}
-
-/* Iconos */
-#lock {
-  background-image: image(url("/usr/share/wlogout/icons/lock.png"));
-}
-
-#logout {
-  background-image: image(url("/usr/share/wlogout/icons/logout.png"));
-}
-
-#reboot {
-  background-image: image(url("/usr/share/wlogout/icons/reboot.png"));
-}
-
-#shutdown {
-  background-image: image(url("/usr/share/wlogout/icons/shutdown.png"));
 }

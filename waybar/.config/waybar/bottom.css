@@ -52,8 +52,8 @@ window#waybar {
 }
 
 #taskbar button.active {
-  background: @surface-alt;
-  border-color: @accent;
+  background: @accent;
+  /* border-color: @accent; */
   color: @text;
 }
 

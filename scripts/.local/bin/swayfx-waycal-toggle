@@ -19,12 +19,22 @@ disown
 
 command -v swaymsg >/dev/null 2>&1 || exit 0
 
+# Transparent click-trap overlay (requires python3-gi, available on any
+# system with GNOME apps installed).  The trap sits below waycal's
+# layer-shell TOP surface so clicks on waycal still reach waycal; clicks
+# anywhere else land here and dismiss the calendar.  When the trap closes,
+# Sway automatically returns focus to the previously focused window — no
+# second click needed.
+if command -v swayfx-waycal-trap >/dev/null 2>&1; then
+    swayfx-waycal-trap >/dev/null 2>&1 &
+    disown
+fi
+
+# IPC fallback: closes waycal when the user switches workspaces (the trap
+# stays on its origin workspace and can't catch that).  Also handles the
+# case where python3-gi is unavailable.
 (
     pgrep -x waycal >/dev/null 2>&1 || exit 0
-
-    # Subscribe immediately so no click event is missed.
-    # Discard events in the first 600 ms — the opening click and waycal's
-    # initial focus grab would otherwise close the calendar at once.
     start_ns=$(date +%s%N)
     swaymsg -t subscribe '["window","workspace"]' 2>/dev/null |
         while IFS= read -r line; do

@@ -234,3 +234,7 @@ for_window [app_id="org.gnome.Loupe"] floating enable
 for_window [app_id="org.gnome.FileRoller"] floating enable
 for_window [title="Picture-in-Picture"] floating enable, sticky enable
 
+# waycal click-trap overlay: fullscreen transparent, no chrome, excluded
+# from cascade placement via the maximize mark so the daemon ignores it.
+for_window [app_id="swayfx.waycal.trap"] floating enable, mark --add maximize, border none, shadows disable, blur disable, opacity set 1.0, move position 0 0
+

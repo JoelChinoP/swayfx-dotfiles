@@ -25,11 +25,12 @@ window#waybar {
   min-width: 28px;
   padding: 4px 8px;
   font-size: 24px;
+  margin: 14px 3px;
 }
 
 #taskbar {
   border-radius: 26px;
-  margin-left: 8px;
+  margin: 14px 3px 14px 8px;
   padding: 4px 8px;
 }
 

@@ -6,7 +6,7 @@
   background-image: none;
   box-shadow: none;
   font-family: "Inter", "JetBrainsMono Nerd Font";
-  font-size: 14px;
+  font-size: 11px;
 }
 
 window {
@@ -15,16 +15,16 @@ window {
 
 button {
   background-color: #0e0e10;
-  background-position: center 28px;
+  background-position: center 17px;
   background-repeat: no-repeat;
-  background-size: 30%;
+  background-size: 35%;
   border: 1px solid #1f1f24;
   border-radius: 8px;
   color: #e6e6e6;
-  margin: 8px;
-  min-height: 120px;
-  min-width: 140px;
-  padding-top: 70px;
+  margin: 5px;
+  min-height: 32px;
+  min-width: 36px;
+  padding-top: 42px;
 }
 
 button:hover,

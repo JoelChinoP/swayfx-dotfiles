@@ -10,11 +10,12 @@
   "margin-left": 10,
   "margin-right": 10,
   "modules-left": [
-    "custom/distro"
-  ],
-  "modules-center": [
+    "custom/distro",
     "sway/workspaces",
     "sway/mode"
+  ],
+  "modules-center": [
+    "clock"
   ],
   "modules-right": [
     "network",
@@ -22,7 +23,6 @@
     "battery",
     "custom/cpucap",
     "custom/notifications",
-    "clock",
     "custom/power"
   ],
   "custom/distro": {

@@ -48,6 +48,10 @@ window#waybar {
   padding: 0 10px;
 }
 
+#custom-power {
+  font-size: 18px;
+}
+
 #clock {
   font-size: 18px;
   padding-left: 0px;

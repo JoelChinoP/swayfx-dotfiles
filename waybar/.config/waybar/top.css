@@ -62,8 +62,8 @@ window#waybar {
   color: #6c7086;
   /* @text-dim */
   border-radius: 14px;
-  margin: 0;
-  padding: 0;
+  margin: 0px 4px;
+  padding: 0 2px;
 }
 
 #workspaces button.focused,

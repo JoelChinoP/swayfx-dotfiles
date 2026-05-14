@@ -4,10 +4,14 @@
  * Reviewed: 2026-05-13
  */
 
-/* ── Root transparent: wallpaper-login.png is set in regreet.toml ─ */
+/* ── Fondo: negro base + picture al 90% para oscurecer 10% el wallpaper ─ */
 window,
 .background {
-  background: transparent;
+  background: #000000;
+}
+
+picture {
+  opacity: 0.9;
 }
 
 /* ── Login card ────────────────────────────────────────────────────
@@ -19,8 +23,8 @@ clamp>.login-box,
 .login-box {
   background: linear-gradient(
     155deg,
-    rgba(8, 8, 12, 0.90) 0%,
-    rgba(4, 4, 7, 0.94) 100%
+    rgba(8, 8, 12, 0.96) 0%,
+    rgba(4, 4, 7, 0.98) 100%
   );
   border: 1px solid rgba(220, 240, 197, 0.16);
   border-radius: 24px;

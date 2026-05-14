@@ -21,7 +21,7 @@ error_symbol   = "[>](bold #f38ba8)"
 vimcmd_symbol  = "[<](bold #89b4fa)"
 
 [directory]
-format                 = " 󰉋 [$path]($style)[$read_only]($read_only_style) "
+format                 = " [$path]($style)[$read_only]($read_only_style) "
 home_symbol            = "~"
 truncation_length      = 10
 truncate_to_repo       = false
@@ -31,7 +31,7 @@ read_only              = " "
 read_only_style        = "#f38ba8"
 
 [git_branch]
-symbol = " "
+symbol = "  "
 style  = "#f9e2af"
 format = "[$symbol$branch]($style) "
 

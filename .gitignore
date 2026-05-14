@@ -6,6 +6,10 @@
 !scripts/.local/
 !scripts/.local/bin/
 !scripts/.local/bin/*
+!desktop-overrides/.local/
+!desktop-overrides/.local/share/
+!desktop-overrides/.local/share/applications/
+!desktop-overrides/.local/share/applications/*
 .cache/
 
 # SSH y GPG — NUNCA subir al repositorio

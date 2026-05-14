@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Monitor del Sistema
+Name[es]=Monitor del Sistema
+Name[es_PE]=Monitor del Sistema
+Comment=Monitor de recursos en terminal (btop)
+Icon=btop
+Exec=ghostty -e btop
+Terminal=false
+Categories=System;Monitor;
+Keywords=monitor;sistema;cpu;ram;procesos;btop;terminal;
+StartupNotify=true

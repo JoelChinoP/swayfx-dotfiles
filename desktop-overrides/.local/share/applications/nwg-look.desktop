@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Apariencia GTK
+Name[es]=Apariencia GTK
+Name[es_PE]=Apariencia GTK
+Comment=Configura el tema y la apariencia GTK
+Icon=nwg-look
+Exec=nwg-look
+Terminal=false
+Categories=GTK;Settings;DesktopSettings;
+Keywords=tema;apariencia;gtk;iconos;cursor;estilo;
+StartupNotify=true

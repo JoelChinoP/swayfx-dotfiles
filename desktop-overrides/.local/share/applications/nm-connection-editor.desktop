@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Conexiones de Red
+Name[es]=Conexiones de Red
+Name[es_PE]=Conexiones de Red
+Comment=Gestiona conexiones de red
+Icon=nm-connection-editor
+Exec=nm-connection-editor
+Terminal=false
+Categories=GNOME;GTK;Settings;Network;
+Keywords=red;wifi;ethernet;vpn;conexión;networkmanager;
+StartupNotify=true

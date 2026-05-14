@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Volumen y Audio
+Name[es]=Volumen y Audio
+Name[es_PE]=Volumen y Audio
+Comment=Control de volumen PulseAudio
+Icon=org.pulseaudio.pavucontrol
+Exec=pavucontrol
+Terminal=false
+Categories=AudioVideo;Audio;Mixer;
+Keywords=audio;volumen;sonido;pulseaudio;pipewire;
+StartupNotify=true

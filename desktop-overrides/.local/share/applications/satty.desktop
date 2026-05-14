@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Editor de Capturas
+Name[es]=Editor de Capturas
+Name[es_PE]=Editor de Capturas
+Comment=Edita y anota capturas de pantalla
+Icon=satty
+Exec=satty --filename %f
+Terminal=false
+Categories=Graphics;RasterGraphics;
+Keywords=captura;pantalla;anotación;screenshot;satty;
+StartupNotify=true

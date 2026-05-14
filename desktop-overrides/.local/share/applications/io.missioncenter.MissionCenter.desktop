@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Monitor de Recursos
+Name[es]=Monitor de Recursos
+Name[es_PE]=Monitor de Recursos
+Comment=Monitorea CPU, RAM, GPU, disco y red
+Icon=io.missioncenter.MissionCenter
+Exec=missioncenter
+Terminal=false
+Categories=GTK;System;Monitor;
+Keywords=monitor;recursos;sistema;cpu;ram;gpu;disco;red;procesos;
+StartupNotify=true

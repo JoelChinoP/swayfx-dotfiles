@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Visor de Imágenes
+Name[es]=Visor de Imágenes
+Name[es_PE]=Visor de Imágenes
+Comment=Visualiza imágenes y fotos
+Icon=org.gnome.Loupe
+Exec=loupe %F
+Terminal=false
+Categories=GNOME;GTK;Graphics;Viewer;
+Keywords=imágenes;fotos;visor;fotos;png;jpg;
+StartupNotify=true
+DBusActivatable=true
+MimeType=image/jpeg;image/png;image/gif;image/webp;image/avif;

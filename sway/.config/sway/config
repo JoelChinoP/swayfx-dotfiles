@@ -43,6 +43,7 @@ gaps vertical 1
 # smart_gaps on
 smart_gaps off
 corner_radius 10
+animations enable
 shadows disable
 default_dim_inactive 0.05
 dim_inactive_colors.unfocused #000000FF
@@ -218,11 +219,9 @@ bindsym $mod+Shift+q exec ~/.local/bin/swayfx-powermenu
 for_window [app_id=".*"] floating enable, resize set 1280 720
 for_window [class=".*"] floating enable, resize set 1280 720
 
-# Desktop workflow: Brave starts tiled/maximized inside the workspace so
-# the top bar remains visible. Use browser F11 for true fullscreen.
-for_window [app_id="^brave-browser$"] floating disable
-for_window [app_id="^brave$"] floating disable
-for_window [class="^Brave-browser$"] floating disable
+# Brave opens floating like every other app; the placement daemon auto-maximizes
+# it below the waybar. Use browser F11 for true fullscreen.
+# Z-order with other floating windows is handled by the daemon's raise-on-focus.
 
 for_window [window_type="dialog"] floating enable
 for_window [window_role="pop-up"] floating enable

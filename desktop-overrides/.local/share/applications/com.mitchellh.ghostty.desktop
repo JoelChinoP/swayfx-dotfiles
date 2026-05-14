@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Terminal
+Name[es]=Terminal
+Name[es_PE]=Terminal
+Comment=Emulador de terminal
+Icon=com.mitchellh.ghostty
+Exec=/usr/bin/ghostty --gtk-single-instance=true
+Terminal=false
+Categories=System;TerminalEmulator;
+Keywords=terminal;consola;tty;
+StartupNotify=true
+StartupWMClass=com.mitchellh.ghostty
+DBusActivatable=true

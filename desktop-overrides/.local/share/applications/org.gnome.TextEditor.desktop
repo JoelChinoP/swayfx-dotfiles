@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Editor de Texto
+Name[es]=Editor de Texto
+Name[es_PE]=Editor de Texto
+Comment=Edita archivos de texto y código
+Icon=org.gnome.TextEditor
+Exec=gnome-text-editor %F
+Terminal=false
+Categories=GNOME;GTK;Utility;TextEditor;
+Keywords=texto;editor;código;notas;
+StartupNotify=true
+DBusActivatable=true
+MimeType=text/plain;

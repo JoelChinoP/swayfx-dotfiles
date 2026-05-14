@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Bluetooth
+Name[es]=Bluetooth
+Name[es_PE]=Bluetooth
+Comment=Gestiona dispositivos Bluetooth
+Icon=blueman-tray
+Exec=blueman-manager
+Terminal=false
+Categories=GTK;Settings;HardwareSettings;
+Keywords=bluetooth;inalámbrico;dispositivos;blueman;
+StartupNotify=true

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Archivos Comprimidos
+Name[es]=Archivos Comprimidos
+Name[es_PE]=Archivos Comprimidos
+Comment=Crea y extrae archivos comprimidos
+Icon=org.gnome.FileRoller
+Exec=file-roller %U
+Terminal=false
+Categories=GNOME;GTK;Utility;Archiver;
+Keywords=zip;rar;tar;comprimir;extraer;archivos;
+StartupNotify=true
+MimeType=application/zip;application/x-tar;application/x-gzip;application/x-bzip2;application/x-7z-compressed;application/vnd.rar;

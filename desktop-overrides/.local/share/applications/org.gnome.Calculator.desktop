@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Calculadora
+Name[es]=Calculadora
+Name[es_PE]=Calculadora
+Comment=Calculadora GNOME
+Icon=org.gnome.Calculator
+Exec=gnome-calculator
+Terminal=false
+Categories=GNOME;GTK;Utility;Calculator;
+Keywords=calculadora;matemáticas;calcular;
+StartupNotify=true
+DBusActivatable=true

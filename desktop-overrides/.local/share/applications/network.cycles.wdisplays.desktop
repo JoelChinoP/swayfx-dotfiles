@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Pantallas
+Name[es]=Pantallas
+Name[es_PE]=Pantallas
+Comment=Configura monitores y pantallas Wayland
+Icon=video-display
+Exec=wdisplays
+Terminal=false
+Categories=GTK;Settings;HardwareSettings;
+Keywords=pantalla;monitor;resolución;wdisplays;wayland;
+StartupNotify=true

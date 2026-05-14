@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Reproductor de Video
+Name[es]=Reproductor de Video
+Name[es_PE]=Reproductor de Video
+Comment=Reproduce videos y música
+Icon=mpv
+Exec=mpv --player-operation-mode=pseudo-gui -- %U
+Terminal=false
+Categories=AudioVideo;Video;Player;
+Keywords=video;música;reproductor;mpv;media;
+StartupNotify=true
+MimeType=video/mp4;video/mkv;video/avi;audio/mpeg;audio/ogg;

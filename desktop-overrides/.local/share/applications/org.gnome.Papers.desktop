@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Lector de PDFs
+Name[es]=Lector de PDFs
+Name[es_PE]=Lector de PDFs
+Comment=Visualiza documentos PDF y EPUB
+Icon=org.gnome.Papers
+Exec=papers %U
+Terminal=false
+Categories=GNOME;GTK;Office;Viewer;
+Keywords=pdf;epub;documento;lector;papers;evince;
+StartupNotify=true
+DBusActivatable=true
+MimeType=application/pdf;application/epub+zip;

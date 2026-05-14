@@ -22,6 +22,10 @@ DEFAULT_WINDOW_WIDTH = 1280
 DEFAULT_WINDOW_HEIGHT = 720
 MAXIMIZE_MARK = "maximize"
 
+# App IDs / WM classes that should be auto-maximized when they open.
+AUTO_MAXIMIZE_APP_IDS = frozenset({"brave-browser", "brave"})
+AUTO_MAXIMIZE_WM_CLASSES = frozenset({"Brave-browser"})
+
 
 def ensure_i3ipc():
     try:
@@ -71,6 +75,36 @@ def is_floating(con) -> bool:
 
 def has_mark(con, mark: str) -> bool:
     return mark in (getattr(con, "marks", None) or [])
+
+
+def should_auto_maximize(con) -> bool:
+    app_id = (getattr(con, "app_id", None) or "").lower()
+    wm_class = ((getattr(con, "window_properties", None) or {}).get("class") or "")
+    return app_id in AUTO_MAXIMIZE_APP_IDS or wm_class in AUTO_MAXIMIZE_WM_CLASSES
+
+
+def get_active_output(conn):
+    outputs = conn.get_outputs()
+    for out in outputs:
+        if getattr(out, "focused", False):
+            return out
+    for out in outputs:
+        if getattr(out, "active", False):
+            return out
+    return outputs[0] if outputs else None
+
+
+def maximize_window(conn, con) -> None:
+    out = get_active_output(conn)
+    if out is None:
+        return
+    w = out.rect.width
+    h = out.rect.height - TOP_BAR_HEIGHT
+    con.command(
+        f"floating enable, resize set {w} {h}, "
+        f"move position 0 {TOP_BAR_HEIGHT}, "
+        f"border none, shadows disable, mark --add {MAXIMIZE_MARK}"
+    )
 
 
 def workspace_for(con, conn):
@@ -166,19 +200,27 @@ def update_borders(conn, tree=None) -> None:
 
 def on_new_or_floating(conn, event) -> None:
     time.sleep(0.08)
-    # Single get_tree() shared between placement and border update.
     tree = conn.get_tree()
     con = find_by_id(tree, event.container.id) or event.container
-    if is_window(con) and is_floating(con) and not has_mark(con, MAXIMIZE_MARK):
+    if not is_window(con):
+        return
+
+    # Auto-maximize designated apps (e.g. Brave) instead of cascade-placing them.
+    if should_auto_maximize(con) and not has_mark(con, MAXIMIZE_MARK):
+        maximize_window(conn, con)
+        update_borders(conn)
+        return
+
+    if is_floating(con) and not has_mark(con, MAXIMIZE_MARK):
         place_floating_window(conn, con)
     update_borders(conn, tree=tree)
 
 
 def on_focus(conn, event) -> None:
-    # Explicitly raise the focused floating window so it comes to the front.
-    # Sway should do this natively, but some SwayFX builds need the nudge.
+    # Raise ANY focused floating window (including maximized ones) so z-order
+    # is always correct — the focused window comes to the front.
     con = event.container
-    if is_floating(con) and not has_mark(con, MAXIMIZE_MARK):
+    if is_floating(con):
         try:
             con.command("raise")
         except Exception:
@@ -194,7 +236,6 @@ def main() -> int:
     conn = i3ipc.Connection()
     for event_name in ("window::new", "window::floating"):
         conn.on(event_name, on_new_or_floating)
-    # Focus gets its own handler for the raise+border update.
     conn.on("window::focus", on_focus)
     for event_name in (
         "window::close",

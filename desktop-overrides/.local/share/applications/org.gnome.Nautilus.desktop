@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Archivos
+Name[es]=Archivos
+Name[es_PE]=Archivos
+Comment=Explorador de archivos
+Icon=org.gnome.Nautilus
+Exec=nautilus --new-window %U
+Terminal=false
+Categories=GNOME;GTK;Utility;FileManager;
+Keywords=archivos;carpetas;explorador;disco;nautilus;
+StartupNotify=true
+DBusActivatable=true
+MimeType=inode/directory;

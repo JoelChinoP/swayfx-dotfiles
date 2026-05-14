@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Apariencia Qt
+Name[es]=Apariencia Qt
+Name[es_PE]=Apariencia Qt
+Comment=Configura el tema Qt con Kvantum
+Icon=kvantum
+Exec=kvantummanager
+Terminal=false
+Categories=Qt;Settings;DesktopSettings;
+Keywords=tema;apariencia;qt;kvantum;estilo;
+StartupNotify=true

@@ -15,7 +15,7 @@
 window#waybar {
   background: #000000;
   color: #cdd6f4;
-
+  margin: 0 0 0 0;
   /* @text si tienes paleta */
 }
 

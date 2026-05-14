@@ -52,6 +52,10 @@ bindkey '^[[1;5D' backward-word              # Ctrl+Left
 # Subtle autosuggest color on near-black background.
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#5a5a66"
 
+# Disable path highlighting, which is too noisy on the prompt and in the
+ZSH_HIGHLIGHT_STYLES[path]=none
+ZSH_HIGHLIGHT_STYLES[path_prefix]=none
+
 # ── Aliases ───────────────────────────────────────────────────────────
 alias ls='ls --color=auto --group-directories-first'
 alias ll='ls -lah'

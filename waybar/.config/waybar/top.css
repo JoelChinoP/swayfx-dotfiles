@@ -55,7 +55,7 @@ window#waybar {
 
 /* Workspaces */
 #workspaces {
-  padding: 0px 4px;
+  padding: 0 8px 0 8px;
 }
 
 #workspaces button {
@@ -63,8 +63,10 @@ window#waybar {
   color: #6c7086;
   /* @text-dim */
   border-radius: 14px;
-  margin: 0px;
-  padding: 2px 2px;
+  margin: 0 2px;
+  /* separación entre workspaces */
+  padding: 2px 8px;
+  /* aire horizontal alrededor del número */
 }
 
 #workspaces button.focused,

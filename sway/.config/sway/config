@@ -120,7 +120,7 @@ exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-placement-daemo
 # Application launchers.
 # --release Super_L solo dispara cuando Super se suelta sin combinar con otra tecla.
 bindsym --release Super_L exec bash -c 'pgrep -x fuzzel >/dev/null 2>&1 && pkill -x fuzzel || fuzzel'
-bindsym $mod+d             exec bash -c 'pgrep -x fuzzel >/dev/null 2>&1 && pkill -x fuzzel || fuzzel'
+# bindsym $mod+d             exec bash -c 'pgrep -x fuzzel >/dev/null 2>&1 && pkill -x fuzzel || fuzzel'
 bindsym $mod+Return exec $term
 bindsym $mod+Shift+e exec $files
 bindsym $mod+Shift+t exec $editor
@@ -128,8 +128,8 @@ bindsym $mod+b exec $browser
 
 # Desktop-like actions.
 bindsym $mod+q kill
-bindsym $mod+f fullscreen toggle
-bindsym $mod+Shift+f exec ~/.local/bin/swayfx-maximize
+bindsym $mod+Shift+f fullscreen toggle
+bindsym $mod+f exec ~/.local/bin/swayfx-maximize
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+m move scratchpad
 bindsym $mod+Shift+m scratchpad show

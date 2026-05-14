@@ -9,5 +9,9 @@ else
     disown
 fi
 
-# Señal SIGRTMIN+3 → waybar recarga el módulo custom/gammastep.
-pkill -SIGRTMIN+3 waybar 2>/dev/null || true
+# Espera breve para que gammastep arranque/muera antes de que waybar consulte su estado.
+sleep 0.15
+
+# SIGRTMIN+3 actualiza el módulo custom/gammastep.
+# kill con pgrep es más fiable que pkill para señales RTMIN en bash.
+kill -SIGRTMIN+3 $(pgrep -x waybar) 2>/dev/null || true

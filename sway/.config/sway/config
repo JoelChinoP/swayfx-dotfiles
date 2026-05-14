@@ -215,8 +215,8 @@ bindsym $mod+Shift+r restart
 bindsym $mod+Shift+q exec ~/.local/bin/swayfx-powermenu
 
 # Floating rules.
-for_window [app_id=".*"] floating enable, resize set 1280 720
-for_window [class=".*"] floating enable, resize set 1280 720
+for_window [app_id=".*"] floating enable, resize set 1000 600
+for_window [class=".*"] floating enable, resize set 1000 600
 
 # Brave opens floating like every other app; the placement daemon auto-maximizes
 # it below the waybar. Use browser F11 for true fullscreen.
@@ -227,7 +227,7 @@ for_window [window_role="pop-up"] floating enable
 for_window [app_id="pavucontrol"] floating enable, resize set 780 520
 for_window [app_id="nm-connection-editor"] floating enable, resize set 780 560
 for_window [app_id="blueman-manager"] floating enable, resize set 820 560
-for_window [app_id="gnome-calculator"] floating enable
+for_window [app_id="gnome-calculator"] floating enable resize set 700 400
 for_window [app_id="org.gnome.Calculator"] floating enable
 for_window [app_id="org.gnome.Loupe"] floating enable
 for_window [app_id="org.gnome.FileRoller"] floating enable

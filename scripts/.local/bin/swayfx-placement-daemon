@@ -199,29 +199,49 @@ def update_borders(conn, tree=None) -> None:
             set_border(con, "pixel")
 
 
-def on_new_or_floating(conn, event) -> None:
+def on_window_new(conn, event) -> None:
     time.sleep(0.08)
     tree = conn.get_tree()
     con = find_by_id(tree, event.container.id) or event.container
     if not is_window(con):
         return
 
-    # Auto-maximize designated apps (e.g. Brave) instead of cascade-placing them.
+    # Auto-maximize only on window::new so that swayfx-maximize restores
+    # are not re-maximized by the window::floating event they trigger.
     if should_auto_maximize(con) and not has_mark(con, MAXIMIZE_MARK):
         maximize_window(conn, con)
         update_borders(conn)
         return
 
-    if is_floating(con) and not has_mark(con, MAXIMIZE_MARK):
+    update_borders(conn, tree=tree)
+
+
+def on_window_floating(conn, event) -> None:
+    # Placement lives here; auto-maximize does NOT — firing it here would
+    # re-maximize Brave whenever swayfx-maximize issues 'floating enable'.
+    time.sleep(0.08)
+    tree = conn.get_tree()
+    con = find_by_id(tree, event.container.id) or event.container
+    if not is_window(con) or not is_floating(con):
+        return
+    if not has_mark(con, MAXIMIZE_MARK):
         place_floating_window(conn, con)
     update_borders(conn, tree=tree)
 
 
 def on_focus(conn, event) -> None:
-    # Raise ANY focused floating window (including maximized ones) so z-order
-    # is always correct — the focused window comes to the front.
+    # Always raise on focus — the is_floating check on event.container
+    # can be stale; raising a tiled window is a safe no-op in Sway.
+    try:
+        event.container.command("raise")
+    except Exception:
+        pass
+    update_borders(conn)
+
+
+def on_fullscreen_mode(conn, event) -> None:
     con = event.container
-    if is_floating(con):
+    if getattr(con, "fullscreen_mode", 0):
         try:
             con.command("raise")
         except Exception:
@@ -235,13 +255,13 @@ def on_layout_event(conn, _event) -> None:
 
 def main() -> int:
     conn = i3ipc.Connection()
-    for event_name in ("window::new", "window::floating"):
-        conn.on(event_name, on_new_or_floating)
+    conn.on("window::new", on_window_new)
+    conn.on("window::floating", on_window_floating)
     conn.on("window::focus", on_focus)
+    conn.on("window::fullscreen_mode", on_fullscreen_mode)
     for event_name in (
         "window::close",
         "window::move",
-        "window::fullscreen_mode",
         "workspace::focus",
     ):
         conn.on(event_name, on_layout_event)

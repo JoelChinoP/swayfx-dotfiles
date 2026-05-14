@@ -222,6 +222,9 @@ bindsym XF86AudioRaiseVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+
 bindsym XF86AudioLowerVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
 bindsym XF86AudioMute exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 bindsym XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+bindsym XF86TouchpadToggle exec ~/.local/bin/swayfx-touchpad-toggle
+bindsym XF86TouchpadOn     exec bash -c 'swaymsg input type:touchpad events enabled;  kill -SIGRTMIN+4 $(pgrep -x waybar) 2>/dev/null || true'
+bindsym XF86TouchpadOff    exec bash -c 'swaymsg input type:touchpad events disabled; kill -SIGRTMIN+4 $(pgrep -x waybar) 2>/dev/null || true'
 bindsym $mod+g exec ~/.local/bin/swayfx-gammastep-toggle
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart

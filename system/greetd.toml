@@ -6,5 +6,5 @@
 vt = 1
 
 [default_session]
-command = "dbus-run-session cage -s -m last -- regreet"
+command = "env LANG=es_PE.UTF-8 LC_TIME=es_PE.UTF-8 LC_ALL=es_PE.UTF-8 dbus-run-session cage -s -m last -- regreet"
 user = "greeter"

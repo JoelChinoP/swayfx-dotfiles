@@ -13,10 +13,28 @@ picture {
   opacity: 0.82;
 }
 
-headerbar {
+/* Oculta el headerbar (titulo "regreet") si existe en esta build */
+headerbar,
+.titlebar {
   opacity: 0;
   min-height: 0;
   padding: 0;
+  margin: 0;
+}
+
+/* Reloj / hora — aplica si regreet tiene widget de tiempo */
+.clock, #clock,
+.time,  #time {
+  font-size: 48px;
+  font-weight: 300;
+  color: #ffffff;
+  letter-spacing: -1px;
+}
+
+.date, #date {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.2px;
 }
 
 /* ── Login card ─────────────────────────────────────────────────────

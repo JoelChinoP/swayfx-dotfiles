@@ -61,7 +61,7 @@ layer_effects "wlogout" {
 
 # Blur only on the terminal.
 blur disable
-for_window [app_id="com.mitchellh.ghostty"] blur enable, blur_passes 3, blur_radius 5, opacity set 0.85
+for_window [app_id="com.mitchellh.ghostty"] blur enable, blur_passes 3, blur_radius 5, opacity set 0.75
 
 # Keep graphics/video apps color-accurate.
 for_window [app_id="^gimp.*$"] blur disable, opacity set 1.0

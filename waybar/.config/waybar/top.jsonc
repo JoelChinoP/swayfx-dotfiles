@@ -1,4 +1,4 @@
-// Verified against: waybar(5), waybar-clock(5), waybar-sway-workspaces(5)
+// Verified against: waybar(5), waybar-clock(5), waybar-battery(5), waybar-sway-workspaces(5)
 // Reviewed: 2026-05-14
 {
   "name": "top",
@@ -86,6 +86,7 @@
   },
   "battery": {
     "format": "{icon} {capacity}%",
+    "format-discharging": "{icon} {capacity}% ({time})",
     "format-charging": "󰂄 {capacity}% ({time})",
     "format-plugged": "󰚥 {capacity}%",
     "format-time": "{H}h {M}m",

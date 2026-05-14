@@ -56,6 +56,15 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#5a5a66"
 ZSH_HIGHLIGHT_STYLES[path]=none
 ZSH_HIGHLIGHT_STYLES[path_prefix]=none
 
+# ── LS_COLORS ────────────────────────────────────────────────────────
+# Los defaults de dircolors usan fondos brillantes (ow=34;42, tw=30;42)
+# que en fondo negro pierden el texto. Se reemplazan por solo foreground.
+#   ow = other-writable (sin sticky)  → azul negrita
+#   tw = sticky + world-writable      → cian negrita
+#   st = sticky (no world-writable)   → azul subrayado
+eval "$(dircolors -b 2>/dev/null)" || true
+export LS_COLORS="${LS_COLORS}:ow=1;34:tw=1;36:st=4;34"
+
 # ── Aliases ───────────────────────────────────────────────────────────
 alias ls='ls --color=auto --group-directories-first'
 alias ll='ls -lah'

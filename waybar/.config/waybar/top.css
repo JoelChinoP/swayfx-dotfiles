@@ -63,9 +63,9 @@ window#waybar {
   color: #6c7086;
   /* @text-dim */
   border-radius: 14px;
-  margin: 0 2px;
+  margin: 4px 2px;
   /* separación entre workspaces */
-  padding: 2px 8px;
+  padding: 0 8px;
   /* aire horizontal alrededor del número */
 }
 

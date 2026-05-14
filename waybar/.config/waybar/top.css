@@ -65,7 +65,7 @@ window#waybar {
   border-radius: 14px;
   margin: 4px 2px;
   /* separación entre workspaces */
-  padding: 0 8px;
+  padding: 0 2px;
   /* aire horizontal alrededor del número */
 }
 

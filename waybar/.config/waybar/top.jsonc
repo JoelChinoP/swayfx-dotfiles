@@ -15,7 +15,8 @@
     "sway/mode"
   ],
   "modules-center": [
-    "clock"
+    "clock",
+    "custom/waycal"
   ],
   "modules-right": [
     "network",
@@ -130,5 +131,10 @@
     "format": "󰐥",
     "tooltip": false,
     "on-click": "bash ~/.local/bin/swayfx-powermenu"
+  },
+  "custom/waycal": {
+    "format": "󰃭",
+    "tooltip": false,
+    "on-click": "pkill -x waycal || waycal"
   }
 }

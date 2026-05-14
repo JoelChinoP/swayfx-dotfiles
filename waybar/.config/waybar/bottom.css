@@ -30,7 +30,7 @@ window#waybar {
 
 #taskbar {
   border-radius: 26px;
-  margin: 14px 3px 14px 8px;
+  margin: 14px 3px 14px 3px;
   /* padding: 4px 8px; */
 }
 

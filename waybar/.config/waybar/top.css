@@ -53,13 +53,17 @@ window#waybar {
 }
 
 /* Workspaces */
+#workspaces {
+  padding: 0px 4px;
+}
+
 #workspaces button {
   background: transparent;
   color: #6c7086;
   /* @text-dim */
   border-radius: 14px;
-  margin: 0px 2px;
-  padding: 0 4px;
+  margin: 0;
+  padding: 0;
 }
 
 #workspaces button.focused,

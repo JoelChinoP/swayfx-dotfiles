@@ -38,7 +38,8 @@ window#waybar {
 
 #taskbar {
   border-radius: 26px;
-  margin: 4px;
+  margin: 0px;
+  padding: 0;
 }
 
 #taskbar button {

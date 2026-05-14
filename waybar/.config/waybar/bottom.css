@@ -21,12 +21,8 @@ window#waybar {
 #custom-browser,
 #custom-files,
 #custom-editor {
-  border-radius: 16px;
-  min-width: 28px;
-  /* padding: 4px 4px; */
-  font-size: 24px;
-  margin: 14px 3px;
-
+  border-radius: 26px;
+  margin: 14px 3px 14px 3px;
 }
 
 #taskbar {

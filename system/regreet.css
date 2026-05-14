@@ -52,7 +52,7 @@ headerbar *,
 
 .date,
 #date {
-  font-size: 18px;
+  font-size: 32px;
   color: rgba(255, 255, 255, 0.65);
   letter-spacing: 0.2px;
 }
@@ -95,7 +95,7 @@ label.title-2 {
 label.body,
 label.caption,
 label.dim-label {
-  font-size: 13px;
+  font-size: 20px;
   color: #a8a8b4;
   letter-spacing: 0.1px;
 }
@@ -103,7 +103,7 @@ label.dim-label {
 label.error,
 label.warning {
   color: #f38ba8;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 500;
 }
 
@@ -115,7 +115,7 @@ entry {
   color: #e6e6e6;
   caret-color: #89b4fa;
   padding: 13px 18px;
-  font-size: 14px;
+  font-size: 20px;
   font-family: "Inter", sans-serif;
   box-shadow:
     inset 0 1px 4px rgba(0, 0, 0, 0.25),
@@ -153,7 +153,7 @@ button {
   border-radius: 12px;
   color: #e6e6e6;
   padding: 10px 22px;
-  font-size: 13px;
+  font-size: 20px;
   font-family: "Inter", sans-serif;
   font-weight: 600;
   letter-spacing: 0.15px;
@@ -233,7 +233,7 @@ dropdownbutton {
   border-radius: 12px;
   color: #f0f0f5;
   padding: 10px 16px;
-  font-size: 13px;
+  font-size: 20px;
   font-family: "Inter", sans-serif;
   font-weight: 500;
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.20);
@@ -252,7 +252,7 @@ popover>contents,
 popover.menu>contents {
   background: #0e0e10;
   border: 1px solid #1f1f24;
-  border-radius: 14px;
+  border-radius: 20px;
   box-shadow:
     0 4px 10px rgba(0, 0, 0, 0.30),
     0 18px 48px rgba(0, 0, 0, 0.50);
@@ -265,7 +265,7 @@ popover modelbutton {
   padding: 9px 16px;
   color: #e8e8f0;
   font-family: "Inter", sans-serif;
-  font-size: 13px;
+  font-size: 20px;
   transition: background 100ms ease, color 100ms ease;
 }
 

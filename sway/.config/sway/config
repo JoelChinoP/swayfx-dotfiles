@@ -31,9 +31,9 @@ client.unfocused         $surface $bg $text $surface $surface
 client.urgent            $crit    $bg $text $crit $crit
 
 # SwayFX visuals.
-default_border pixel 4
+default_border pixel 1
 smart_borders no
-default_floating_border pixel 4
+default_floating_border pixel 1
 floating_modifier $mod normal
 focus_follows_mouse no
 focus_on_window_activation focus

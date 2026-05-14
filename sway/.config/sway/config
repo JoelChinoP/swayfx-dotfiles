@@ -118,8 +118,8 @@ exec_always sh -lc 'export PATH="$HOME/.local/bin:$PATH"; pkill -x waybar || tru
 exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-placement-daemon
 
 # Application launchers.
+bindsym $mod exec $launcher
 bindsym $mod+Return exec $term
-bindsym $mod+d exec $launcher
 bindsym $mod+Shift+e exec $files
 bindsym $mod+Shift+t exec $editor
 bindsym $mod+b exec $browser

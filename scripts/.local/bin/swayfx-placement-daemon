@@ -27,13 +27,11 @@ def ensure_i3ipc():
     try:
         return importlib.import_module("i3ipc")
     except ImportError:
+        pip_install = [sys.executable, "-m", "pip", "install", "--user", "i3ipc"]
         try:
-            subprocess.check_call([sys.executable, "-m", "pip", "--version"])
+            subprocess.check_call(pip_install)
         except subprocess.CalledProcessError:
-            subprocess.check_call([sys.executable, "-m", "ensurepip", "--user"])
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "--user", "i3ipc"]
-        )
+            subprocess.check_call([*pip_install, "--break-system-packages"])
         os.execv(sys.executable, [sys.executable, *sys.argv])
 
 

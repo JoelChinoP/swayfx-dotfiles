@@ -41,9 +41,10 @@ log_info "enabling NetworkManager and bluetooth"
 run sudo systemctl enable --now NetworkManager.service bluetooth.service
 
 if command -v paru >/dev/null 2>&1 || (( DRY_RUN )); then
+    paru_install nmgui
     paru_install_optional asusctl
 else
-    log_warn "paru missing; skipping optional asusctl"
+    log_warn "paru missing; skipping AUR packages (nmgui, asusctl)"
 fi
 
 if (( DRY_RUN )); then
@@ -54,7 +55,7 @@ fi
 
 errs=0
 
-for cmd in wl-copy cliphist grim slurp brightnessctl gammastep wdisplays pavucontrol playerctl nmcli bluetoothctl notify-send jq ufw; do
+for cmd in wl-copy cliphist grim slurp brightnessctl gammastep wdisplays pavucontrol playerctl nmcli bluetoothctl notify-send jq ufw nmgui; do
     if command -v "$cmd" >/dev/null 2>&1; then
         log_ok "command present: $cmd"
     else

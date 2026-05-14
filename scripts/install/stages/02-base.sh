@@ -37,7 +37,7 @@ else
 fi
 
 BASE_PKGS=(
-    swaybg ghostty nmgui
+    swaybg ghostty
     mesa vulkan-radeon libva-utils
     pipewire wireplumber pipewire-pulse pipewire-jack
     sof-firmware alsa-ucm-conf
@@ -123,13 +123,6 @@ if command -v ghostty >/dev/null 2>&1; then
     log_ok "ghostty is installed"
 else
     log_error "ghostty is not on PATH"
-    (( ++errs ))
-fi
-
-if command -v nmgui >/dev/null 2>&1; then
-    log_ok "nmgui is installed"
-else
-    log_error "nmgui is not on PATH"
     (( ++errs ))
 fi
 

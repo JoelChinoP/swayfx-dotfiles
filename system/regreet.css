@@ -23,15 +23,18 @@ headerbar,
 }
 
 /* Reloj / hora — aplica si regreet tiene widget de tiempo */
-.clock, #clock,
-.time,  #time {
+.clock,
+#clock,
+.time,
+#time {
   font-size: 48px;
   font-weight: 300;
   color: #ffffff;
   letter-spacing: -1px;
 }
 
-.date, #date {
+.date,
+#date {
   font-size: 18px;
   color: rgba(255, 255, 255, 0.65);
   letter-spacing: 0.2px;
@@ -163,7 +166,7 @@ button:active {
 
 /* Login / acción primaria */
 button.suggested-action {
-  background: linear-gradient(155deg, #dcf0c5 0%, #c4dea8 100%);
+  background: rgba(243, 87, 87, 0.24);
   border-color: rgba(220, 240, 197, 0.40);
   color: #0b160a;
   font-weight: 700;
@@ -176,7 +179,7 @@ button.suggested-action {
 }
 
 button.suggested-action:hover {
-  background: linear-gradient(155deg, #eafad8 0%, #d0eab4 100%);
+  background: rgba(243, 87, 87, 0.36);
   color: #0b160a;
   box-shadow:
     0 4px 14px rgba(220, 240, 197, 0.28),

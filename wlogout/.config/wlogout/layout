@@ -2,23 +2,31 @@
   "label": "lock",
   "action": "swaylock -f",
   "text": "Bloquear",
-  "keybind": "l"
+  "keybind": "l",
+  "height": 0.7,
+  "width": 0.5
 }
 {
   "label": "logout",
   "action": "swaymsg exit",
   "text": "Salir",
-  "keybind": "e"
+  "keybind": "e",
+  "height": 0.7,
+  "width": 0.5
 }
 {
   "label": "reboot",
   "action": "systemctl reboot",
   "text": "Reiniciar",
-  "keybind": "r"
+  "keybind": "r",
+  "height": 0.7,
+  "width": 0.5
 }
 {
   "label": "shutdown",
   "action": "systemctl poweroff",
   "text": "Apagar",
-  "keybind": "p"
+  "keybind": "p",
+  "height": 0.7,
+  "width": 0.5
 }

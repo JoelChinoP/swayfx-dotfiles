@@ -9,6 +9,7 @@
   "expand-right": true,
   "height": 32,
   "spacing": 0,
+  "exclusive": false,
   "modules-left": [
     "custom/distro",
     "sway/workspaces",

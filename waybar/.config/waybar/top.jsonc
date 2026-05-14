@@ -39,31 +39,15 @@
     "tooltip": false
   },
   "clock": {
-    // Left click opens waycal; hover keeps Waybar's month-only calendar.
+    // Left click opens waycal. Hover calendar is disabled intentionally.
     "format": "<b>{:%H:%M}</b>",
     "format-alt": "<b>{:%A, %d %B %Y}</b>",
-    "locale": "es_PE.UTF-8",
-    "tooltip": true,
-    "tooltip-format": "<tt>{calendar}</tt>",
-    "on-click": "sh -lc 'pkill -x waycal || waycal'",
-    "calendar": {
-      "mode": "month",
-      "mode-mon-col": 1,
-      "weeks-pos": "left",
-      "on-scroll": 1,
-      "format": {
-        "months": "<span color='#e6e6e6'><b>{}</b></span>",
-        "days": "<span color='#e6e6e6'>{}</span>",
-        "weeks": "<span color='#9a9aa6'><b>W{}</b></span>",
-        "weekdays": "<span color='#89b4fa'><b>{}</b></span>",
-        "today": "<span color='#f38ba8'><b><u>{}</u></b></span>"
-      }
-    },
+    "locale": "es_PE.utf8",
+    "tooltip": false,
+    "on-click": "bash ~/.local/bin/swayfx-waycal-toggle",
     "actions": {
-      // Right click toggles hour/date; scroll shifts the tooltip calendar.
-      "on-click-right": "mode",
-      "on-scroll-up": "shift_up",
-      "on-scroll-down": "shift_down"
+      // Right click toggles hour/date.
+      "on-click-right": "mode"
     }
   },
   "network": {

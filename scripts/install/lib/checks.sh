@@ -114,7 +114,8 @@ for helper in \
     swayfx-screenshot \
     swayfx-cliphist-menu \
     swayfx-waybar-notifications \
-    swayfx-waybar-bottom-toggle
+    swayfx-waybar-bottom-toggle \
+    swayfx-waycal-toggle
 do
     check_cmd "helper installed: $helper" bash -c 'test -x "$HOME/.local/bin/$1"' _ "$helper"
 done

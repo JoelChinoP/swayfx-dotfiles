@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Toggle waycal from Waybar and close it when Sway focus changes.
+#
+# Verified against: https://github.com/forrestknight/waycal, swaymsg(1)
+# Reviewed: 2026-05-14
+
+set -euo pipefail
+IFS=$'\n\t'
+
+if pgrep -x waycal >/dev/null 2>&1; then
+    pkill -x waycal
+    exit 0
+fi
+
+command -v waycal >/dev/null 2>&1 || exit 127
+
+waycal >/dev/null 2>&1 &
+disown
+
+command -v swaymsg >/dev/null 2>&1 || exit 0
+
+(
+    sleep 0.25
+    swaymsg -t subscribe '["window","workspace","binding"]' 2>/dev/null |
+        while IFS= read -r _event; do
+            pgrep -x waycal >/dev/null 2>&1 || exit 0
+            pkill -x waycal
+            exit 0
+        done
+) >/dev/null 2>&1 &
+disown

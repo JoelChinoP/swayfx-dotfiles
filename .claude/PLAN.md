@@ -930,6 +930,7 @@ scripts/.local/bin/
 ├── powermenu              # invoked by wlogout or $mod+Shift+e
 ├── screenshot-full        # grim → ~/Pictures
 ├── screenshot-area        # grim -g "$(slurp)" → ~/Pictures + satty
+├── swayfx-waycal-toggle   # opens/closes the top-clock calendar popup
 └── wallpaper-pick         # optional: change wallpaper via fuzzel
 ```
 

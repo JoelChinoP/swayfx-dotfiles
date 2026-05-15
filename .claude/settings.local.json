@@ -5,7 +5,9 @@
       "Read(//home/joel/.local/share/applications/**)",
       "Bash(command -v stow)",
       "Bash(stow --version)",
-      "Bash(update-desktop-database ~/.local/share/applications/)"
+      "Bash(update-desktop-database ~/.local/share/applications/)",
+      "Bash(find /home/dotfiles/waybar -type f | sort && echo \"---\" && ls ~/.config/waybar/ 2>/dev/null)",
+      "Read(//home/joel/.config/waybar/**)"
     ]
   }
 }

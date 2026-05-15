@@ -7,7 +7,9 @@
       "Bash(stow --version)",
       "Bash(update-desktop-database ~/.local/share/applications/)",
       "Bash(find /home/dotfiles/waybar -type f | sort && echo \"---\" && ls ~/.config/waybar/ 2>/dev/null)",
-      "Read(//home/joel/.config/waybar/**)"
+      "Read(//home/joel/.config/waybar/**)",
+      "Bash(swaymsg -t get_outputs)",
+      "Bash(python3 -c \"import json,sys; o=json.load\\(sys.stdin\\); [print\\(f\\\\\"{x['name']}: {x['current_mode']['width']}x{x['current_mode']['height']}\\\\\"\\) for x in o if x.get\\('current_mode'\\)]\")"
     ]
   }
 }

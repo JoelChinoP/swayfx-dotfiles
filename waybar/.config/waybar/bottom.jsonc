@@ -10,6 +10,13 @@
   "height": 64,
   "spacing": 0,
   "margin-bottom": 4,
+  // Reduce la superficie wlr-layer-shell al ancho de la píldora.
+  // Con layer:top el bar captura clicks en TODA su superficie aunque sea
+  // transparente. Estos márgenes reducen la superficie real (no solo visual)
+  // para que los clicks en los bordes pasen a las ventanas.
+  // Ajustar si el taskbar se desborda con muchas ventanas abiertas.
+  "margin-left": 460,
+  "margin-right": 460,
   "exclusive": false,
   "modules-left": [],
   "modules-center": [

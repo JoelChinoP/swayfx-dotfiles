@@ -1,5 +1,11 @@
 {
   "permissions": {
-    "allow": []
+    "allow": [
+      "Bash(ls -la ~/.local/share/applications/ 2>/dev/null | head -30)",
+      "Read(//home/joel/.local/share/applications/**)",
+      "Bash(command -v stow)",
+      "Bash(stow --version)",
+      "Bash(update-desktop-database ~/.local/share/applications/)"
+    ]
   }
 }

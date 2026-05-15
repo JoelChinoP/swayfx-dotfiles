@@ -62,7 +62,7 @@ Installation is split into numbered **stages**:
 | 07    | GUI apps (Nautilus, Brave, mpv, GNOME utilities, btop…)      |
 | 08    | Dark theming for GTK 3/4, Qt, cursor, icons, fonts           |
 | 09    | swaylock-effects + wlogout + zram/sysctl tuning              |
-| 10    | Apply all dotfiles via `stow -R` and run the final checklist |
+| 10    | Apply all dotfiles via `stow -R` (incl. desktop overrides) and run the final checklist |
 | 99    | (Optional) graphical login via greetd + ReGreet              |
 
 Each stage has its own script in `scripts/install/stages/NN-*.sh` and
@@ -104,6 +104,7 @@ will start SwayFX automatically.
 | File                                              | What's inside                                        |
 |---------------------------------------------------|------------------------------------------------------|
 | [`AGENTS.md`](AGENTS.md)                          | Entry point for AI agents                            |
+| [`desktop-overrides/README.md`](desktop-overrides/README.md) | `.desktop` overrides — what each file changes and how to add more |
 | [`.claude/CONTEXT.md`](.claude/CONTEXT.md)        | Canonical spec — palette, hardware, hard rules       |
 | [`.claude/PLAN.md`](.claude/PLAN.md)              | Staged installation plan                             |
 | [`.claude/STACK.md`](.claude/STACK.md)            | Package manifest, conflicts, RAM budget              |

@@ -15,8 +15,9 @@
   // transparente. Estos márgenes reducen la superficie real (no solo visual)
   // para que los clicks en los bordes pasen a las ventanas.
   // Ajustar si el taskbar se desborda con muchas ventanas abiertas.
-  "margin-left": 460,
-  "margin-right": 460,
+  "width": 480,
+  "margin-left": 0,
+  "margin-right": 0,
   "exclusive": false,
   "modules-left": [],
   "modules-center": [

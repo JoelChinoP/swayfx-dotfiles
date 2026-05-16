@@ -1,0 +1,35 @@
+# Verified against: /usr/share/applications/brave-origin-beta.desktop
+# Reviewed: 2026-05-16
+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Brave Origin
+Name[es]=Brave Origin
+Name[es_PE]=Brave Origin
+GenericName=Navegador web
+GenericName[es]=Navegador web
+GenericName[es_PE]=Navegador web
+Comment=Navegador privado minimalista
+Comment[es]=Navegador privado minimalista
+Comment[es_PE]=Navegador privado minimalista
+Icon=brave-origin-beta
+Exec=swayfx-browser %U
+Terminal=false
+Categories=Network;WebBrowser;
+Keywords=brave;origin;navegador;web;internet;privacidad;
+MimeType=application/pdf;application/rdf+xml;application/rss+xml;application/xhtml+xml;application/xhtml_xml;application/xml;image/gif;image/jpeg;image/png;image/webp;text/html;text/xml;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/chromium;
+StartupNotify=true
+Actions=new-window;new-private-window;
+
+[Desktop Action new-window]
+Name=Nueva ventana
+Name[es]=Nueva ventana
+Name[es_PE]=Nueva ventana
+Exec=swayfx-browser
+
+[Desktop Action new-private-window]
+Name=Nueva ventana privada
+Name[es]=Nueva ventana privada
+Name[es_PE]=Nueva ventana privada
+Exec=swayfx-browser --incognito

@@ -26,8 +26,10 @@ automáticamente junto con el resto de los paquetes Stow.
 
 | Archivo                              | App                  | Cambio principal                              |
 |--------------------------------------|----------------------|-----------------------------------------------|
+| `brave-origin-beta.desktop`          | Brave Origin         | Lanza vía `swayfx-browser` con flags Wayland/VAAPI |
 | `blueman-manager.desktop`            | Bluetooth            | Nombre en español, keywords en español        |
 | `btop.desktop`                       | btop                 | Lanza dentro de Ghostty (`ghostty -e btop`)   |
+| `com.brave.Origin.beta.desktop`      | Brave Origin (portal)| Override oculto para portal/default browser   |
 | `com.mitchellh.ghostty.desktop`      | Ghostty              | `--gtk-single-instance=true`, nombre español  |
 | `io.missioncenter.MissionCenter.desktop` | Mission Center   | Nombre en español, keywords en español        |
 | `kvantummanager.desktop`             | Kvantum Manager      | Nombre en español                             |

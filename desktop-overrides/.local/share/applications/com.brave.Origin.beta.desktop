@@ -14,7 +14,7 @@ Comment=Navegador privado minimalista
 Comment[es]=Navegador privado minimalista
 Comment[es_PE]=Navegador privado minimalista
 Icon=brave-origin-beta
-Exec=swayfx-browser %U
+Exec=/home/joel/.local/bin/swayfx-browser %U
 Terminal=false
 Categories=Network;WebBrowser;
 Keywords=brave;origin;navegador;web;internet;privacidad;
@@ -27,10 +27,10 @@ NoDisplay=true
 Name=Nueva ventana
 Name[es]=Nueva ventana
 Name[es_PE]=Nueva ventana
-Exec=swayfx-browser
+Exec=/home/joel/.local/bin/swayfx-browser
 
 [Desktop Action new-private-window]
 Name=Nueva ventana privada
 Name[es]=Nueva ventana privada
 Name[es_PE]=Nueva ventana privada
-Exec=swayfx-browser --incognito
+Exec=/home/joel/.local/bin/swayfx-browser --incognito

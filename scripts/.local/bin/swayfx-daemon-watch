@@ -7,7 +7,8 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-daemon="${1:?usage: swayfx-daemon-watch <daemon-path>}"
+daemon="${1:?usage: swayfx-daemon-watch <daemon-path> [args...]}"
+shift
 name="$(basename "$daemon")"
 runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
 lock_file="$runtime_dir/${name}.lock"
@@ -16,6 +17,6 @@ exec 9>"$lock_file"
 flock -n 9 || exit 0
 
 while true; do
-    "$daemon" || true
+    "$daemon" "$@" || true
     sleep 1
 done

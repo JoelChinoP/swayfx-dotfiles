@@ -228,6 +228,12 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
 
 - **cpupower**: sets a hard CPU scaling maximum. The project caps the CPU
   at 2 GHz on battery and 3 GHz on AC via a systemd/udev helper.
+- **swayfx-refresh-rate**: user-session helper, not a root service,
+  because refresh changes must go through Sway IPC. It inspects
+  `/sys/class/power_supply`, then applies only modes already advertised by
+  `swaymsg -t get_outputs` for the active resolution. The verified
+  internal panel exposes ~60 Hz and ~48 Hz at 1920x1080, so AC uses ~60 Hz
+  and battery uses ~48 Hz for better efficiency.
 - **power-profiles-daemon**: rejected for the main path. Without GNOME or
   Plasma power UI it adds little here, and the fixed cpupower ceiling is
   the actual policy the user wants.

@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+# Switch native display refresh rates by power source inside Sway.
+#
+# Verified against: sway-output(5), swaymsg(1), Linux power_supply sysfs
+# Reviewed: 2026-05-16
+
+set -euo pipefail
+IFS=$'\n\t'
+
+AC_REFRESH_MHZ="${AC_REFRESH_MHZ:-60000}"
+BATTERY_REFRESH_MHZ="${BATTERY_REFRESH_MHZ:-48000}"
+REFRESH_TOLERANCE_MHZ="${REFRESH_TOLERANCE_MHZ:-1000}"
+WATCH_INTERVAL="${WATCH_INTERVAL:-5}"
+
+has_ac_power() {
+    local supply type online
+
+    for supply in /sys/class/power_supply/*; do
+        [[ -r "$supply/type" && -r "$supply/online" ]] || continue
+        type="$(< "$supply/type")"
+        online="$(< "$supply/online")"
+
+        # Avoid hardcoding AC adapter or battery names. Any online
+        # non-battery power_supply means the laptop is externally powered.
+        if [[ "$type" != "Battery" && "$online" == "1" ]]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+current_profile() {
+    if has_ac_power; then
+        printf 'ac\n'
+    else
+        printf 'battery\n'
+    fi
+}
+
+target_refresh_for_profile() {
+    case "$1" in
+        ac)      printf '%s\n' "$AC_REFRESH_MHZ" ;;
+        battery) printf '%s\n' "$BATTERY_REFRESH_MHZ" ;;
+        *)       return 1 ;;
+    esac
+}
+
+format_refresh_hz() {
+    awk -v mhz="$1" 'BEGIN {
+        hz = mhz / 1000
+        if (mhz % 1000 == 0) {
+            printf "%dHz", hz
+        } else {
+            printf "%.3fHz", hz
+        }
+    }'
+}
+
+abs_diff() {
+    local a="$1" b="$2"
+    if (( a >= b )); then
+        printf '%s\n' "$(( a - b ))"
+    else
+        printf '%s\n' "$(( b - a ))"
+    fi
+}
+
+matching_native_modes() {
+    local target_mhz="$1"
+
+    swaymsg -t get_outputs | jq -r \
+        --argjson target "$target_mhz" \
+        --argjson tolerance "$REFRESH_TOLERANCE_MHZ" '
+        def abs: if . < 0 then -. else . end;
+        .[]
+        | select(.active == true and .current_mode != null)
+        | . as $output
+        | [
+            .modes[]
+            | select(
+                .width == $output.current_mode.width
+                and .height == $output.current_mode.height
+                and (((.refresh - $target) | abs) <= $tolerance)
+            )
+          ]
+        | sort_by((.refresh - $target) | abs)
+        | .[0] as $mode
+        | select($mode != null)
+        | [
+            $output.name,
+            $mode.width,
+            $mode.height,
+            $mode.refresh,
+            $output.current_mode.refresh
+          ]
+        | @tsv'
+}
+
+apply_once() {
+    local profile target_mhz rows row output width height native_refresh current_refresh diff mode refresh_hz
+
+    command -v swaymsg >/dev/null 2>&1 || {
+        printf 'swayfx-refresh-rate: swaymsg not found\n' >&2
+        return 1
+    }
+    command -v jq >/dev/null 2>&1 || {
+        printf 'swayfx-refresh-rate: jq not found\n' >&2
+        return 1
+    }
+
+    profile="$(current_profile)"
+    target_mhz="$(target_refresh_for_profile "$profile")"
+    rows="$(matching_native_modes "$target_mhz")"
+
+    if [[ -z "$rows" ]]; then
+        printf 'swayfx-refresh-rate: no active output exposes a native mode near %sHz for %s\n' \
+            "$(( target_mhz / 1000 ))" "$profile" >&2
+        return 0
+    fi
+
+    while IFS=$'\t' read -r output width height native_refresh current_refresh; do
+        [[ -n "$output" ]] || continue
+
+        diff="$(abs_diff "$native_refresh" "$current_refresh")"
+        if (( diff <= REFRESH_TOLERANCE_MHZ )); then
+            continue
+        fi
+
+        refresh_hz="$(format_refresh_hz "$native_refresh")"
+        mode="${width}x${height}@${refresh_hz}"
+        swaymsg output "$output" mode "$mode" >/dev/null
+        printf 'swayfx-refresh-rate: %s -> %s (%s)\n' "$output" "$mode" "$profile" >&2
+    done <<< "$rows"
+}
+
+watch_power_source() {
+    local last_profile profile
+
+    apply_once || true
+    last_profile="$(current_profile)"
+
+    while true; do
+        sleep "$WATCH_INTERVAL"
+        profile="$(current_profile)"
+        if [[ "$profile" != "$last_profile" ]]; then
+            apply_once || true
+            last_profile="$profile"
+        fi
+    done
+}
+
+case "${1:---once}" in
+    --once)  apply_once ;;
+    --watch) watch_power_source ;;
+    *)
+        printf 'usage: swayfx-refresh-rate [--once|--watch]\n' >&2
+        exit 2
+        ;;
+esac

@@ -200,5 +200,9 @@ stow_package() {
     # --no-folding forces per-file symlinks (no directory symlinks).
     # This keeps the layout predictable across multiple packages that
     # share parent dirs like ~/.config/.
-    run stow -R --no-folding --target "$HOME" -d "$ROOT" "$pkg"
+    local -a stow_args=(-R --no-folding --target "$HOME" -d "$ROOT")
+    if [[ "$pkg" == scripts ]]; then
+        stow_args+=(--ignore='install')
+    fi
+    run stow "${stow_args[@]}" "$pkg"
 }

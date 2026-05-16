@@ -251,6 +251,7 @@ for_window [app_id="com.obsproject.Studio"]      blur disable
 | TTY1 + `.zprofile` exec sway  | ArchWiki "Sway" autostart section  | Lightest path, no DM RAM cost                               |
 | greetd/ReGreet as **optional**| codex draft + ArchWiki             | Defer DM until session is stable                            |
 | `cpupower` CPU ceilings       | cpupower manual + ArchWiki         | Simple 2 GHz battery / 3 GHz AC frequency cap without PPD/TLP |
+| Native refresh switching      | `swaymsg -t get_outputs`, sway-output(5) | Use advertised 60/48 Hz modes only; no forced modelines |
 | `scratchpad_minimize enable`  | (DEVIATION from upstream)          | Required for CSD-button minimize; fallback documented       |
 | `swaylock-effects`            | All references                     | Real lock with screenshot+blur                              |
 | `mako` (not Dunst, not SwayNC)| Sway/man pages                     | Canonical layer-shell notification daemon                   |
@@ -310,6 +311,8 @@ for_window [app_id="com.obsproject.Studio"]      blur disable
 - NetworkManager: <https://wiki.archlinux.org/title/NetworkManager>
 - zram: <https://wiki.archlinux.org/title/Zram>
 - cpupower frequency limits: <https://man.archlinux.org/man/extra/cpupower/cpupower-frequency-set.1.en>
+- Sway output modes: `man 5 sway-output`
+- Sway IPC output inspection: `swaymsg -t get_outputs`
 - power-profiles-daemon (rejected for main path): <https://wiki.archlinux.org/title/CPU_frequency_scaling>
 - TLP processor settings (rejected for main path): <https://linrunner.de/tlp/settings/processor.html>
 - RyzenAdj (deferred low-level TDP experiments only): <https://github.com/FlyGoat/RyzenAdj>

@@ -193,6 +193,11 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Power management**: `cpupower` plus a project systemd/udev helper.
   Battery caps CPU scaling max at 2 GHz; AC caps it at 3 GHz. This is
   deliberately frequency-only, not TDP tuning.
+- **Display refresh policy**: `swayfx-refresh-rate` runs inside the Sway
+  session and switches only between native modes advertised by the panel.
+  On the ASUS internal panel verified on 2026-05-16, Sway reports
+  `1920x1080@60.001Hz` and `1920x1080@48.003Hz`; AC uses ~60 Hz, battery
+  uses ~48 Hz. Do not add forced modelines.
 - **Do not use power policy daemons in the main path**: no
   `power-profiles-daemon`, no `tlp`, no `auto-cpufreq`, no `ryzenadj`.
   Stage 00 detects and removes them only after confirmation or `--yes`.
@@ -445,6 +450,8 @@ Grouped so a failure points to the responsible stage.
 - [ ] `systemctl is-enabled swayfx-cpu-frequency-limit` → `enabled`.
 - [ ] On battery, CPU `scaling_max_freq` is at or below `2000000`; on AC,
       at or below `3000000`.
+- [ ] `swaymsg -t get_outputs` shows the internal panel at ~60 Hz on AC
+      and ~48 Hz on battery, using modes listed under that output.
 - [ ] `notify-send "test" "ok"` displays a notification.
 - [ ] `brightnessctl set +5%` changes brightness.
 - [ ] `nmcli device status` lists wifi; the top bar reflects it.

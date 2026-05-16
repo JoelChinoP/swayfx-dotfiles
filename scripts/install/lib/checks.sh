@@ -127,7 +127,8 @@ for helper in \
     swayfx-waybar-notifications \
     swayfx-waybar-bottom-toggle \
     swayfx-waycal-toggle \
-    swayfx-browser
+    swayfx-browser \
+    swayfx-refresh-rate
 do
     check_cmd "helper installed: $helper" bash -c 'test -x "$HOME/.local/bin/$1"' _ "$helper"
 done
@@ -137,6 +138,30 @@ swaymsg -t get_version >/dev/null 2>&1 || exit 1
 sway --version 2>/dev/null | grep -qi swayfx || pacman -Q swayfx >/dev/null 2>&1
 '
 check_live_cmd "two waybar instances running" bash -c '[ "$(pgrep -cx waybar 2>/dev/null || true)" -eq 2 ]'
+check_live_cmd "display refresh matches power source" bash -c '
+target=48000
+for supply in /sys/class/power_supply/*; do
+    [[ -r "$supply/type" && -r "$supply/online" ]] || continue
+    type="$(< "$supply/type")"
+    online="$(< "$supply/online")"
+    if [[ "$type" != "Battery" && "$online" = "1" ]]; then
+        target=60000
+        break
+    fi
+done
+
+swaymsg -t get_outputs 2>/dev/null | jq -e --argjson target "$target" --argjson tolerance 1000 "
+def abs: if . < 0 then -. else . end;
+[
+  .[]
+  | select(.active == true and .current_mode != null)
+  | . as \$output
+  | select(any(.modes[]; .width == \$output.current_mode.width and .height == \$output.current_mode.height and (((.refresh - \$target) | abs) <= \$tolerance)))
+  | select(((.current_mode.refresh - \$target) | abs) <= \$tolerance)
+]
+| length > 0
+" >/dev/null
+'
 check_live_cmd "PipeWire responds" wpctl status
 check_live_cmd "VAAPI reports decode entrypoint" bash -c 'vainfo --display drm --device /dev/dri/renderD128 2>/dev/null | grep -q VAEntrypoint'
 check_live_cmd "lm_sensors reports CPU/GPU temp" bash -c "sensors 2>/dev/null | grep -qE 'k10temp|coretemp|amdgpu'"

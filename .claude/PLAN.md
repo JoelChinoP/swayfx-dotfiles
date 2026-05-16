@@ -682,6 +682,10 @@ for_window [app_id="mpv"]                      blur disable, opacity set 1.0
 # === Dynamic floating-window policy ===
 exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-placement-daemon
 
+# === Native refresh-rate policy ===
+# Uses only modes advertised by swaymsg -t get_outputs.
+exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-refresh-rate --watch
+
 # === "Desktop-like" behavior ===
 # DEVIATION: upstream marks scratchpad_minimize as experimental.
 # We enable it because it is the only way to get true minimize-from-CSD.
@@ -968,6 +972,7 @@ scripts/.local/bin/
 ├── screenshot-area        # grim -g "$(slurp)" → ~/Pictures + satty
 ├── swayfx-daemon-watch    # restart wrapper for user IPC daemons
 ├── swayfx-placement-daemon # floating placement + border policy
+├── swayfx-refresh-rate    # 60 Hz on AC, 48 Hz on battery when native
 ├── swayfx-maximize        # floating maximize/restore toggle
 ├── swayfx-waycal-toggle   # opens/closes the top-clock calendar popup
 └── wallpaper-pick         # optional: change wallpaper via fuzzel
@@ -1029,6 +1034,7 @@ decisions in CONTEXT.md and the snippets above:
 - `zsh/{.zshrc, .zprofile, .zshenv}`.
 - `scripts/.local/bin/swayfx-browser`.
 - `scripts/.local/bin/swayfx-cpu-cap`.
+- `scripts/.local/bin/swayfx-refresh-rate`.
 - `system/usr/local/lib/swayfx-dotfiles/cpu-frequency-limit`,
   `system/systemd/system/swayfx-cpu-frequency-limit.service`,
   `system/udev/rules.d/90-swayfx-cpu-frequency-limit.rules`,

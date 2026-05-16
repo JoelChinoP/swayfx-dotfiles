@@ -1,7 +1,7 @@
 # ~/.zshrc — read by interactive zsh shells.
 #
 # Verified against: ArchWiki "zsh", zshoptions(1)
-# Reviewed: 2026-05-14
+# Reviewed: 2026-05-16
 
 # ── History ───────────────────────────────────────────────────────────
 HISTFILE="$XDG_STATE_HOME/zsh/history"
@@ -42,6 +42,21 @@ bindkey '^[[F'   end-of-line                 # End
 bindkey '^[[3~'  delete-char                 # Delete
 bindkey '^[[1;5C' forward-word               # Ctrl+Right
 bindkey '^[[1;5D' backward-word              # Ctrl+Left
+
+# History prefix search, like Oh My Zsh: type `cd ` and press Up to
+# cycle only through previous commands that begin with that prefix.
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+zmodload zsh/terminfo 2>/dev/null || true
+bindkey "${terminfo[kcuu1]:-$'\e[A'}" up-line-or-beginning-search
+bindkey "${terminfo[kcud1]:-$'\e[B'}" down-line-or-beginning-search
+bindkey '^[[A' up-line-or-beginning-search
+bindkey '^[[B' down-line-or-beginning-search
+bindkey '^[OA' up-line-or-beginning-search
+bindkey '^[OB' down-line-or-beginning-search
+bindkey '^P' up-line-or-beginning-search
+bindkey '^N' down-line-or-beginning-search
 
 # ── Plugins (installed via pacman) ────────────────────────────────────
 [ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] \

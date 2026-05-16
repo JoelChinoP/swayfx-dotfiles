@@ -4,7 +4,7 @@
 > changes, update CONTEXT first, then mirror it here. Stages in
 > [PLAN.md](PLAN.md) install from these lists.
 >
-> Last reviewed: 2026-05-12.
+> Last reviewed: 2026-05-16.
 
 ---
 
@@ -171,7 +171,7 @@ asusctl               # ASUS Fn keys (optional, WARN on failure)
 
 #### Stage 07 — apps
 ```
-brave-bin
+brave-origin-beta-bin
 ```
 
 #### Stage 08 — theming
@@ -243,20 +243,28 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
 - **SDDM/GDM**: pulls in Qt or GTK + their dependencies; overkill for a
   single-user laptop.
 
-### 3.7. Browser: Brave (not Firefox / not Chromium)
+### 3.7. Browser: Brave Origin Beta (not Firefox / not Chromium)
 
-- **Brave**: ad-blocking by default; works well with VAAPI on Wayland;
-  the user explicitly chose it. Pulls some Chromium dependencies.
+- **Brave Origin Beta**: official minimalist Brave channel. Origin keeps
+  Brave Shields and Chromium security updates while removing the extra
+  Brave surfaces the user does not want. Stable Brave Origin is not
+  available on Arch yet, and `brave-origin-beta-bin` is less volatile than
+  `brave-origin-nightly-bin`.
 - **Firefox**: viable, but the user has no preference between the two
   and Brave handles VAAPI + Wayland with simpler flags than Chromium.
-- Flags live in `brave/.config/brave-flags.conf`:
+- Standard `brave-bin` is removed when present. The old profile/cache and
+  `brave-flags.conf` are deleted only after confirmation, or automatically
+  when the installer runs with `--yes`.
+- Flags live in `scripts/.local/bin/swayfx-browser` instead of
+  `brave-origin-beta-flags.conf`, because the current AUR wrapper passes
+  multi-line flags files as a single argument:
   ```
   --ozone-platform-hint=auto
-  --enable-features=AcceleratedVideoDecodeLinuxGL,AcceleratedVideoDecodeLinuxZeroCopyGL,AcceleratedVideoEncoder,WaylandWindowDecorations,VaapiIgnoreDriverChecks
   --enable-wayland-ime
   --password-store=basic
   --force-dark-mode
-  --enable-features=WebUIDarkMode
+  --ignore-gpu-blocklist
+  --enable-features=AcceleratedVideoDecodeLinuxGL,AcceleratedVideoDecodeLinuxZeroCopyGL,AcceleratedVideoEncoder,VaapiIgnoreDriverChecks,WaylandWindowDecorations,WebUIDarkMode
   ```
 
 ### 3.8. Terminal: Ghostty
@@ -371,7 +379,7 @@ systemd-cgtop -m            # by cgroup
 
 Common real causes (fix these first, before touching the stack):
 
-- A leaking app (Brave with many tabs, Electron app) is still running.
+- A leaking app (Brave Origin with many tabs, Electron app) is still running.
 - `tracker3` indexer running its first scan after Nautilus install.
 - A waybar custom module re-spawning on every interval (check the
   `exec:` field is not forking).

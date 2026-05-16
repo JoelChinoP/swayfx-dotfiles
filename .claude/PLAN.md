@@ -4,7 +4,7 @@
 > CONTEXT wins. Package decisions live in [STACK.md](STACK.md). Reference
 > repo notes and upstream SwayFX syntax live in [REFERENCES.md](REFERENCES.md).
 >
-> Last reviewed: 2026-05-14.
+> Last reviewed: 2026-05-16.
 
 Hardware: ASUS · Ryzen 7 7730U · Vega 8 · 12 GB RAM · Arch Linux.
 Goal: SwayFX desktop usable as a conventional desktop, dark-only,
@@ -398,9 +398,34 @@ sudo pacman -S --needed --noconfirm \
   mission-center btop tree htop \
   unzip zip p7zip tar
 
-paru -S --needed --noconfirm brave-bin
+standard_brave=()
+declare -A seen_standard_brave=()
+for pkg in brave-bin brave-beta-bin brave-nightly-bin brave-browser; do
+  actual_pkg="$(pacman -Qq "$pkg" 2>/dev/null || true)"
+  if [[ -n "$actual_pkg" && -z "${seen_standard_brave[$actual_pkg]:-}" ]]; then
+    standard_brave+=("$actual_pkg")
+    seen_standard_brave[$actual_pkg]=1
+  fi
+done
+if (( ${#standard_brave[@]} > 0 )) && confirm "Remove standard Brave?"; then
+  paru -Rns --noconfirm "${standard_brave[@]}"
+fi
+
+if confirm "Delete old standard Brave profile/cache/launchers?"; then
+  rm -rf ~/.config/BraveSoftware/Brave-Browser \
+         ~/.cache/BraveSoftware/Brave-Browser \
+         ~/.config/brave-flags.conf \
+         ~/.local/share/applications/brave-*.desktop
+fi
+
+paru -S --needed --noconfirm brave-origin-beta-bin
 ```
 
+> `brave-origin-beta-bin` is used because stable Brave Origin is not yet
+> packaged on Arch. The project launches it through `swayfx-browser`
+> instead of `brave-origin-beta-flags.conf`, because the current AUR wrapper
+> passes multi-line flags files as one argument.
+>
 > Nautilus is preferred per the user's stack. Thunar is the lighter
 > alternative; if RAM becomes a problem, swap by replacing `nautilus`
 > with `thunar gvfs tumbler thunar-volman thunar-archive-plugin` here.
@@ -409,7 +434,7 @@ paru -S --needed --noconfirm brave-bin
 
 ```bash
 command -v nautilus  || exit 1
-command -v brave     || exit 1
+command -v brave-origin-beta || exit 1
 command -v mpv       || exit 1
 command -v btop      || exit 1
 command -v missioncenter || exit 1
@@ -507,7 +532,7 @@ sysctl -n vm.page-cluster | grep -qx 0          || exit 1
 ```bash
 cd "$ROOT"
 PKGS=( sway waybar ghostty fuzzel mako swaylock wlogout
-       gtk environment gammastep mpv brave colors
+       gtk environment gammastep mpv colors
        starship zsh scripts )
 
 # Conflict detection first (writes to log; does not write to disk)
@@ -664,9 +689,10 @@ exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-placement-daemo
 scratchpad_minimize  enable
 for_window [app_id=".*"] floating enable, resize set 1280 720
 for_window [class=".*"] floating enable, resize set 1280 720
-for_window [app_id="^brave-browser$"] floating disable
-for_window [app_id="^brave$"] floating disable
-for_window [class="^Brave-browser$"] floating disable
+for_window [app_id="^brave-origin-beta$"] floating disable
+for_window [app_id="^brave-origin-nightly$"] floating disable
+for_window [class="^Brave-origin-beta$"] floating disable
+for_window [class="^Brave-origin-nightly$"] floating disable
 
 bindsym $mod+m            move scratchpad
 bindsym $mod+Shift+m      scratchpad show
@@ -790,8 +816,8 @@ window#waybar { background: transparent; color: #e6e6e6; }
 
   "custom/terminal": { "format": "", "on-click": "ghostty",
                        "tooltip": true, "tooltip-format": "Terminal" },
-  "custom/browser":  { "format": "", "on-click": "brave",
-                       "tooltip": true, "tooltip-format": "Brave" },
+  "custom/browser":  { "format": "", "on-click": "swayfx-browser",
+                       "tooltip": true, "tooltip-format": "Brave Origin" },
   "custom/files":    { "format": "", "on-click": "nautilus",
                        "tooltip": true, "tooltip-format": "Archivos" },
   "wlr/taskbar": {
@@ -997,11 +1023,11 @@ decisions in CONTEXT.md and the snippets above:
 - `environment/.config/environment.d/sway.conf`.
 - `gammastep/.config/gammastep/config.ini`.
 - `mpv/.config/mpv/{mpv.conf, scripts/uosc.lua}`.
-- `brave/.config/brave-flags.conf`.
 - `colors/.config/colors/blacked.conf` (replaces
   `catppuccin-mocha.conf`).
 - `starship/.config/starship.toml`.
 - `zsh/{.zshrc, .zprofile, .zshenv}`.
+- `scripts/.local/bin/swayfx-browser`.
 - `scripts/.local/bin/swayfx-cpu-cap`.
 - `system/usr/local/lib/swayfx-dotfiles/cpu-frequency-limit`,
   `system/systemd/system/swayfx-cpu-frequency-limit.service`,

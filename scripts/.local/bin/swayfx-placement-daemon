@@ -2,7 +2,7 @@
 """SwayFX floating-window placement and border policy daemon."""
 
 # Verified against: https://github.com/altdesktop/i3ipc-python, sway-ipc(7)
-# Reviewed: 2026-05-14
+# Reviewed: 2026-05-16
 
 from __future__ import annotations
 
@@ -23,8 +23,19 @@ DEFAULT_WINDOW_HEIGHT = 720
 MAXIMIZE_MARK = "maximize"
 
 # App IDs / WM classes that should be auto-maximized when they open.
-AUTO_MAXIMIZE_APP_IDS = frozenset({"brave-browser", "brave"})
-AUTO_MAXIMIZE_WM_CLASSES = frozenset({"Brave-browser"})
+AUTO_MAXIMIZE_APP_IDS = frozenset({
+    "brave-browser",
+    "brave",
+    "brave-origin",
+    "brave-origin-beta",
+    "brave-origin-nightly",
+})
+AUTO_MAXIMIZE_WM_CLASSES = frozenset({
+    "brave-browser",
+    "brave-origin",
+    "brave-origin-beta",
+    "brave-origin-nightly",
+})
 
 
 def ensure_i3ipc():
@@ -79,7 +90,7 @@ def has_mark(con, mark: str) -> bool:
 
 def should_auto_maximize(con) -> bool:
     app_id = (getattr(con, "app_id", None) or "").lower()
-    wm_class = ((getattr(con, "window_properties", None) or {}).get("class") or "")
+    wm_class = ((getattr(con, "window_properties", None) or {}).get("class") or "").lower()
     return app_id in AUTO_MAXIMIZE_APP_IDS or wm_class in AUTO_MAXIMIZE_WM_CLASSES
 
 
@@ -218,7 +229,7 @@ def on_window_new(conn, event) -> None:
 
 def on_window_floating(conn, event) -> None:
     # Placement lives here; auto-maximize does NOT — firing it here would
-    # re-maximize Brave whenever swayfx-maximize issues 'floating enable'.
+    # re-maximize the browser whenever swayfx-maximize issues 'floating enable'.
     time.sleep(0.08)
     tree = conn.get_tree()
     con = find_by_id(tree, event.container.id) or event.container

@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Launch the project browser with Wayland and VA-API focused flags.
+#
+# Verified against: https://brave.com/origin/linux/beta/ and Chromium VA-API docs
+# Reviewed: 2026-05-16
+
+set -euo pipefail
+IFS=$'\n\t'
+
+FLAGS=(
+    --ozone-platform-hint=auto
+    --enable-wayland-ime
+    --password-store=basic
+    --force-dark-mode
+    --ignore-gpu-blocklist
+    --enable-features=AcceleratedVideoDecodeLinuxGL,AcceleratedVideoDecodeLinuxZeroCopyGL,AcceleratedVideoEncoder,VaapiIgnoreDriverChecks,WaylandWindowDecorations,WebUIDarkMode
+)
+
+launch_origin_beta() {
+    export CHROME_USER_DATA_DIR="${CHROME_USER_DATA_DIR:-$HOME/.config/BraveSoftware/Brave-Origin-Beta}"
+    if [[ -x /opt/brave.com/brave-origin-beta/brave-origin ]]; then
+        exec /opt/brave.com/brave-origin-beta/brave-origin "${FLAGS[@]}" "$@"
+    fi
+    exec brave-origin-beta "${FLAGS[@]}" "$@"
+}
+
+launch_origin_nightly() {
+    export CHROME_USER_DATA_DIR="${CHROME_USER_DATA_DIR:-$HOME/.config/BraveSoftware/Brave-Origin-Nightly}"
+    if [[ -x /opt/brave.com/brave-origin-nightly/brave-origin ]]; then
+        exec /opt/brave.com/brave-origin-nightly/brave-origin "${FLAGS[@]}" "$@"
+    fi
+    exec brave-origin-nightly "${FLAGS[@]}" "$@"
+}
+
+if command -v brave-origin-beta >/dev/null 2>&1 || [[ -x /opt/brave.com/brave-origin-beta/brave-origin ]]; then
+    launch_origin_beta "$@"
+elif command -v brave-origin-nightly >/dev/null 2>&1 || [[ -x /opt/brave.com/brave-origin-nightly/brave-origin ]]; then
+    launch_origin_nightly "$@"
+elif command -v brave >/dev/null 2>&1; then
+    exec brave "${FLAGS[@]}" "$@"
+fi
+
+printf 'swayfx-browser: no Brave Origin browser found. Install brave-origin-beta-bin.\n' >&2
+exit 127

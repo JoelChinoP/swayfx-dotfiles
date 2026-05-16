@@ -5,7 +5,7 @@
 # runs the automated post-install checks.
 #
 # Verified against: GNU Stow manual and .claude/PLAN.md stage 10
-# Reviewed: 2026-05-11
+# Reviewed: 2026-05-16
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -33,7 +33,6 @@ PKGS=(
     wlogout
     gammastep
     mpv
-    brave
     scripts
     desktop-overrides
 )

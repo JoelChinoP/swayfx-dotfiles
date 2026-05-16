@@ -5,7 +5,7 @@
 > **this file wins**. If anything is ambiguous, leave a `TODO:` and explain why
 > instead of guessing.
 >
-> Last reviewed: 2026-05-14.
+> Last reviewed: 2026-05-16.
 
 ---
 
@@ -62,7 +62,7 @@ conventional desktop**:
 
 - Floating-window-first workflow for laptop ergonomics; tile/split only
   when explicitly requested.
-- Brave opens tiled/maximized inside the workspace by default, with the
+- Brave Origin opens maximized inside the workspace by default, with the
   top bar visible. Browser F11 is the explicit true-fullscreen path.
 - Top bar: clock · battery · wifi · audio · notifications · power button.
 - Bottom bar: pinned launchers + active windows (taskbar), visible by
@@ -206,7 +206,12 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Blue-light filter**: `gammastep`.
 - **File manager**: Nautilus (preferred per user's stack note). Thunar is
   a lighter alternative if RAM is tight.
-- **Browser**: `brave-bin` (AUR) with Wayland + VAAPI flags.
+- **Browser**: `brave-origin-beta-bin` (AUR) launched through
+  `swayfx-browser` with Wayland + VAAPI flags. Stable Brave Origin is not
+  available on Arch yet; Origin Beta is the least-volatile current Origin
+  channel. The AUR wrapper currently mishandles multi-line flags files, so
+  the project passes flags from the launcher instead of using
+  `brave-origin-beta-flags.conf`.
 - **Editor**: `gnome-text-editor`.
 - **PDF**: `papers`.
 - **Images**: `loupe`.
@@ -298,7 +303,7 @@ CLI:
 
 - The repo is structured as Stow packages (`sway/`, `waybar/`,
   `ghostty/`, `fuzzel/`, `mako/`, `swaylock/`, `wlogout/`, `gtk/`,
-  `environment/`, `gammastep/`, `mpv/`, `brave/`, `colors/`, `starship/`,
+  `environment/`, `gammastep/`, `mpv/`, `colors/`, `starship/`,
   `zsh/`, `scripts/`).
 - The repo includes a `.stow-local-ignore` so Stow does not symlink
   `*.md`, `.git`, `.claude`, `system/`, `scripts/install/`, `old/`.
@@ -345,7 +350,7 @@ swayfx-dotfile/
 ├── environment/.config/environment.d/sway.conf
 ├── gammastep/.config/gammastep/config.ini
 ├── mpv/.config/mpv/{mpv.conf,scripts/uosc.lua}
-├── brave/.config/brave-flags.conf
+├── scripts/.local/bin/swayfx-browser
 ├── colors/.config/colors/blacked.conf
 ├── starship/.config/starship.toml
 ├── zsh/{.zshrc,.zprofile,.zshenv}
@@ -427,7 +432,7 @@ Grouped so a failure points to the responsible stage.
 - [ ] Pinned apps launch terminal, browser, files.
 - [ ] Left click on taskbar minimizes/restores; right maximizes;
       middle closes.
-- [ ] Most normal apps open floating and centered; Brave opens tiled with
+- [ ] Most normal apps open floating and centered; Brave Origin opens maximized with
       the top bar visible.
 - [ ] `$mod+f` toggles fullscreen; `$mod+Shift+space` toggles floating/tiling.
 - [ ] Terminal blurred and at 0.85 opacity; everything else opaque.

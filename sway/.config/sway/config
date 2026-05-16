@@ -1,14 +1,14 @@
 # SwayFX desktop config.
 #
 # Verified against: https://github.com/WillPower3309/swayfx, sway(5)
-# Reviewed: 2026-05-14
+# Reviewed: 2026-05-16
 
 set $mod Mod4
 set $term ghostty
 set $launcher fuzzel
 set $files nautilus
 set $editor gnome-text-editor
-set $browser brave
+set $browser swayfx-browser
 
 # Pure-black palette.
 set $bg          #000000
@@ -273,8 +273,8 @@ bindsym $mod+Shift+q exec ~/.local/bin/swayfx-powermenu
 for_window [app_id=".*"] floating enable, resize set 1000 600
 for_window [class=".*"] floating enable, resize set 1000 600
 
-# Brave opens floating like every other app; the placement daemon auto-maximizes
-# it below the waybar. Use browser F11 for true fullscreen.
+# Brave Origin opens floating like every other app; the placement daemon
+# auto-maximizes it below the waybar. Use browser F11 for true fullscreen.
 # Z-order with other floating windows is handled by the daemon's raise-on-focus.
 
 for_window [window_type="dialog"] floating enable
@@ -291,4 +291,3 @@ for_window [title="Picture-in-Picture"] floating enable, sticky enable
 # waycal click-trap overlay: fullscreen transparent, no chrome, excluded
 # from cascade placement via the maximize mark so the daemon ignores it.
 for_window [app_id="swayfx.waycal.trap"] floating enable, mark --add maximize, border none, shadows disable, blur disable, opacity set 1.0, move position 0 0
-

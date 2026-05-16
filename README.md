@@ -32,8 +32,8 @@ bottom:                       [    ]  [   …running… ]
 
 The top bar is transparent; each module group is a "pill" (rounded
 rectangle, dark background, subtle border). The bottom bar shows a
-pinned-apps pill (Ghostty / Brave / Files / Editor) and a `wlr/taskbar`
-pill with active window icons.
+pinned-apps pill (Ghostty / Brave Origin / Files / Editor) and a
+`wlr/taskbar` pill with active window icons.
 
 ## Hardware target
 
@@ -59,7 +59,7 @@ Installation is split into numbered **stages**:
 | 04    | Launcher (fuzzel) + notifications (mako) + XDG portals       |
 | 05    | Waybar (one binary, two configs)                             |
 | 06    | Clipboard, screenshots, brightness, network, bluetooth, BT   |
-| 07    | GUI apps (Nautilus, Brave, mpv, GNOME utilities, btop…)      |
+| 07    | GUI apps (Nautilus, Brave Origin Beta, mpv, GNOME utilities, btop…) |
 | 08    | Dark theming for GTK 3/4, Qt, cursor, icons, fonts           |
 | 09    | swaylock-effects + wlogout + zram/sysctl tuning              |
 | 10    | Apply all dotfiles via `stow -R` (incl. desktop overrides) and run the final checklist |

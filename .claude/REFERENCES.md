@@ -4,7 +4,7 @@
 > and [PLAN.md](PLAN.md). When upstream behavior changes, update this
 > file with the new revision date and reflect the change in CONTEXT.
 >
-> Last reviewed: 2026-05-10.
+> Last reviewed: 2026-05-16.
 
 ---
 
@@ -294,8 +294,11 @@ for_window [app_id="com.obsproject.Studio"]      blur disable
 - nwg-dock (legacy reference): <https://github.com/nwg-piotr/nwg-dock>
 - Starship: <https://starship.rs/config/>
 - gammastep: <https://gitlab.com/chinstrap/gammastep>
-- Brave on Linux: <https://brave.com/linux/>
-- Brave Wayland flags: ArchWiki "Chromium" → "Native Wayland support"
+- Brave Origin overview: <https://support.brave.app/hc/en-us/articles/38561489788173-What-is-Brave-Origin>
+- Brave Origin Beta on Linux: <https://brave.com/origin/linux/beta/>
+- Brave Origin Beta AUR: <https://aur.archlinux.org/packages/brave-origin-beta-bin>
+- Brave Origin Beta AUR wrapper: <https://aur.archlinux.org/cgit/aur.git/plain/brave-origin-beta-bin.sh?h=brave-origin-beta-bin>
+- Chromium VA-API flags: <https://chromium.googlesource.com/chromium/src/+/main/docs/gpu/vaapi.md>
 - mpv: <https://mpv.io/manual/master/>
 - uosc: <https://github.com/tomasklaen/uosc>
 - GNU Stow: <https://www.gnu.org/software/stow/manual/stow.html>

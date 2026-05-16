@@ -7,7 +7,7 @@
 # CHECK_LIVE=1 after logging into SwayFX to make live checks fatal.
 #
 # Verified against: .claude/CONTEXT.md acceptance checklist
-# Reviewed: 2026-05-13
+# Reviewed: 2026-05-16
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -73,6 +73,13 @@ check_cmd "FiraCode Nerd Font installed" bash -c "fc-match -f '%{family}\n' 'Fir
 check_cmd "JetBrainsMono Nerd Font installed" bash -c "fc-match -f '%{family}\n' 'JetBrainsMono Nerd Font' | grep -qi 'JetBrains.*Nerd'"
 check_cmd "Inter font installed" bash -c "fc-match -f '%{family}\n' 'Inter' | grep -qi 'Inter'"
 check_cmd "Python i3ipc module installed" python -c 'import i3ipc'
+check_cmd "Brave Origin Beta installed" pacman -Q brave-origin-beta-bin
+check_cmd "standard Brave package absent" bash -c '
+for pkg in brave-bin brave-beta-bin brave-nightly-bin brave-browser; do
+    pacman -Q "$pkg" >/dev/null 2>&1 && exit 1
+done
+exit 0
+'
 check_cmd "cpupower installed" command -v cpupower
 check_cmd "CPU frequency ceiling service enabled" systemctl is-enabled swayfx-cpu-frequency-limit.service
 check_cmd "CPU frequency ceiling active" bash -c '
@@ -119,7 +126,8 @@ for helper in \
     swayfx-cliphist-menu \
     swayfx-waybar-notifications \
     swayfx-waybar-bottom-toggle \
-    swayfx-waycal-toggle
+    swayfx-waycal-toggle \
+    swayfx-browser
 do
     check_cmd "helper installed: $helper" bash -c 'test -x "$HOME/.local/bin/$1"' _ "$helper"
 done

@@ -5,7 +5,7 @@
 > the four files inside `.claude/`. Everything you need is there. Do not
 > ask the user to re-explain context.
 >
-> Last reviewed: 2026-05-10.
+> Last reviewed: 2026-05-16.
 
 ---
 
@@ -150,7 +150,7 @@ swayfx-dotfile/
 ├── environment/.config/environment.d/sway.conf
 ├── gammastep/.config/gammastep/config.ini
 ├── mpv/.config/mpv/{mpv.conf,scripts/uosc.lua}
-├── brave/.config/brave-flags.conf
+├── scripts/.local/bin/swayfx-browser
 ├── colors/.config/colors/blacked.conf
 ├── starship/.config/starship.toml
 ├── zsh/{.zshrc,.zprofile,.zshenv}

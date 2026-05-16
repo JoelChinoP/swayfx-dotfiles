@@ -1,5 +1,5 @@
 // Verified against: waybar(5), waybar-wlr-taskbar(5), waybar-custom(5)
-// Reviewed: 2026-05-13
+// Reviewed: 2026-05-16
 {
   "name": "bottom",
   "id": "swayfx-bottom",
@@ -35,9 +35,9 @@
   },
   "custom/browser": {
     "format": "",
-    "on-click": "brave",
+    "on-click": "swayfx-browser",
     "tooltip": true,
-    "tooltip-format": "Brave"
+    "tooltip-format": "Brave Origin"
   },
   "custom/files": {
     "format": "",

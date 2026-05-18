@@ -1,7 +1,7 @@
 # swaylock-effects config.
 #
 # Verified against: swaylock-effects --help
-# Reviewed: 2026-05-13
+# Reviewed: 2026-05-18
 
 screenshots
 clock
@@ -38,6 +38,8 @@ ring-wrong-color=f38ba8
 inside-ver-color=000000aa
 inside-wrong-color=000000aa
 
-ignore-empty-password
+# DEVIATION: keep empty-password attempts enabled when fingerprint PAM is
+# active. swaylock only starts PAM after an unlock attempt; pressing Enter
+# on an empty prompt starts pam_fprintd without requiring a typed password.
 
 fade-in=0.15

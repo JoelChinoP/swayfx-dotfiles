@@ -10,7 +10,7 @@
 # repairs official packages that the installer itself needs.
 #
 # Verified against: .claude/PLAN.md stage 00
-# Reviewed: 2026-05-12
+# Reviewed: 2026-05-18
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -27,7 +27,7 @@ REPAIRABLE_BASE_PKGS=(
     linux-firmware sof-firmware amd-ucode
     networkmanager git
     zsh starship stow
-    lm_sensors jq
+    lm_sensors jq less
     curl wget openssh
     unzip zip p7zip
 )

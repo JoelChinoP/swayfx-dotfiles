@@ -254,9 +254,32 @@ for_window [app_id="com.obsproject.Studio"]      blur disable
 | Native refresh switching      | `swaymsg -t get_outputs`, sway-output(5) | Use advertised 60/48 Hz modes only; no forced modelines |
 | `scratchpad_minimize enable`  | (DEVIATION from upstream)          | Required for CSD-button minimize; fallback documented       |
 | `swaylock-effects`            | All references                     | Real lock with screenshot+blur                              |
+| Fingerprint PAM overlays      | `pam_fprintd(8)`, fprintd docs, libfprint !330 | Scope fingerprint to ReGreet/swaylock; keep password fallback |
 | `mako` (not Dunst, not SwayNC)| Sway/man pages                     | Canonical layer-shell notification daemon                   |
 
 ---
+
+### 3.1. Fingerprint notes: ASUS ELAN `04f3:0c90`
+
+Reviewed: 2026-05-18.
+
+- Hardware reports as `04f3:0c90 ELAN:ARM-M4`.
+- Official Arch `libfprint 1.94.10-1` did not expose this reader in the
+  live system.
+- The older AUR package `libfprint-elanmoc2-working-0c90-git` uses
+  Depau's `elanmoc2-working` branch at `3d489eb` and patches a source ID
+  from `0x0c00` to `0x0c90`. On this laptop it could enroll but produced
+  verify failures such as `verify-no-match`, unexpected short replies and
+  `device sent more data than requested`.
+- The cleaner local package is `libfprint-elanmoc2-0c90-git`, based on
+  Depau's newer `elanmoc2` branch at `11f0316`. That branch already
+  includes `0c90` in `data/autosuspend.hwdb` and the `elanmoc2` driver
+  ID table, so no sed patch is required.
+- `pam_fprintd(8)` documents that PAM authentication is serialized:
+  applications do not get password and fingerprint prompts at the exact
+  same time unless they run separate PAM stacks. For this repo, fingerprint
+  auth is therefore limited to `greetd` and `swaylock`, with short
+  timeouts and password fallback.
 
 ## 4. Things deliberately NOT borrowed
 
@@ -318,5 +341,9 @@ for_window [app_id="com.obsproject.Studio"]      blur disable
 - RyzenAdj (deferred low-level TDP experiments only): <https://github.com/FlyGoat/RyzenAdj>
 - greetd: <https://wiki.archlinux.org/title/Greetd>
 - ReGreet: <https://github.com/rharish101/ReGreet>
+- fprintd: `man 1 fprintd`
+- pam_fprintd: `man 8 pam_fprintd`
+- libfprint supported devices: <https://fprint.freedesktop.org/supported-devices.html>
+- libfprint ELAN MoC 0c4c/0c90 work: <https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/330>
 - xdg-desktop-portal-wlr: <https://github.com/emersion/xdg-desktop-portal-wlr>
 - XDG portals.conf: <https://flatpak.github.io/xdg-desktop-portal/docs/portals.conf.html>

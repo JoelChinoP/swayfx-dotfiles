@@ -1,0 +1,13 @@
+#%PAM-1.0
+# swaylock-effects PAM policy with fingerprint-first authentication.
+#
+# Verified against: pam_fprintd(8), swaylock-effects /etc/pam.d/swaylock package layout
+# Reviewed: 2026-05-18
+#
+# DEVIATION: this fingerprint variant is intentionally optional. PAM
+# cannot prompt for password and fingerprint simultaneously, so swaylock
+# waits for the fingerprint attempt before falling back to the normal
+# password flow from /etc/pam.d/login.
+
+auth       sufficient   pam_fprintd.so max-tries=2 timeout=8
+auth       include      login

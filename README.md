@@ -65,6 +65,11 @@ Installation is split into numbered **stages**:
 | 10    | Apply all dotfiles via `stow -R` (incl. desktop overrides) and run the final checklist |
 | 99    | (Optional) graphical login via greetd + ReGreet              |
 
+Optional hardware overlay: the ASUS ELAN `04f3:0c90` fingerprint reader
+uses a local `libfprint-elanmoc2-0c90-git` package and per-service PAM
+templates for ReGreet and swaylock. See [`.claude/PLAN.md`](.claude/PLAN.md)
+under "Optional fingerprint overlay" before enabling it.
+
 Each stage has its own script in `scripts/install/stages/NN-*.sh` and
 ends with copy-pasteable validation commands. The master
 `scripts/install/run.sh` chains them and stops at the first failure.
@@ -78,7 +83,7 @@ ends with copy-pasteable validation commands. The master
 ```bash
 # 1. Have Arch minimal already installed (see .claude/STACK.md §1).
 #    Stage 00 can repair missing installer-critical packages such as
-#    base-devel, starship, stow, jq, unzip, zip and p7zip.
+#    base-devel, starship, stow, jq, less, unzip, zip and p7zip.
 # 2. Clone the repo.
 git clone https://github.com/<your-user>/swayfx-dotfile.git ~/swayfx-dotfile
 cd ~/swayfx-dotfile

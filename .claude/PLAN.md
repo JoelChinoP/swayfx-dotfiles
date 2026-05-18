@@ -112,7 +112,7 @@ sudo pacman -S --needed --noconfirm \
   linux-firmware sof-firmware amd-ucode \
   networkmanager git base-devel \
   zsh starship stow \
-  lm_sensors jq curl wget openssh \
+  lm_sensors jq less curl wget openssh \
   unzip zip p7zip
 
 # Remove installed conflicting power-policy layers only after confirmation/--yes.
@@ -146,7 +146,7 @@ mkdir -p ~/.local/share/swayfx-dotfiles/backups
 ```bash
 command -v paru               || exit 1
 command -v stow               || exit 1
-pacman -Q starship jq unzip zip p7zip || exit 1
+pacman -Q starship jq less unzip zip p7zip || exit 1
 for cmd in makepkg make gcc fakeroot pkgconf; do
   command -v "$cmd" >/dev/null || exit 1
 done
@@ -607,6 +607,74 @@ ls /usr/share/wayland-sessions/             || exit 1
 
 > This stage is **not** part of `--all`. Run with
 > `./scripts/install/run.sh --only 99`.
+
+---
+
+### Optional fingerprint overlay — ELAN `04f3:0c90`
+
+**What.** Enable fingerprint-first auth only for ReGreet and
+swaylock-effects after the reader has been proven reliable with
+`fprintd-verify`. This is not a numbered stage because the ASUS
+`ELAN:ARM-M4` reader requires an experimental libfprint branch and not
+every target install has this hardware.
+
+Known-good local package path:
+
+```bash
+cd /home/joel/Descargas/libfprint-elanmoc2-0c90-git
+sudo pacman -U ./libfprint-elanmoc2-0c90-git-1.94.0+372+g11f0316-1-x86_64.pkg.tar.zst
+# When pacman asks whether to remove official libfprint, answer: s
+sudo pacman -S --needed fprintd
+sudo udevadm hwdb --update
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+sudo systemctl restart fprintd.service
+```
+
+Enroll and verify before touching PAM:
+
+```bash
+fprintd-delete "$USER" 2>/dev/null || true
+sudo systemctl stop fprintd.service
+sudo /home/joel/Descargas/libfprint-elanmoc2-0c90-git/src/build/examples/clear-storage || true
+sudo systemctl start fprintd.service
+fprintd-enroll -f right-index-finger "$USER"
+fprintd-verify -f right-index-finger "$USER"
+```
+
+Apply the per-service PAM overlays:
+
+```bash
+ts="$(date +%Y%m%d-%H%M%S)"
+sudo cp -a /etc/pam.d/greetd "/etc/pam.d/greetd.bak.$ts"
+sudo cp -a /etc/pam.d/swaylock "/etc/pam.d/swaylock.bak.$ts"
+sudo install -Dm 0644 "$ROOT/system/pam.d/greetd-fingerprint" /etc/pam.d/greetd
+sudo install -Dm 0644 "$ROOT/system/pam.d/swaylock-fingerprint" /etc/pam.d/swaylock
+sudo systemctl restart fprintd.service
+```
+
+Do **not** edit `/etc/pam.d/system-auth` for this laptop by default.
+`pam_fprintd.so` is serialized; ReGreet and swaylock cannot ask for
+password and fingerprint at the exact same time. The templates try the
+fingerprint first, then fall back to password after success, failure or
+timeout.
+
+**Validation**:
+
+```bash
+pacman -Q fprintd libfprint-elanmoc2-0c90-git || exit 1
+fprintd-list "$USER" | grep -q right-index-finger || exit 1
+fprintd-verify -f right-index-finger "$USER" || exit 1
+grep -q pam_fprintd.so /etc/pam.d/greetd || exit 1
+grep -q pam_fprintd.so /etc/pam.d/swaylock || exit 1
+```
+
+Rollback if the reader becomes flaky:
+
+```bash
+sudo cp -a /etc/pam.d/greetd.bak.<timestamp> /etc/pam.d/greetd
+sudo cp -a /etc/pam.d/swaylock.bak.<timestamp> /etc/pam.d/swaylock
+```
 
 ---
 

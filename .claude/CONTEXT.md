@@ -226,11 +226,23 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
   `thunar-archive-plugin` (used regardless of Nautilus vs Thunar).
 - **Resource monitors**: `mission-center` (official repo, GUI), `btop` (TUI).
 - **Custom-module helper**: `jq`.
+- **Terminal pager**: `less`, installed in stage 00 so `git`, GitHub CLI
+  workflows, and `man` pages have a reliable pager on minimal installs.
 - **Firewall (optional)**: `ufw`. Installed **inactive**; user enables it
   after setting their own rules.
 - **zram**: `zram-generator`, 4 GB, zstd, priority 100, with
   `vm.swappiness=180` and `vm.page-cluster=0` for compressed-RAM swap
   under Docker/container pressure.
+- **Fingerprint reader (optional, experimental)**: the ASUS internal
+  reader is `04f3:0c90 ELAN:ARM-M4`. It is not handled by Arch's
+  official `libfprint` package at the time of this review. The working
+  local path uses `fprintd` plus a custom Arch package,
+  `libfprint-elanmoc2-0c90-git`, built from Davide Depau's `elanmoc2`
+  branch at commit `11f0316`. Do not enable fingerprint auth globally in
+  `/etc/pam.d/system-auth`; use the optional per-service templates
+  `system/pam.d/greetd-fingerprint` and
+  `system/pam.d/swaylock-fingerprint` after enrollment verifies with
+  `fprintd-verify`.
 
 ## 6. Implementation philosophy
 
@@ -273,6 +285,10 @@ Optional stage (do **not** include in `--all`):
   manually only after the rest is stable. Installs a greetd PAM policy
   without `pam_securetty`, because ReGreet does not provide a classic
   PAM_TTY item and can otherwise fail with `SERVICE_ERR`.
+- Fingerprint PAM templates are optional overlays, not stages:
+  `system/pam.d/greetd-fingerprint` and
+  `system/pam.d/swaylock-fingerprint`. They place `pam_fprintd.so`
+  before password auth for only those two services.
 
 CLI:
 
@@ -402,6 +418,10 @@ swayfx-dotfile/
   pointing to `/sys/class/power_supply` for adjustment.
 - **Do not** introduce a display manager in the main path. greetd is
   optional.
+- **Do not** enable fingerprint auth in global PAM files like
+  `/etc/pam.d/system-auth` or `/etc/pam.d/system-login`. Keep it scoped
+  to ReGreet and swaylock unless the user explicitly accepts the wider
+  blast radius.
 - **Do not** apply blur or opacity to layer-shell surfaces (waybar, mako,
   swaybg). They stay opaque/transparent as configured by their own CSS.
   The only exception is the documented `wlogout` modal overlay blur.
@@ -415,7 +435,7 @@ Grouped so a failure points to the responsible stage.
 ### 10.1. Premises (§2 / stage 00)
 
 - [ ] `pacman -Q amd-ucode sof-firmware sudo` → all installed.
-- [ ] `pacman -Q starship stow jq unzip zip p7zip` → all installed.
+- [ ] `pacman -Q starship stow jq less unzip zip p7zip` → all installed.
 - [ ] `command -v makepkg make gcc fakeroot pkgconf` → base-devel
       toolchain available.
 - [ ] `for p in power-profiles-daemon tlp auto-cpufreq ryzenadj; do pacman -Q "$p" && exit 1; done` → no rejected power policy package installed.
@@ -458,6 +478,10 @@ Grouped so a failure points to the responsible stage.
 - [ ] `bluetoothctl show` reports the controller.
 - [ ] `swaylock -f` locks with blur over the screenshot.
 - [ ] `wlogout` opens the power menu.
+- [ ] Optional fingerprint path: `fprintd-verify -f right-index-finger
+      "$USER"` succeeds before installing the fingerprint PAM overlays.
+      If enabled, ReGreet and swaylock try fingerprint first and fall
+      back to password after the configured timeout.
 
 ### 10.4. Theming and shell (stages 01 / 08)
 

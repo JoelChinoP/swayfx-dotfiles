@@ -19,7 +19,7 @@ pacstrap -K /mnt \
   networkmanager sudo git base-devel \
   zsh starship stow \
   lm_sensors jq \
-  nano man-db man-pages texinfo \
+  nano man-db man-pages less texinfo \
   efibootmgr dosfstools \
   btrfs-progs exfatprogs ntfs-3g \
   pciutils usbutils lshw hwinfo inxi \
@@ -29,7 +29,7 @@ pacstrap -K /mnt \
 
 Stage 00 can repair missing official packages from this installer-critical
 set (`base-devel`, `git`, `zsh`, `starship`, `stow`, `lm_sensors`, `jq`,
-`curl`, `wget`, `openssh`, `unzip`, `zip`, `p7zip`, plus firmware and
+`less`, `curl`, `wget`, `openssh`, `unzip`, `zip`, `p7zip`, plus firmware and
 NetworkManager). It still assumes a booted Arch system, a non-root target
 user with working `sudo`, usable pacman repos, and network connectivity.
 
@@ -66,7 +66,7 @@ flat manifest grouped by repo source for review.
 linux-firmware sof-firmware amd-ucode
 networkmanager git base-devel
 zsh starship stow
-lm_sensors jq curl wget openssh
+lm_sensors jq less curl wget openssh
 unzip zip p7zip
 ```
 
@@ -292,8 +292,32 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
   `--screenshots`, `--effect-blur`, `--effect-pixelate`,
   `--effect-vignette`, and is what every reference uses.
 - The two packages **conflict**. Install only `swaylock-effects`.
+- Fingerprint unlock is not enabled by stage 09 by default. When the
+  optional ELAN `04f3:0c90` driver is verified, install
+  `system/pam.d/swaylock-fingerprint` over `/etc/pam.d/swaylock`.
+  `pam_fprintd.so` is serialized, so the password fallback appears after
+  the fingerprint attempt succeeds, fails or times out.
 
-### 3.11. ZRAM tuning: zstd + 4 GB + aggressive zram use
+### 3.11. Fingerprint: ELAN 04f3:0c90, optional and experimental
+
+- Official Arch `libfprint` does not currently expose useful support for
+  this ASUS `ELAN:ARM-M4` reader. Use `fprintd` plus a custom local
+  package built from Davide Depau's `elanmoc2` branch:
+  `libfprint-elanmoc2-0c90-git`.
+- The older `libfprint-elanmoc2-working-0c90-git` package points at the
+  stale `elanmoc2-working` branch (`3d489eb`) and required a `sed`
+  replacement from `0x0c00` to `0x0c90`. The newer `elanmoc2` branch at
+  `11f0316` includes `0c90` in both the driver table and autosuspend
+  hwdb, so no source edit is needed.
+- Do not install with `pacman -U --noconfirm` when replacing official
+  `libfprint`; pacman asks whether to remove `libfprint`, and the
+  default answer is no. Install interactively and answer `s`.
+- Keep PAM scoped to the two services the user wants:
+  `system/pam.d/greetd-fingerprint` for ReGreet and
+  `system/pam.d/swaylock-fingerprint` for swaylock-effects. Do not edit
+  `/etc/pam.d/system-auth` by default.
+
+### 3.12. ZRAM tuning: zstd + 4 GB + aggressive zram use
 
 - `zstd` keeps a good compression ratio without making the desktop feel
   CPU-bound.
@@ -304,7 +328,15 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
 - `vm.page-cluster=0` disables swap readahead, which is appropriate for
   memory-backed zram.
 
-### 3.12. Resource monitors: mission-center + btop
+### 3.13. CLI pager: less
+
+- `less` is installed in stage 00 because minimal Arch systems do not
+  always include it, while `git`, GitHub CLI workflows and `man` pages
+  commonly expect a pager for long output.
+- It is kept in the installer-critical set rather than a later graphical
+  stage so repository work is comfortable even before SwayFX is installed.
+
+### 3.14. Resource monitors: mission-center + btop
 
 - **mission-center**: GUI, GNOME-native, replaces gnome-system-monitor
   with a lighter footprint.
@@ -326,6 +358,7 @@ Not part of stages 00–10 by default. Install manually when needed.
 | `helvum`          | PipeWire patchbay GUI                                 |
 | `playerctl`       | already in stage 06; mentioned for completeness       |
 | `gnome-disk-utility` | partition / disk GUI                              |
+| `fprintd` + `libfprint-elanmoc2-0c90-git` | experimental fingerprint auth for ASUS ELAN `04f3:0c90` |
 
 ---
 
@@ -335,6 +368,7 @@ Not part of stages 00–10 by default. Install manually when needed.
 |---------------------|----------------------------|-----------------------------|
 | `swayfx`            | `sway` (official)          | Let paru replace `sway`.    |
 | `swaylock-effects`  | `swaylock` (official)      | Install only the AUR one.   |
+| `libfprint-elanmoc2-0c90-git` | `libfprint` (official) | Let pacman replace official `libfprint`; install interactively and answer `s`. |
 | `cpupower` policy helper | `power-profiles-daemon` / `tlp` / `auto-cpufreq` / `ryzenadj` | Stage 00 removes rejected policy layers when confirmed. |
 | `pipewire-pulse`    | `pulseaudio`               | We use the pipewire stack.  |
 | `pipewire-jack`     | `jack2`                    | We use pipewire's JACK.     |

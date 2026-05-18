@@ -132,3 +132,10 @@ _swayfx_prompt_spacing_after_command() {
 }
 add-zsh-hook preexec _swayfx_capture_last_command
 add-zsh-hook precmd _swayfx_prompt_spacing_after_command
+
+# ── SSH Agent ──────────────────────────────────────────>
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+  eval "$(ssh-agent -s)" > /dev/null
+fi
+
+ssh-add ~/.ssh/gitlab_turing 2>/dev/null

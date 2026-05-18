@@ -7,7 +7,7 @@
 # CHECK_LIVE=1 after logging into SwayFX to make live checks fatal.
 #
 # Verified against: .claude/CONTEXT.md acceptance checklist
-# Reviewed: 2026-05-16
+# Reviewed: 2026-05-18
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -53,7 +53,7 @@ else
 fi
 
 check_cmd "core packages installed" pacman -Q amd-ucode sof-firmware sudo zsh starship stow
-check_cmd "installer bootstrap packages installed" pacman -Q git lm_sensors jq curl wget openssh unzip zip p7zip
+check_cmd "installer bootstrap packages installed" pacman -Q git lm_sensors jq less curl wget openssh unzip zip p7zip
 check_cmd "base-devel toolchain installed" bash -c '
 for cmd in makepkg make gcc fakeroot pkgconf; do
     command -v "$cmd" >/dev/null 2>&1 || exit 1

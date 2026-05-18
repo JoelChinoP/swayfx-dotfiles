@@ -1,0 +1,22 @@
+#%PAM-1.0
+# greetd/ReGreet PAM policy with fingerprint-first authentication.
+#
+# Verified against: pam_fprintd(8), pam_securetty(8), Arch system-local-login PAM layout
+# Reviewed: 2026-05-18
+#
+# DEVIATION: this fingerprint variant is intentionally not installed by
+# stage 99. It depends on a working fprintd/libfprint setup for the
+# ASUS ELAN 04f3:0c90 reader and PAM authentication is serialized, so
+# password entry waits until the fingerprint attempt succeeds, fails or
+# times out.
+#
+# DEVIATION: do not use pam_securetty here. ReGreet runs through greetd
+# without a classic PAM_TTY item, and pam_securetty returns SERVICE_ERR
+# when it cannot determine the TTY. Root login is not part of this setup.
+
+auth       requisite    pam_nologin.so
+auth       sufficient   pam_fprintd.so max-tries=2 timeout=12
+auth       include      system-local-login
+account    include      system-local-login
+session    include      system-local-login
+password   include      system-local-login

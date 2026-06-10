@@ -7,6 +7,29 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+DEV_PROFILE="${HOME}/.config/BraveSoftware/Brave-Origin-Beta-Dev"
+
+if [[ "${1:-}" == "--dev" ]]; then
+    shift
+    DEV_FLAGS=(
+        --disable-web-security
+        --user-data-dir="$DEV_PROFILE"
+        --password-store=basic
+        --ozone-platform-hint=auto
+        --enable-wayland-ime
+        --force-dark-mode
+        --ignore-gpu-blocklist
+        --enable-features=AcceleratedVideoDecodeLinuxGL,AcceleratedVideoDecodeLinuxZeroCopyGL,AcceleratedVideoEncoder,VaapiIgnoreDriverChecks,WaylandWindowDecorations,WebUIDarkMode
+    )
+    pkill -f "user-data-dir=$DEV_PROFILE" 2>/dev/null || true
+    sleep 0.5
+    rm -f "$DEV_PROFILE"/Singleton*
+    if [[ -x /opt/brave.com/brave-origin-beta/brave-origin ]]; then
+        exec /opt/brave.com/brave-origin-beta/brave-origin "${DEV_FLAGS[@]}" "$@"
+    fi
+    exec brave-origin-beta "${DEV_FLAGS[@]}" "$@"
+fi
+
 FLAGS=(
     --ozone-platform-hint=auto
     --enable-wayland-ime

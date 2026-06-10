@@ -1,6 +1,6 @@
 # /etc/greetd/regreet.toml
-# Verified against: greetd-regreet
-# Reviewed: 2026-05-13
+# Verified against: /usr/share/doc/greetd-regreet/regreet.sample.toml (greetd-regreet 0.4.0)
+# Reviewed: 2026-06-07
 
 [background]
 path = "/etc/greetd/wallpaper-login.png"
@@ -11,7 +11,9 @@ application_prefer_dark_theme = true
 theme_name = "adw-gtk3-dark"
 icon_theme_name = "Papirus-Dark"
 font_name = "Inter 14"
-css_path = "/etc/greetd/regreet.css"
+
+# ReGreet 0.4.0 loads CSS through `regreet --style`.
+# With no flag, its default stylesheet is /etc/greetd/regreet.css.
 
 [default_session]
 command = "sway"

@@ -139,3 +139,26 @@ if ! pgrep -u "$USER" ssh-agent > /dev/null; then
 fi
 
 ssh-add ~/.ssh/gitlab_turing 2>/dev/null
+
+export PATH="$PATH:$HOME/development/flutter/bin"
+
+export CHROME_EXECUTABLE=/usr/bin/brave-origin-beta
+
+export ANDROID_HOME=/opt/android-sdk
+export ANDROID_SDK_ROOT=/opt/android-sdk
+export ANDROID_AVD_HOME=$HOME/.config/.android/avd
+export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH
+
+# >>> opencode-dotfiles skills env >>>
+# Wrappea `opencode` para que cargue el venv y NODE_PATH aislados solo
+# en esa invocacion (no contamina el resto del shell).
+opencode() {
+    if [ -f "$HOME/.config/opencode/skills-env.sh" ]; then
+        ( . "$HOME/.config/opencode/skills-env.sh"; command opencode "$@" )
+    else
+        command opencode "$@"
+    fi
+}
+# <<< opencode-dotfiles skills env <<<
+
+export CONTEXT7_API_KEY="ctx7sk-cd580dc4-7d62-42b6-a26a-ce7e2ebc81f3"

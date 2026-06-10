@@ -9,7 +9,17 @@
       "Bash(find /home/dotfiles/waybar -type f | sort && echo \"---\" && ls ~/.config/waybar/ 2>/dev/null)",
       "Read(//home/joel/.config/waybar/**)",
       "Bash(swaymsg -t get_outputs)",
-      "Bash(python3 -c \"import json,sys; o=json.load\\(sys.stdin\\); [print\\(f\\\\\"{x['name']}: {x['current_mode']['width']}x{x['current_mode']['height']}\\\\\"\\) for x in o if x.get\\('current_mode'\\)]\")"
+      "Bash(python3 -c \"import json,sys; o=json.load\\(sys.stdin\\); [print\\(f\\\\\"{x['name']}: {x['current_mode']['width']}x{x['current_mode']['height']}\\\\\"\\) for x in o if x.get\\('current_mode'\\)]\")",
+      "Bash(env)",
+      "Bash(xdg-settings get *)",
+      "Bash(xdg-mime query *)",
+      "Bash(python3 -c ' *)",
+      "Read(//home/joel/.vscode/extensions/openai.chatgpt-26.602.30954-linux-x64/**)",
+      "Bash(python3 -c 'import json,sys *)",
+      "Read(//home/joel/.config/sway/**)",
+      "Bash(python3 -c \"import sqlite3; print\\(' python sqlite3: OK'\\)\")",
+      "Read(//home/joel/.config/Code/User/profiles/**)",
+      "WebFetch(domain:code.visualstudio.com)"
     ]
   }
 }

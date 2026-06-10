@@ -1,17 +1,16 @@
 /* ReGreet login screen — SwayFX dotfiles
- * Verified against: greetd-regreet CSS hooks
+ * Verified against: greetd-regreet 0.4.0 GTK4 CSS loading
  * Accent: #89b4fa | Palette: Sway pure-black project palette
- * Reviewed: 2026-05-14
+ * Reviewed: 2026-06-07
  */
 
 /* ── Fondo ──────────────────────────────────────────────────────── */
-window,
-.background {
-  background: #000000;
+window {
+  background-color: #000000;
 }
 
 picture {
-  opacity: 0.875;
+  opacity: 1;
 }
 
 /* Oculta el headerbar (titulo "regreet") si existe en esta build */
@@ -22,7 +21,6 @@ headerbar,
   box-shadow: none;
   color: transparent;
   font-size: 0;
-  max-height: 0;
   opacity: 0;
   min-height: 0;
   padding: 0;
@@ -134,10 +132,6 @@ entry:focus {
     0 0 0 3px rgba(137, 180, 250, 0.16);
 }
 
-entry::placeholder {
-  color: rgba(154, 154, 166, 0.72);
-}
-
 row>box>entry,
 adwentryrow entry {
   background: transparent;
@@ -149,7 +143,6 @@ adwentryrow entry {
 /* ── Buttons ─────────────────────────────────────────────────────── */
 button {
   background: #0e0e10;
-  cursor: pointer;
   border: 1px solid #1f1f24;
   border-radius: 12px;
   color: #e6e6e6;

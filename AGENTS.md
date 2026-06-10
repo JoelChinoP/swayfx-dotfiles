@@ -12,7 +12,7 @@
 ## 0. What this repo is
 
 A staged installer + dotfiles for **SwayFX on Arch Linux**, targeting an
-ASUS laptop with Ryzen 7 7730U + Vega 8 + 12 GB RAM. The end result is a
+ASUS laptop with Ryzen 7 7730U + Vega 8 + 16 GB RAM. The end result is a
 dark-only Wayland desktop with two waybar pills (status + taskbar), a
 pure-black palette, and conventional desktop ergonomics (minimize,
 maximize, close from a taskbar) on top of Sway's tiling.

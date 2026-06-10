@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Verified against: wlogout(1), fuzzel --dmenu
-# Reviewed: 2026-05-14
+# Verified against: wlogout(1), fuzzel --dmenu, swaymsg(1)
+# Reviewed: 2026-06-10
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -25,12 +25,33 @@ run_choice() {
     esac
 }
 
+# Margins scaled from the focused output so the grid keeps the same
+# proportions as the original 1920x1080 design (700/300 px) on any
+# resolution instead of looking off-center on external monitors.
+wlogout_margins() {
+    local w h
+    # IFS is \n\t globally; restore the space separator just for this read.
+    IFS=' ' read -r w h < <(
+        swaymsg -t get_outputs 2>/dev/null |
+            jq -r '.[] | select(.focused) | "\(.rect.width) \(.rect.height)"' |
+            head -n 1
+    ) || true
+    [[ "${w:-}" =~ ^[0-9]+$ && "${h:-}" =~ ^[0-9]+$ ]] || { w=1920; h=1080; }
+    margin_h=$(( w * 700 / 1920 ))
+    margin_v=$(( h * 300 / 1080 ))
+}
+
 if command -v wlogout >/dev/null 2>&1 && [[ "${SWAYFX_POWERMENU_FORCE_DMENU:-0}" != "1" ]]; then
+    wlogout_margins
+    if [[ "${SWAYFX_POWERMENU_PRINT_GEOMETRY:-0}" == "1" ]]; then
+        printf 'margins: h=%s v=%s\n' "$margin_h" "$margin_v"
+        exit 0
+    fi
     exec wlogout -b 2 \
-        --margin-top 300 \
-        --margin-bottom 300 \
-        --margin-left 700 \
-        --margin-right 700 \
+        --margin-top "$margin_v" \
+        --margin-bottom "$margin_v" \
+        --margin-left "$margin_h" \
+        --margin-right "$margin_h" \
         --column-spacing 20 \
         --row-spacing 10
 fi

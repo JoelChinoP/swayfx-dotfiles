@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
-# Verified against: cpupower-frequency-set(1), Linux power_supply sysfs
-# Reviewed: 2026-05-12
+# Verified against: cpupower-frequency-set(1), Linux power_supply sysfs,
+#                   amd-pstate EPP and ACPI platform_profile kernel docs
+# Reviewed: 2026-06-10
 
 set -euo pipefail
 IFS=$'\n\t'
 
 AC_MAX_KHZ="${AC_MAX_KHZ:-3000000}"
 BATTERY_MAX_KHZ="${BATTERY_MAX_KHZ:-2000000}"
+
+# amd-pstate-epp: the energy/performance preference lets the governor
+# favor race-to-idle instead of relying only on the hard frequency cap.
+# NOTE: the ASUS platform_profile handler derives its own EPP from the
+# profile (balanced -> balance_power) and re-imposes it asynchronously,
+# overriding contrary values; defaults below match that pairing so the
+# config reflects effective behavior. apply_epp stays as best-effort
+# reinforcement (battery: quiet + power agree).
+AC_EPP="${AC_EPP:-balance_power}"
+BATTERY_EPP="${BATTERY_EPP:-power}"
+AC_PLATFORM_PROFILE="${AC_PLATFORM_PROFILE:-balanced}"
+BATTERY_PLATFORM_PROFILE="${BATTERY_PLATFORM_PROFILE:-quiet}"
 
 has_ac_power() {
     local supply type online
@@ -39,13 +52,49 @@ apply_with_sysfs() {
     (( applied ))
 }
 
+apply_epp() {
+    local epp="$1" applied=0 file
+
+    for file in /sys/devices/system/cpu/cpu[0-9]*/cpufreq/energy_performance_preference; do
+        [[ -w "$file" ]] || continue
+        if printf '%s\n' "$epp" > "$file" 2>/dev/null; then
+            applied=1
+        fi
+    done
+
+    if (( applied )); then
+        echo "Applied energy_performance_preference: $epp"
+    fi
+}
+
+apply_platform_profile() {
+    local prof="$1" node=/sys/firmware/acpi/platform_profile
+
+    [[ -w "$node" ]] || return 0
+    if ! grep -qw "$prof" "${node}_choices" 2>/dev/null; then
+        return 0
+    fi
+    if printf '%s\n' "$prof" > "$node" 2>/dev/null; then
+        echo "Applied platform_profile: $prof"
+    fi
+}
+
 if has_ac_power; then
     profile="AC"
     max_khz="$AC_MAX_KHZ"
+    epp="$AC_EPP"
+    platform_profile="$AC_PLATFORM_PROFILE"
 else
     profile="battery"
     max_khz="$BATTERY_MAX_KHZ"
+    epp="$BATTERY_EPP"
+    platform_profile="$BATTERY_PLATFORM_PROFILE"
 fi
+
+# platform_profile first: the ASUS ACPI handler rewrites the EPP when
+# the profile changes, so the explicit EPP must be applied afterwards.
+apply_platform_profile "$platform_profile"
+apply_epp "$epp"
 
 if ! compgen -G '/sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_max_freq' >/dev/null; then
     echo "No cpufreq scaling_max_freq files found; skipping CPU ceiling."

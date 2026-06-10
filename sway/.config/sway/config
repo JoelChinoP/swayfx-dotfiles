@@ -43,21 +43,29 @@ gaps vertical 1
 # smart_gaps on
 smart_gaps off
 corner_radius 10
+# Square the corners when a window covers the whole workspace (maximized
+# Brave / swayfx-maximize) so no background peeks through.
+smart_corner_radius enable
 shadows disable
 default_dim_inactive 0.05
 dim_inactive_colors.unfocused #000000FF
 
 # Floating windows keep subtle depth; maximized windows disable shadows.
-for_window [floating] shadows enable, shadow_blur_radius 20, shadow_color #00000060
+# Radius 10: every window is floating here, so this renders on all of
+# them — 20 was the single biggest steady GPU cost on Vega 8.
+for_window [floating] shadows enable, shadow_blur_radius 10, shadow_color #00000060
 
 # DEVIATION: wlogout uses layer blur to make the power menu feel modal.
 # The rest of the layer-shell UI stays unblurred.
+# blur_passes/blur_radius are global commands in swayfx 0.5.x, not valid
+# layer_effects entries (they logged config errors); the layer uses the
+# global blur parameters set below.
 layer_effects "wlogout" {
     blur enable
-    blur_passes 3
-    blur_radius 6
     shadows disable
 }
+blur_passes 3
+blur_radius 5
 
 # Blur only on the terminal.
 blur disable
@@ -109,8 +117,9 @@ exec wl-paste --type image --watch cliphist store
 exec gammastep
 exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-refresh-rate --watch
 
-# Idle and lock.
-exec swayidle -w timeout 300 'swaylock -f' timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' before-sleep 'swaylock -f'
+# Idle and lock. `lock` answers loginctl lock-session; suspend closes
+# the chain lock -> screen off -> sleep (before-sleep re-locks anyway).
+exec swayidle -w timeout 300 'swaylock -f' timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' timeout 900 'systemctl suspend' before-sleep 'swaylock -f' lock 'swaylock -f'
 
 # Two Waybar instances.
 exec_always sh -lc 'export PATH="$HOME/.local/bin:$PATH"; pkill -x waybar || true; waybar -c "$HOME/.config/waybar/top.jsonc" -s "$HOME/.config/waybar/top.css" & waybar -c "$HOME/.config/waybar/bottom.jsonc" -s "$HOME/.config/waybar/bottom.css" &'
@@ -134,7 +143,9 @@ bindsym $mod+b exec $browser
 bindsym $mod+q kill
 bindsym $mod+Shift+f fullscreen toggle
 bindsym $mod+f exec ~/.local/bin/swayfx-maximize
-bindsym $mod+Shift+space floating toggle
+# Brave alterna ventana-completa (maximizar bajo la barra, no fullscreen);
+# el resto conserva el floating toggle clásico.
+bindsym $mod+Shift+space exec ~/.local/bin/swayfx-float-or-max
 bindsym $mod+m move scratchpad
 bindsym $mod+Shift+m scratchpad show
 
@@ -269,9 +280,11 @@ bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 bindsym $mod+Shift+q exec ~/.local/bin/swayfx-powermenu
 
-# Floating rules.
+# Floating rules. X11 dialogs (window_type != normal) keep their natural
+# size; resizing them to 1000x600 broke confirmation popups.
 for_window [app_id=".*"] floating enable, resize set 1000 600
-for_window [class=".*"] floating enable, resize set 1000 600
+for_window [class=".*"] floating enable
+for_window [class=".*" window_type="normal"] resize set 1000 600
 
 # Brave Origin opens floating like every other app; the placement daemon
 # auto-maximizes it below the waybar. Use browser F11 for true fullscreen.

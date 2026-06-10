@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Verified against: waybar-custom(5), makoctl(1)
-# Reviewed: 2026-05-14
+# Verified against: waybar-custom(5), makoctl(1) — mako 1.11 plain-text list
+# Reviewed: 2026-06-10
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -12,23 +12,15 @@ json() {
 notification_count() {
     local list count
 
+    # mako >= 1.10 dropped JSON output: `makoctl list` prints plain text
+    # with one "Notification <id>: <summary>" header per entry.
     list="$(makoctl list 2>/dev/null || true)"
     [[ -n "$list" ]] || {
         printf '0'
         return 0
     }
 
-    if command -v jq >/dev/null 2>&1; then
-        count="$(
-            jq '[.. | objects | select(has("app-name"))] | length' <<< "$list" 2>/dev/null || true
-        )"
-        if [[ "$count" =~ ^[0-9]+$ ]]; then
-            printf '%s' "$count"
-            return 0
-        fi
-    fi
-
-    count="$(grep -c '"app-name"' <<< "$list" 2>/dev/null || true)"
+    count="$(grep -cE '^Notification [0-9]+:' <<< "$list" 2>/dev/null || true)"
     printf '%s' "${count:-0}"
 }
 

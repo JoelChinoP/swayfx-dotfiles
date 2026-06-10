@@ -17,6 +17,9 @@ ignore-timeout=0
 max-visible=5
 icons=1
 anchor=top-right
+# Refresh the waybar custom/notifications module (signal 1) the moment a
+# notification arrives; its polling interval is just a dismiss fallback.
+on-notify=exec pkill -RTMIN+1 waybar
 
 [urgency=critical]
 border-color=#f38ba8

@@ -2,25 +2,39 @@
 """SwayFX floating-window placement and border policy daemon."""
 
 # Verified against: https://github.com/altdesktop/i3ipc-python, sway-ipc(7)
-# Reviewed: 2026-05-16
+# Reviewed: 2026-06-10
 
 from __future__ import annotations
 
-import importlib
-import os
-import subprocess
 import sys
 import time
 from typing import Iterable, Optional
 
+try:
+    import i3ipc
+except ImportError:
+    print(
+        "swayfx-placement-daemon: python-i3ipc is not installed "
+        "(pacman -S python-i3ipc)",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+
 
 CASCADE_STEP = 25
 SIDE_MARGIN = 80
-TOP_BAR_HEIGHT = 32
 DEFAULT_FLOATING_BORDER = 3
 DEFAULT_WINDOW_WIDTH = 1280
 DEFAULT_WINDOW_HEIGHT = 720
 MAXIMIZE_MARK = "maximize"
+
+# Anything at or below this size is treated as a dialog/confirmation
+# popup: sway already centers it (over its parent for transient
+# windows), so the cascade must not relocate it. Wayland toplevels do
+# not expose their parent in the tree, so size is the only reliable
+# signal; X11 windows additionally expose transient_for.
+DIALOG_MAX_WIDTH = 700
+DIALOG_MAX_HEIGHT = 500
 
 # App IDs / WM classes that should be auto-maximized when they open.
 AUTO_MAXIMIZE_APP_IDS = frozenset({
@@ -36,21 +50,6 @@ AUTO_MAXIMIZE_WM_CLASSES = frozenset({
     "brave-origin-beta",
     "brave-origin-nightly",
 })
-
-
-def ensure_i3ipc():
-    try:
-        return importlib.import_module("i3ipc")
-    except ImportError:
-        pip_install = [sys.executable, "-m", "pip", "install", "--user", "i3ipc"]
-        try:
-            subprocess.check_call(pip_install)
-        except subprocess.CalledProcessError:
-            subprocess.check_call([*pip_install, "--break-system-packages"])
-        os.execv(sys.executable, [sys.executable, *sys.argv])
-
-
-i3ipc = ensure_i3ipc()
 
 
 class CascadeState:
@@ -88,35 +87,23 @@ def has_mark(con, mark: str) -> bool:
     return mark in (getattr(con, "marks", None) or [])
 
 
+def is_dialog(con) -> bool:
+    props = getattr(con, "ipc_data", {}).get("window_properties") or {}
+    if props.get("transient_for"):
+        return True
+    rect = getattr(con, "rect", None)
+    if rect is None:
+        return False
+    return (
+        0 < rect.width <= DIALOG_MAX_WIDTH
+        and 0 < rect.height <= DIALOG_MAX_HEIGHT
+    )
+
+
 def should_auto_maximize(con) -> bool:
     app_id = (getattr(con, "app_id", None) or "").lower()
     wm_class = ((getattr(con, "window_properties", None) or {}).get("class") or "").lower()
     return app_id in AUTO_MAXIMIZE_APP_IDS or wm_class in AUTO_MAXIMIZE_WM_CLASSES
-
-
-def get_active_output(conn):
-    outputs = conn.get_outputs()
-    for out in outputs:
-        if getattr(out, "focused", False):
-            return out
-    for out in outputs:
-        if getattr(out, "active", False):
-            return out
-    return outputs[0] if outputs else None
-
-
-def maximize_window(conn, con) -> None:
-    out = get_active_output(conn)
-    if out is None:
-        return
-    w = out.rect.width
-    h = out.rect.height - TOP_BAR_HEIGHT
-    con.command(
-        f"floating enable, mark --add {MAXIMIZE_MARK}, "
-        f"resize set {w} {h}, "
-        f"move position 0 {TOP_BAR_HEIGHT}, "
-        f"border none, shadows disable"
-    )
 
 
 def workspace_for(con, conn):
@@ -130,6 +117,44 @@ def workspace_for(con, conn):
     return focused.workspace() if focused else None
 
 
+def full_window_area(conn, con) -> Optional[tuple[int, int, int, int]]:
+    """Area under the top bar, ignoring gaps: x, y, width, height.
+
+    ws.rect excludes both the waybar exclusive zone and the workspace
+    gaps. Assuming uniform gaps (left == right == bottom), the gap is
+    ws.x - out.x, and the bar height is the rest of the top offset.
+    """
+    ws = workspace_for(con, conn)
+    if ws is None:
+        return None
+    out = None
+    for o in conn.get_outputs():
+        if o.active and o.rect.x <= ws.rect.x < o.rect.x + o.rect.width \
+                and o.rect.y <= ws.rect.y < o.rect.y + o.rect.height:
+            out = o
+            break
+    if out is None:
+        return None
+    gap = max(ws.rect.x - out.rect.x, 0)
+    bar = max(ws.rect.y - out.rect.y - gap, 0)
+    return out.rect.x, out.rect.y + bar, out.rect.width, out.rect.height - bar
+
+
+def maximize_window(conn, con) -> None:
+    area = full_window_area(conn, con)
+    if area is None:
+        return
+    x, y, w, h = area
+    # border none must precede resize/move: sway compensates any active
+    # border when sizing/positioning, which left a 3px offset ring.
+    con.command(
+        f"floating enable, border none, shadows disable, "
+        f"mark --add {MAXIMIZE_MARK}, "
+        f"resize set {w} {h}, "
+        f"move absolute position {x} {y}"
+    )
+
+
 def safe_position_for(con, conn) -> Optional[tuple[int, int]]:
     ws = workspace_for(con, conn)
     if ws is None:
@@ -140,7 +165,7 @@ def safe_position_for(con, conn) -> Optional[tuple[int, int]]:
     height = max(getattr(con.rect, "height", 0) or DEFAULT_WINDOW_HEIGHT, 1)
 
     min_x = rect.x + SIDE_MARGIN
-    min_y = rect.y + SIDE_MARGIN + TOP_BAR_HEIGHT
+    min_y = rect.y + SIDE_MARGIN
     max_x = rect.x + rect.width - SIDE_MARGIN - width
     max_y = rect.y + rect.height - SIDE_MARGIN - height
 
@@ -166,7 +191,7 @@ def place_floating_window(conn, con) -> None:
     if pos is None:
         return
     x, y = pos
-    con.command(f"move position {x} {y}")
+    con.command(f"move absolute position {x} {y}")
 
 
 def visible_workspace_windows(ws) -> list:
@@ -221,6 +246,12 @@ def on_window_new(conn, event) -> None:
     # are not re-maximized by the window::floating event they trigger.
     if should_auto_maximize(con) and not has_mark(con, MAXIMIZE_MARK):
         maximize_window(conn, con)
+        # Brave reconfigures its surface ~0.5s into startup, which can
+        # displace the freshly maximized window; re-anchor once settled.
+        time.sleep(0.6)
+        settled = find_by_id(conn.get_tree(), event.container.id)
+        if settled is not None and has_mark(settled, MAXIMIZE_MARK):
+            maximize_window(conn, settled)
         update_borders(conn)
         return
 
@@ -235,7 +266,7 @@ def on_window_floating(conn, event) -> None:
     con = find_by_id(tree, event.container.id) or event.container
     if not is_window(con) or not is_floating(con):
         return
-    if not has_mark(con, MAXIMIZE_MARK):
+    if not has_mark(con, MAXIMIZE_MARK) and not is_dialog(con):
         place_floating_window(conn, con)
     update_borders(conn, tree=tree)
 
@@ -270,9 +301,10 @@ def main() -> int:
     conn.on("window::floating", on_window_floating)
     conn.on("window::focus", on_focus)
     conn.on("window::fullscreen_mode", on_fullscreen_mode)
+    # window::move was dropped from the triggers: it duplicated the focus
+    # event in practice and each handler costs a full get_tree round-trip.
     for event_name in (
         "window::close",
-        "window::move",
         "workspace::focus",
     ):
         conn.on(event_name, on_layout_event)

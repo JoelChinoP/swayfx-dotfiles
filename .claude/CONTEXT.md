@@ -12,7 +12,7 @@
 ## 1. Who and what
 
 - **User**: Joel.
-- **Hardware**: ASUS laptop · AMD Ryzen 7 7730U · iGPU Vega 8 · 12 GB RAM.
+- **Hardware**: ASUS laptop · AMD Ryzen 7 7730U · iGPU Vega 8 · 16 GB RAM.
 - **Distro**: Arch Linux (with AUR).
 - **Idle RAM target**: < 600 MB after login, no apps running. The
   estimated baseline (see [STACK §6](STACK.md)) is ~470 MB; the 130 MB

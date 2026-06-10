@@ -16,7 +16,19 @@ lock_file="$runtime_dir/${name}.lock"
 exec 9>"$lock_file"
 flock -n 9 || exit 0
 
+# Exponential backoff so a permanently crashing daemon cannot busy-loop
+# at 1 restart/s; a run that survives >60s resets the delay.
+delay=1
 while true; do
+    start="$(date +%s)"
     "$daemon" "$@" || true
-    sleep 1
+    elapsed=$(( $(date +%s) - start ))
+
+    if (( elapsed > 60 )); then
+        delay=1
+    else
+        delay=$(( delay * 2 ))
+        (( delay > 30 )) && delay=30
+    fi
+    sleep "$delay"
 done

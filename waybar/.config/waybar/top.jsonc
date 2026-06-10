@@ -111,7 +111,7 @@
   "custom/cpucap": {
     "exec": "bash ~/.local/bin/swayfx-cpu-cap",
     "return-type": "json",
-    "interval": 10
+    "interval": 30
   },
   "custom/touchpad": {
     "exec": "bash ~/.local/bin/swayfx-waybar-touchpad",
@@ -130,7 +130,9 @@
   "custom/notifications": {
     "exec": "bash ~/.local/bin/swayfx-waybar-notifications",
     "return-type": "json",
-    "interval": 5,
+    // mako on-notify manda la señal 1 al instante; el interval solo
+    // cubre descartes (mako no tiene hook de dismiss).
+    "interval": 30,
     "signal": 1,
     "on-click": "makoctl dismiss --all",
     "on-click-right": "makoctl mode -t do-not-disturb"

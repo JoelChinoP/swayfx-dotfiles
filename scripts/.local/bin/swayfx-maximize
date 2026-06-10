@@ -43,19 +43,7 @@ if jq -e --arg mark "$MARK_NAME" '(.marks // []) | index($mark)' <<< "$focused_j
     exit 0
 fi
 
-# Floating is this desktop's natural state: any other tiled window in
-# the focused workspace is a leftover (or a previously maximized one).
-# Restore them so the new window owns the whole tiling area.
-swaymsg -t get_tree | jq -r --argjson self "$con_id" '
-    [recurse(.nodes[]?) | select(.type? == "workspace")
-     | select([recurse(.nodes[]?, .floating_nodes[]?) | select(.focused? == true)] | length > 0)]
-    | .[0] // empty
-    | [recurse(.nodes[]?) | select((.app_id? != null) or (.window? != null)) | .id]
-    | .[] | select(. != $self)' |
-while IFS= read -r other_id; do
-    swaymsg "[con_id=$other_id] floating enable, unmark $MARK_NAME, border pixel $RESTORE_BORDER, shadows enable, resize set $RESTORE_WIDTH $RESTORE_HEIGHT" >/dev/null 2>&1 || true
-done
-
-# Tiling does the real maximizing: with smart_gaps the lone tiled window
-# fills the workspace and floating windows stay above it.
+# Tiling does the real maximizing: a lone tiled window fills the
+# workspace (smart_gaps) and further maximized windows join the normal
+# sway tiling tree — the placement daemon pre-sets fibonacci splits.
 swaymsg "[con_id=$con_id] mark --add $MARK_NAME, floating disable, border none, shadows disable" >/dev/null

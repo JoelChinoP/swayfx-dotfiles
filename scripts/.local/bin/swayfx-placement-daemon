@@ -117,33 +117,33 @@ def workspace_for(con, conn):
     return focused.workspace() if focused else None
 
 
-def restore_other_tiled(conn, ws, keep_id) -> None:
-    """Float any other tiled window so keep_id owns the tiling area."""
-    def tiled_windows(node):
-        for child in getattr(node, "nodes", []) or []:
-            yield child
-            yield from tiled_windows(child)
-
-    for con in tiled_windows(ws):
-        if is_window(con) and getattr(con, "id", None) != keep_id:
-            con.command(
-                f"floating enable, unmark {MAXIMIZE_MARK}, "
-                f"border pixel {DEFAULT_FLOATING_BORDER}, shadows enable, "
-                f"resize set 1000 600"
-            )
-
-
 def maximize_window(conn, con) -> None:
     # Tiling does the real maximizing: with smart_gaps the lone tiled
     # window fills the area below the bar, cannot be dragged around and
     # receives the xdg maximized state (CSD clients drop their borders).
-    ws = workspace_for(con, conn)
-    if ws is not None:
-        restore_other_tiled(conn, ws, getattr(con, "id", None))
+    # Additional maximized windows join the tiling tree (fibonacci).
     con.command(
         f"mark --add {MAXIMIZE_MARK}, floating disable, "
         f"border none, shadows disable"
     )
+
+
+def autosplit(con) -> None:
+    """Fibonacci/dwindle tiling, autotiling-style: pre-set the focused
+    tiled window's split so the next window divides its longer side."""
+    if con is None or not is_window(con):
+        return
+    if is_floating(con) or getattr(con, "fullscreen_mode", 0):
+        return
+    parent = getattr(con, "parent", None)
+    if parent is None or getattr(parent, "layout", "") in ("tabbed", "stacked"):
+        return
+    rect = getattr(con, "rect", None)
+    if rect is None or rect.width <= 0 or rect.height <= 0:
+        return
+    target = "splitv" if rect.height > rect.width else "splith"
+    if getattr(parent, "layout", "") != target:
+        con.command(target)
 
 
 def safe_position_for(con, conn) -> Optional[tuple[int, int]]:
@@ -214,11 +214,17 @@ def update_borders(conn, tree=None) -> None:
     ws = focused.workspace()
     windows = visible_workspace_windows(ws)
     visible_count = len(windows)
+    tiled_count = sum(1 for con in windows if not is_floating(con))
 
     for con in windows:
-        # Maximized windows are tiled now; keep them borderless too.
+        # A lone maximized/tiled window is borderless (full window);
+        # once the tiling area is shared (fibonacci) borders separate
+        # the tiles again, together with the smart gaps.
         if has_mark(con, MAXIMIZE_MARK) or getattr(con, "fullscreen_mode", 0):
-            set_border(con, "none")
+            if is_floating(con) or tiled_count <= 1:
+                set_border(con, "none")
+            else:
+                set_border(con, "pixel")
             continue
         if not is_floating(con):
             continue
@@ -251,7 +257,14 @@ def on_window_floating(conn, event) -> None:
     time.sleep(0.08)
     tree = conn.get_tree()
     con = find_by_id(tree, event.container.id) or event.container
-    if not is_window(con) or not is_floating(con):
+    if not is_window(con):
+        return
+    if not is_floating(con):
+        # Window just joined the tiling area: no focus event fires after
+        # `floating disable`, so pre-set its fibonacci split here, then
+        # refresh borders (lone tile borderless, shared tiles bordered).
+        autosplit(con)
+        update_borders(conn, tree=tree)
         return
     if not has_mark(con, MAXIMIZE_MARK) and not is_dialog(con):
         place_floating_window(conn, con)
@@ -265,7 +278,9 @@ def on_focus(conn, event) -> None:
         event.container.command("raise")
     except Exception:
         pass
-    update_borders(conn)
+    tree = conn.get_tree()
+    autosplit(tree.find_focused())
+    update_borders(conn, tree=tree)
 
 
 def on_fullscreen_mode(conn, event) -> None:

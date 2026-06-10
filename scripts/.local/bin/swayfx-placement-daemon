@@ -117,41 +117,32 @@ def workspace_for(con, conn):
     return focused.workspace() if focused else None
 
 
-def full_window_area(conn, con) -> Optional[tuple[int, int, int, int]]:
-    """Area under the top bar, ignoring gaps: x, y, width, height.
+def restore_other_tiled(conn, ws, keep_id) -> None:
+    """Float any other tiled window so keep_id owns the tiling area."""
+    def tiled_windows(node):
+        for child in getattr(node, "nodes", []) or []:
+            yield child
+            yield from tiled_windows(child)
 
-    ws.rect excludes both the waybar exclusive zone and the workspace
-    gaps. Assuming uniform gaps (left == right == bottom), the gap is
-    ws.x - out.x, and the bar height is the rest of the top offset.
-    """
-    ws = workspace_for(con, conn)
-    if ws is None:
-        return None
-    out = None
-    for o in conn.get_outputs():
-        if o.active and o.rect.x <= ws.rect.x < o.rect.x + o.rect.width \
-                and o.rect.y <= ws.rect.y < o.rect.y + o.rect.height:
-            out = o
-            break
-    if out is None:
-        return None
-    gap = max(ws.rect.x - out.rect.x, 0)
-    bar = max(ws.rect.y - out.rect.y - gap, 0)
-    return out.rect.x, out.rect.y + bar, out.rect.width, out.rect.height - bar
+    for con in tiled_windows(ws):
+        if is_window(con) and getattr(con, "id", None) != keep_id:
+            con.command(
+                f"floating enable, unmark {MAXIMIZE_MARK}, "
+                f"border pixel {DEFAULT_FLOATING_BORDER}, shadows enable, "
+                f"resize set 1000 600"
+            )
 
 
 def maximize_window(conn, con) -> None:
-    area = full_window_area(conn, con)
-    if area is None:
-        return
-    x, y, w, h = area
-    # border none must precede resize/move: sway compensates any active
-    # border when sizing/positioning, which left a 3px offset ring.
+    # Tiling does the real maximizing: with smart_gaps the lone tiled
+    # window fills the area below the bar, cannot be dragged around and
+    # receives the xdg maximized state (CSD clients drop their borders).
+    ws = workspace_for(con, conn)
+    if ws is not None:
+        restore_other_tiled(conn, ws, getattr(con, "id", None))
     con.command(
-        f"floating enable, border none, shadows disable, "
-        f"mark --add {MAXIMIZE_MARK}, "
-        f"resize set {w} {h}, "
-        f"move absolute position {x} {y}"
+        f"mark --add {MAXIMIZE_MARK}, floating disable, "
+        f"border none, shadows disable"
     )
 
 
@@ -225,11 +216,13 @@ def update_borders(conn, tree=None) -> None:
     visible_count = len(windows)
 
     for con in windows:
-        if not is_floating(con):
-            continue
+        # Maximized windows are tiled now; keep them borderless too.
         if has_mark(con, MAXIMIZE_MARK) or getattr(con, "fullscreen_mode", 0):
             set_border(con, "none")
-        elif visible_count == 1 and getattr(con, "id", None) == getattr(focused, "id", None):
+            continue
+        if not is_floating(con):
+            continue
+        if visible_count == 1 and getattr(con, "id", None) == getattr(focused, "id", None):
             set_border(con, "none")
         else:
             set_border(con, "pixel")
@@ -246,12 +239,6 @@ def on_window_new(conn, event) -> None:
     # are not re-maximized by the window::floating event they trigger.
     if should_auto_maximize(con) and not has_mark(con, MAXIMIZE_MARK):
         maximize_window(conn, con)
-        # Brave reconfigures its surface ~0.5s into startup, which can
-        # displace the freshly maximized window; re-anchor once settled.
-        time.sleep(0.6)
-        settled = find_by_id(conn.get_tree(), event.container.id)
-        if settled is not None and has_mark(settled, MAXIMIZE_MARK):
-            maximize_window(conn, settled)
         update_borders(conn)
         return
 

@@ -40,8 +40,9 @@ focus_on_window_activation focus
 gaps inner 6
 gaps horizontal 1
 gaps vertical 1
-# smart_gaps on
-smart_gaps off
+# smart_gaps: a lone tiled window (swayfx-maximize "ventana completa")
+# gets no gaps, so maximized windows reach the workspace edges.
+smart_gaps on
 corner_radius 10
 # Square the corners when a window covers the whole workspace (maximized
 # Brave / swayfx-maximize) so no background peeks through.
@@ -70,6 +71,9 @@ blur_radius 5
 # Blur only on the terminal.
 blur disable
 for_window [app_id="com.mitchellh.ghostty"] blur enable, blur_passes 3, blur_radius 5, opacity set 0.85
+# Reload re-applies the global `blur disable` to existing windows but
+# for_window criteria only run for new ones: re-apply terminal effects.
+exec_always swaymsg '[app_id="com.mitchellh.ghostty"] blur enable, opacity set 0.85'
 
 # Keep graphics/video apps color-accurate.
 for_window [app_id="^gimp.*$"] blur disable, opacity set 1.0
@@ -143,9 +147,9 @@ bindsym $mod+b exec $browser
 bindsym $mod+q kill
 bindsym $mod+Shift+f fullscreen toggle
 bindsym $mod+f exec ~/.local/bin/swayfx-maximize
-# Brave alterna ventana-completa (maximizar bajo la barra, no fullscreen);
-# el resto conserva el floating toggle clásico.
-bindsym $mod+Shift+space exec ~/.local/bin/swayfx-float-or-max
+# Ventana completa real: alterna la ventana enfocada entre tiled (ocupa
+# todo bajo la barra, no arrastrable) y floating 1000x600 centrada.
+bindsym $mod+Shift+space exec ~/.local/bin/swayfx-maximize
 bindsym $mod+m move scratchpad
 bindsym $mod+Shift+m scratchpad show
 

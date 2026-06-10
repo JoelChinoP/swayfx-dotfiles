@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Toggle floating maximize without entering Sway fullscreen.
+# Toggle "ventana completa": tile the focused window so it fills the
+# whole area below the top bar (no drag, real xdg maximized state so
+# CSD clients like Brave drop their own borders), or restore it to a
+# centered 1000x600 floating window.
 #
 # Verified against: swaymsg(1), sway-ipc(7)
 # Reviewed: 2026-06-10
@@ -35,37 +38,24 @@ fi
 con_id="$(jq -r '.id' <<< "$focused_json")"
 
 if jq -e --arg mark "$MARK_NAME" '(.marks // []) | index($mark)' <<< "$focused_json" >/dev/null; then
-    swaymsg "[con_id=$con_id] floating enable, unmark $MARK_NAME, resize set $RESTORE_WIDTH $RESTORE_HEIGHT, move position center, border pixel $RESTORE_BORDER, shadows enable" >/dev/null
+    swaymsg "[con_id=$con_id] floating enable, unmark $MARK_NAME, border pixel $RESTORE_BORDER, shadows enable, resize set $RESTORE_WIDTH $RESTORE_HEIGHT, move position center" >/dev/null
     swaymsg "[con_id=$con_id] raise" >/dev/null 2>&1 || true
     exit 0
 fi
 
-# Window area below the top bar, ignoring workspace gaps. ws.rect already
-# excludes the waybar exclusive zone plus the gaps; with uniform gaps the
-# gap equals ws.x - out.x and the bar height is the rest of the top offset.
-ws_json="$(swaymsg -t get_workspaces | jq -c '.[] | select(.focused)' | head -n 1)"
-[[ -n "$ws_json" ]] || exit 0
+# Floating is this desktop's natural state: any other tiled window in
+# the focused workspace is a leftover (or a previously maximized one).
+# Restore them so the new window owns the whole tiling area.
+swaymsg -t get_tree | jq -r --argjson self "$con_id" '
+    [recurse(.nodes[]?) | select(.type? == "workspace")
+     | select([recurse(.nodes[]?, .floating_nodes[]?) | select(.focused? == true)] | length > 0)]
+    | .[0] // empty
+    | [recurse(.nodes[]?) | select((.app_id? != null) or (.window? != null)) | .id]
+    | .[] | select(. != $self)' |
+while IFS= read -r other_id; do
+    swaymsg "[con_id=$other_id] floating enable, unmark $MARK_NAME, border pixel $RESTORE_BORDER, shadows enable, resize set $RESTORE_WIDTH $RESTORE_HEIGHT" >/dev/null 2>&1 || true
+done
 
-out_name="$(jq -r '.output' <<< "$ws_json")"
-ws_x="$(jq -r '.rect.x' <<< "$ws_json")"
-ws_y="$(jq -r '.rect.y' <<< "$ws_json")"
-
-out_json="$(swaymsg -t get_outputs | jq -c --arg n "$out_name" '.[] | select(.name == $n)' | head -n 1)"
-[[ -n "$out_json" ]] || exit 0
-
-out_x="$(jq -r '.rect.x' <<< "$out_json")"
-out_y="$(jq -r '.rect.y' <<< "$out_json")"
-out_w="$(jq -r '.rect.width' <<< "$out_json")"
-out_h="$(jq -r '.rect.height' <<< "$out_json")"
-
-gap=$(( ws_x - out_x )); (( gap < 0 )) && gap=0
-bar=$(( ws_y - out_y - gap )); (( bar < 0 )) && bar=0
-target_x=$out_x
-target_y=$(( out_y + bar ))
-width=$out_w
-height=$(( out_h - bar ))
-
-# border none must precede resize/move: sway compensates any active
-# border when sizing/positioning, which left a 3px offset ring.
-swaymsg "[con_id=$con_id] floating enable, border none, shadows disable, mark --add $MARK_NAME, resize set $width $height, move absolute position $target_x $target_y" >/dev/null
-swaymsg "[con_id=$con_id] raise" >/dev/null 2>&1 || true
+# Tiling does the real maximizing: with smart_gaps the lone tiled window
+# fills the workspace and floating windows stay above it.
+swaymsg "[con_id=$con_id] mark --add $MARK_NAME, floating disable, border none, shadows disable" >/dev/null

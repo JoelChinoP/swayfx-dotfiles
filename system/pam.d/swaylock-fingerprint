@@ -1,13 +1,27 @@
 #%PAM-1.0
-# swaylock-effects PAM policy with fingerprint-first authentication.
+# swaylock-effects PAM policy: password-first with fingerprint fallback.
 #
-# Verified against: pam_fprintd(8), swaylock-effects /etc/pam.d/swaylock package layout
-# Reviewed: 2026-05-18
+# Verified against: pam_fprintd.c (MIN_TIMEOUT=10), pam_unix(8), swaylock-effects /etc/pam.d/swaylock package layout
+# Reviewed: 2026-06-10
 #
-# DEVIATION: this fingerprint variant is intentionally optional. PAM
-# cannot prompt for password and fingerprint simultaneously, so swaylock
-# waits for the fingerprint attempt before falling back to the normal
-# password flow from /etc/pam.d/login.
+# DEVIATION: password is tried before fingerprint. PAM serializes both
+# methods and swaylock does not render PAM info messages, so with the
+# previous fingerprint-first order a typed password silently waited for
+# the whole fingerprint window (2 tries x 10s = ~20s) before being
+# checked. Effective flow now:
+#   1. typed password -> pam_unix validates instantly (nodelay skips
+#      the ~2s failure delay when the prompt is submitted empty).
+#   2. empty prompt   -> pam_fprintd waits for a finger touch.
+#   3. both failed    -> /etc/pam.d/login keeps the pam_faillock lockout.
+#
+# DEVIATION: a successful pam_unix unlock short-circuits the stack, so
+# faillock's tally is not reset on success; it expires on its own
+# (fail_interval, 15 min by default). Accepted trade-off for instant
+# password unlocks.
+#
+# NOTE: pam_fprintd clamps timeout values below 10 up to MIN_TIMEOUT=10,
+# so timeout=10 is the real minimum; lower values are cosmetic.
 
-auth       sufficient   pam_fprintd.so max-tries=2 timeout=8
+auth       sufficient   pam_unix.so try_first_pass nodelay
+auth       sufficient   pam_fprintd.so max-tries=2 timeout=10
 auth       include      login

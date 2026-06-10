@@ -5,7 +5,7 @@
 # This stage is intentionally excluded from --all.
 #
 # Verified against: Arch greetd package and greetd/ReGreet layout
-# Reviewed: 2026-05-12
+# Reviewed: 2026-06-10
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -30,7 +30,10 @@ else
     sudo true || { log_fatal "sudo failed"; exit 1; }
 fi
 
-pacman_install greetd greetd-regreet cage
+# gst-plugins-good: ReGreet 0.4.0 renders [background] through GtkMediaFile
+# (GStreamer); decoding a static PNG needs pngdec + imagefreeze from this
+# package, otherwise the background silently stays black.
+pacman_install greetd greetd-regreet cage gst-plugins-good
 
 install_system_template() {
     local src="$1" dest="$2" mode="${3:-0644}"
@@ -123,6 +126,15 @@ for cmd in regreet cage; do
         log_ok "command present: $cmd"
     else
         log_error "command missing: $cmd"
+        (( ++errs ))
+    fi
+done
+
+for el in pngdec imagefreeze; do
+    if gst-inspect-1.0 "$el" >/dev/null 2>&1; then
+        log_ok "gstreamer element present: $el"
+    else
+        log_error "gstreamer element missing: $el (regreet background needs gst-plugins-good)"
         (( ++errs ))
     fi
 done

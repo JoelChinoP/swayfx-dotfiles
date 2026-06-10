@@ -234,8 +234,8 @@ bindsym $mod+Shift+KP_Insert move container to workspace number $ws10
 
 
 # Workspaces — navegar por dirección.
-bindsym $mod+Ctrl+Right workspace next
-bindsym $mod+Ctrl+Left  workspace prev
+bindsym Ctrl+Shift+Right workspace next
+bindsym Ctrl+Shift+Left  workspace prev
 bindsym $mod+Tab        workspace back_and_forth
 
 # Super+Scroll cambia workspace sobre cualquier ventana.

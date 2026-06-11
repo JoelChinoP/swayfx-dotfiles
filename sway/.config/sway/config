@@ -110,6 +110,7 @@ output * bg ~/.config/sway/wallpaper.png fill
 # Environment for dbus/systemd-activated apps.
 exec_always dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP
 exec_always systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP
+exec_always systemctl --user start sway-session.target
 
 # Core autostart.
 exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1

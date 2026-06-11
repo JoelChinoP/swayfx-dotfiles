@@ -1,7 +1,7 @@
 # swaylock-effects config.
 #
 # Verified against: swaylock-effects --help
-# Reviewed: 2026-05-18
+# Reviewed: 2026-06-10
 
 screenshots
 clock
@@ -21,6 +21,7 @@ timestr=%H:%M
 datestr=%a, %d %B
 
 text-color=e6e6e6
+text-ver-color=ffffaa
 text-caps-lock-color=00000000
 text-clear-color=00000000
 

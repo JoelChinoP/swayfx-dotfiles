@@ -1,0 +1,10 @@
+# Sway user session target.
+#
+# Verified against: systemd.special(7), systemd.unit(5)
+# Reviewed: 2026-06-10
+
+[Unit]
+Description=Sway graphical session
+BindsTo=graphical-session.target
+Wants=graphical-session-pre.target
+After=graphical-session-pre.target

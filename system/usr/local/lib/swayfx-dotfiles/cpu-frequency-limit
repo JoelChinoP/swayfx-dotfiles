@@ -20,6 +20,8 @@ AC_EPP="${AC_EPP:-balance_power}"
 BATTERY_EPP="${BATTERY_EPP:-power}"
 AC_PLATFORM_PROFILE="${AC_PLATFORM_PROFILE:-balanced}"
 BATTERY_PLATFORM_PROFILE="${BATTERY_PLATFORM_PROFILE:-quiet}"
+AC_BOOST="${AC_BOOST:-1}"
+BATTERY_BOOST="${BATTERY_BOOST:-0}"
 
 has_ac_power() {
     local supply type online
@@ -79,22 +81,57 @@ apply_platform_profile() {
     fi
 }
 
+apply_boost() {
+    local enabled="$1"
+    local node=/sys/devices/system/cpu/cpufreq/boost
+    [[ -w "$node" ]] || return 0
+    printf '%s\n' "$enabled" > "$node"
+    echo "Applied CPU boost: $enabled"
+}
+
+apply_usb_autosuspend() {
+    local control="$1"
+    local applied=0 dev
+
+    for dev in /sys/bus/usb/devices/*/power/control; do
+        [[ -w "$dev" ]] || continue
+        printf '%s\n' "$control" > "$dev" 2>/dev/null || true
+        applied=1
+    done
+
+    if [[ "$control" == "auto" ]]; then
+        for dev in /sys/bus/usb/devices/*/power/autosuspend_delay_ms; do
+            [[ -w "$dev" ]] || continue
+            printf '2000\n' > "$dev" 2>/dev/null || true
+        done
+    fi
+
+    (( applied )) && echo "Applied USB autosuspend: $control"
+    return 0
+}
+
 if has_ac_power; then
     profile="AC"
     max_khz="$AC_MAX_KHZ"
     epp="$AC_EPP"
     platform_profile="$AC_PLATFORM_PROFILE"
+    boost="$AC_BOOST"
+    usb_control="on"
 else
     profile="battery"
     max_khz="$BATTERY_MAX_KHZ"
     epp="$BATTERY_EPP"
     platform_profile="$BATTERY_PLATFORM_PROFILE"
+    boost="$BATTERY_BOOST"
+    usb_control="auto"
 fi
 
 # platform_profile first: the ASUS ACPI handler rewrites the EPP when
 # the profile changes, so the explicit EPP must be applied afterwards.
 apply_platform_profile "$platform_profile"
 apply_epp "$epp"
+apply_boost "$boost"
+apply_usb_autosuspend "$usb_control"
 
 if ! compgen -G '/sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_max_freq' >/dev/null; then
     echo "No cpufreq scaling_max_freq files found; skipping CPU ceiling."

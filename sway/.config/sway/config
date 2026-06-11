@@ -48,13 +48,10 @@ corner_radius 10
 # Brave / swayfx-maximize) so no background peeks through.
 smart_corner_radius enable
 shadows disable
-default_dim_inactive 0.05
+default_dim_inactive 0.075
 dim_inactive_colors.unfocused #000000FF
 
-# Floating windows keep subtle depth; maximized windows disable shadows.
-# Radius 10: every window is floating here, so this renders on all of
-# them — 20 was the single biggest steady GPU cost on Vega 8.
-for_window [floating] shadows enable, shadow_blur_radius 10, shadow_color #00000060
+# Shadows disabled globally (GPU/battery savings on Vega 8).
 
 # DEVIATION: wlogout uses layer blur to make the power menu feel modal.
 # The rest of the layer-shell UI stays unblurred.

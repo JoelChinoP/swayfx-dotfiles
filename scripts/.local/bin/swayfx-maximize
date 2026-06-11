@@ -38,7 +38,7 @@ fi
 con_id="$(jq -r '.id' <<< "$focused_json")"
 
 if jq -e --arg mark "$MARK_NAME" '(.marks // []) | index($mark)' <<< "$focused_json" >/dev/null; then
-    swaymsg "[con_id=$con_id] floating enable, unmark $MARK_NAME, border pixel $RESTORE_BORDER, shadows enable, resize set $RESTORE_WIDTH $RESTORE_HEIGHT, move position center" >/dev/null
+    swaymsg "[con_id=$con_id] floating enable, unmark $MARK_NAME, border pixel $RESTORE_BORDER, resize set $RESTORE_WIDTH $RESTORE_HEIGHT, move position center" >/dev/null
     swaymsg "[con_id=$con_id] raise" >/dev/null 2>&1 || true
     exit 0
 fi
@@ -46,4 +46,4 @@ fi
 # Tiling does the real maximizing: a lone tiled window fills the
 # workspace (smart_gaps) and further maximized windows join the normal
 # sway tiling tree — the placement daemon pre-sets fibonacci splits.
-swaymsg "[con_id=$con_id] mark --add $MARK_NAME, floating disable, border none, shadows disable" >/dev/null
+swaymsg "[con_id=$con_id] mark --add $MARK_NAME, floating disable, border none" >/dev/null

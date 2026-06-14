@@ -5,7 +5,7 @@
 > the four files inside `.claude/`. Everything you need is there. Do not
 > ask the user to re-explain context.
 >
-> Last reviewed: 2026-05-16.
+> Last reviewed: 2026-06-14.
 
 ---
 
@@ -229,3 +229,53 @@ Ask before doing if:
 - The action is destructive or has wide blast radius.
 
 Otherwise, just do the work and report what changed.
+
+---
+
+## 9. Hardware quirks & pending reverts
+
+Machine-specific state that is **not** obvious from the configs. Revisit
+each item when its listed condition is met.
+
+### Internal WiFi disabled — re-enable when Linux ≥ 7.1
+
+The internal **MediaTek MT7902** (PCI `14c3:7902`, "Filogic 310") has **no
+working kernel driver before Linux 7.1**: `mt7921e` binds via
+`driver_override` but only reaches `ASIC revision: 79020000` and never
+loads firmware, so no interface appears. Left enabled it stays powered in
+D0 (no driver, runtime PM off) wasting ~1.5–2 W. WiFi is instead provided
+by a **USB Realtek 8821AU** dongle (`rtw88_8821au`, iface `wlp3s0f3u2`).
+
+To stop the drain the card is removed at every boot by
+[system/udev/rules.d/90-disable-mt7902-wifi.rules](system/udev/rules.d/90-disable-mt7902-wifi.rules)
+(commit `5d818ce`).
+
+**When a kernel with native MT7902 support (Linux 7.1+) is installed:**
+
+1. Delete the udev rule from the repo **and** its deployed copy
+   (`sudo rm /etc/udev/rules.d/90-disable-mt7902-wifi.rules`,
+   then `sudo udevadm control --reload`); drop the install line from
+   [scripts/install/stages/02-base.sh](scripts/install/stages/02-base.sh).
+2. **Re-enable the MT7902 in the BIOS** if it ended up disabled there.
+3. Reboot and confirm: `lspci -nnk -d 14c3:7902` shows
+   `Kernel driver in use: ...` and a new wifi interface appears in
+   `nmcli device status`.
+4. Once the internal card is stable (scan, connect, **suspend/resume**),
+   the USB Realtek dongle can be retired.
+
+### Other battery-autonomy tuning (idle ~9 W → ~6.4 W)
+
+- **Bluetooth** is rfkill-blocked on battery / restored on AC by
+  [system/usr/local/lib/swayfx-dotfiles/cpu-frequency-limit](system/usr/local/lib/swayfx-dotfiles/cpu-frequency-limit)
+  (`AC_BLUETOOTH` / `BATTERY_BLUETOOTH`; set both to `block` for
+  always-off).
+- **PCIe ASPM** = `powersave` via `pcie_aspm=force pcie_aspm.policy=powersave`
+  in **`/etc/kernel/cmdline`** (the firmware does not grant OS ASPM
+  control, so `force` is required). This is a **UKI**
+  (`/boot/EFI/Linux/arch-linux.efi`, built by mkinitcpio) — the cmdline
+  is **not** tracked in this repo; rebuild with `sudo mkinitcpio -P`
+  after editing it.
+- The `BATTERY_MAX_KHZ=2000000` (2 GHz) ceiling in `cpu-frequency-limit`
+  is intentionally kept but is **mildly counterproductive** (race-to-idle:
+  cores already reach ~100% deep C-state). Raising it to ~3 GHz is a safe
+  future tweak if more autonomy is wanted.

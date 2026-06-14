@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Verified against: cpupower-frequency-set(1), Linux power_supply sysfs,
-#                   amd-pstate EPP and ACPI platform_profile kernel docs
-# Reviewed: 2026-06-10
+#                   amd-pstate EPP, ACPI platform_profile kernel docs, rfkill(8)
+# Reviewed: 2026-06-14
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -22,6 +22,11 @@ AC_PLATFORM_PROFILE="${AC_PLATFORM_PROFILE:-balanced}"
 BATTERY_PLATFORM_PROFILE="${BATTERY_PLATFORM_PROFILE:-quiet}"
 AC_BOOST="${AC_BOOST:-1}"
 BATTERY_BOOST="${BATTERY_BOOST:-0}"
+
+# Bluetooth: dropped on battery (no daily use here); restored on AC. Set both
+# to "block" for always-off, or override via the service environment.
+AC_BLUETOOTH="${AC_BLUETOOTH:-unblock}"
+BATTERY_BLUETOOTH="${BATTERY_BLUETOOTH:-block}"
 
 has_ac_power() {
     local supply type online
@@ -110,6 +115,15 @@ apply_usb_autosuspend() {
     return 0
 }
 
+apply_bluetooth() {
+    local action="$1"
+
+    command -v rfkill >/dev/null 2>&1 || return 0
+    if rfkill "$action" bluetooth 2>/dev/null; then
+        echo "Applied Bluetooth rfkill: $action"
+    fi
+}
+
 if has_ac_power; then
     profile="AC"
     max_khz="$AC_MAX_KHZ"
@@ -117,6 +131,7 @@ if has_ac_power; then
     platform_profile="$AC_PLATFORM_PROFILE"
     boost="$AC_BOOST"
     usb_control="on"
+    bluetooth="$AC_BLUETOOTH"
 else
     profile="battery"
     max_khz="$BATTERY_MAX_KHZ"
@@ -124,6 +139,7 @@ else
     platform_profile="$BATTERY_PLATFORM_PROFILE"
     boost="$BATTERY_BOOST"
     usb_control="auto"
+    bluetooth="$BATTERY_BLUETOOTH"
 fi
 
 # platform_profile first: the ASUS ACPI handler rewrites the EPP when
@@ -132,6 +148,7 @@ apply_platform_profile "$platform_profile"
 apply_epp "$epp"
 apply_boost "$boost"
 apply_usb_autosuspend "$usb_control"
+apply_bluetooth "$bluetooth"
 
 if ! compgen -G '/sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_max_freq' >/dev/null; then
     echo "No cpufreq scaling_max_freq files found; skipping CPU ceiling."

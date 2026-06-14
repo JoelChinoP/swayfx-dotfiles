@@ -1,0 +1,11 @@
+# Verified against: udev(7)
+# Reviewed: 2026-06-14
+
+# The internal MediaTek MT7902 (PCI 14c3:7902, "Filogic 310") has no working
+# kernel driver before Linux 7.1: mt7921e binds via driver_override but only
+# reaches "ASIC revision: 79020000" and never loads firmware, so no interface
+# appears. Left alone it stays powered in D0 (no driver, runtime PM off),
+# wasting ~1.5-2 W. WiFi is provided by a USB adapter (rtw88_8821au) instead,
+# so remove the dead PCIe device at enumeration to let its link power down.
+# Revert: delete this rule once Linux 7.1 (native MT7902 support) is installed.
+ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x14c3", ATTR{device}=="0x7902", ATTR{remove}="1"

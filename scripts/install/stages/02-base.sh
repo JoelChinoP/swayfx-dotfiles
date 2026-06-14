@@ -92,6 +92,10 @@ install_system_template \
     "$ROOT/system/udev/rules.d/90-swayfx-cpu-frequency-limit.rules" \
     /etc/udev/rules.d/90-swayfx-cpu-frequency-limit.rules \
     0644
+install_system_template \
+    "$ROOT/system/udev/rules.d/90-disable-mt7902-wifi.rules" \
+    /etc/udev/rules.d/90-disable-mt7902-wifi.rules \
+    0644
 
 log_info "enabling PipeWire user services"
 run systemctl --user enable --now pipewire.service pipewire-pulse.service wireplumber.service

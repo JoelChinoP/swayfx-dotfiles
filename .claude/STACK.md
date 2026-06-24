@@ -176,7 +176,10 @@ brave-origin-beta-bin
 
 #### Stage 08 — theming
 ```
-bibata-cursor-theme
+# none — the Bibata cursor is no longer built from AUR. Stage 08 now
+# downloads the upstream precompiled release (ful1e5/Bibata_Cursor) into
+# ~/.local/share/icons. This drops bibata-cursor-theme and its build-only
+# python-clickgen / numpy / pillow chain. Migration after "Atomic Arch".
 ```
 
 #### Stage 09 — lock & power

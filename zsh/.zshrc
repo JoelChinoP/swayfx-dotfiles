@@ -100,6 +100,10 @@ alias pi='sudo pacman -S --needed'
 alias pr='sudo pacman -Rns'
 alias pq='pacman -Q'
 alias ps='pacman -Ss'
+# Force PKGBUILD review on every AUR build/upgrade (hardening after the
+# "Atomic Arch" AUR supply-chain attack). `y` inherits this via alias
+# recursion. Bootstrap scripts keep --noconfirm for clean provisioning.
+alias paru='paru --review'
 alias y='paru'
 
 # Quick reload.

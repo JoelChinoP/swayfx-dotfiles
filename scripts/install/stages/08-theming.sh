@@ -32,7 +32,61 @@ THEME_PKGS=(
 )
 pacman_install "${THEME_PKGS[@]}"
 
-paru_install bibata-cursor-theme
+# Install the Bibata cursor from the upstream precompiled release
+# (ful1e5/Bibata_Cursor) into ~/.local/share/icons, instead of building the
+# AUR `bibata-cursor-theme` package. The AUR build pulls python-clickgen and
+# its numpy/pillow/lapack chain; the release ships ready-made XCursors. The
+# theme name stays "Bibata-Modern-Classic", so every reference (GTK 3/4
+# settings.ini, .zprofile, environment.d, gsettings below) keeps working.
+# Idempotent: skips if the theme is already present.
+install_bibata_cursor() {
+    local icons_dir="$HOME/.local/share/icons"
+    local theme_dir="$icons_dir/Bibata-Modern-Classic"
+    if [[ -f "$theme_dir/index.theme" ]]; then
+        log_ok "Bibata-Modern-Classic already present in $icons_dir"
+        return 0
+    fi
+
+    local api="https://api.github.com/repos/ful1e5/Bibata_Cursor/releases/latest"
+    local asset="Bibata-Modern-Classic.tar.xz"
+
+    if (( DRY_RUN )); then
+        log_info "would download $asset (latest release) into $icons_dir"
+        return 0
+    fi
+
+    require curl
+    require tar
+
+    local url
+    url="$(curl -fsSL "$api" \
+        | grep -E "\"browser_download_url\".*Bibata-Modern-Classic\.tar\.xz\"" \
+        | head -1 | sed -E 's/.*"(https[^"]+)".*/\1/')"
+    if [[ -z "$url" ]]; then
+        log_fatal "could not resolve Bibata download URL from $api"
+        return 1
+    fi
+
+    mkdir -p "$icons_dir"
+    local tmp
+    tmp="$(mktemp -d)"
+    log_info "downloading $asset"
+    if ! curl -fSL "$url" -o "$tmp/$asset"; then
+        rm -rf "$tmp"
+        log_fatal "Bibata download failed"
+        return 1
+    fi
+    tar -xf "$tmp/$asset" -C "$icons_dir"
+    rm -rf "$tmp"
+
+    if [[ -f "$theme_dir/index.theme" ]]; then
+        log_ok "Bibata-Modern-Classic installed to $icons_dir"
+    else
+        log_fatal "Bibata extraction did not produce $theme_dir"
+        return 1
+    fi
+}
+install_bibata_cursor
 
 set_gsetting() {
     local schema="$1" key="$2" value="$3"
@@ -71,6 +125,13 @@ if [[ "$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null)" ==
     log_ok "GNOME color-scheme is prefer-dark"
 else
     log_error "GNOME color-scheme is not prefer-dark"
+    (( ++errs ))
+fi
+
+if [[ -f "$HOME/.local/share/icons/Bibata-Modern-Classic/index.theme" ]]; then
+    log_ok "Bibata-Modern-Classic cursor present"
+else
+    log_error "Bibata-Modern-Classic cursor missing"
     (( ++errs ))
 fi
 

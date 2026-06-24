@@ -148,8 +148,9 @@ export PATH="$PATH:$HOME/development/flutter/bin"
 
 export CHROME_EXECUTABLE=/usr/bin/brave-origin-beta
 
-export ANDROID_HOME=/opt/android-sdk
-export ANDROID_SDK_ROOT=/opt/android-sdk
+# SDK gestionado con las command-line tools de Google (no AUR) tras Atomic Arch.
+export ANDROID_HOME=$HOME/Android/Sdk
+export ANDROID_SDK_ROOT=$HOME/Android/Sdk
 export ANDROID_AVD_HOME=$HOME/.config/.android/avd
 export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH
 

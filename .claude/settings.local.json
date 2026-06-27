@@ -19,7 +19,20 @@
       "Read(//home/joel/.config/sway/**)",
       "Bash(python3 -c \"import sqlite3; print\\(' python sqlite3: OK'\\)\")",
       "Read(//home/joel/.config/Code/User/profiles/**)",
-      "WebFetch(domain:code.visualstudio.com)"
+      "WebFetch(domain:code.visualstudio.com)",
+      "Bash(bash -n /home/dotfiles/scripts/install/stages/08-theming.sh)",
+      "Bash(pacman -Rs --print visual-studio-code-bin)",
+      "Bash(pacman -Rs --print opencode-bin)",
+      "Bash(pacman -Ql opencode-desktop-bin)",
+      "Bash(pacman -Ql opencode-bin)",
+      "Bash(pacman -Si opencode)",
+      "Bash(set -e)",
+      "Bash(sudo pacman -R --noconfirm visual-studio-code-bin)",
+      "Bash(sudo pacman -S --needed --noconfirm code)",
+      "Bash(code --version)",
+      "Bash(sudo pacman -R --noconfirm opencode-bin)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m 'chore: migrar Bibata fuera del AUR y endurecer paru tras Atomic Arch *)"
     ]
   }
 }

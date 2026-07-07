@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Stage 07 - Applications.
 #
-# Installs daily GUI apps, terminal utilities, archive backends, Brave
-# Origin Beta from AUR, and Mission Center from official repos.
+# Installs daily GUI apps, terminal utilities, archive backends, Mermaid
+# CLI, Brave Origin Beta from AUR, and Mission Center from official repos.
 #
 # Verified against: current Arch/AUR package metadata
-# Reviewed: 2026-05-16
+# Reviewed: 2026-07-01
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -30,6 +30,7 @@ APP_PKGS=(
     file-roller mpv
     mission-center btop tree htop
     unzip zip p7zip tar
+    mermaid-cli
 )
 pacman_install "${APP_PKGS[@]}"
 
@@ -95,7 +96,7 @@ fi
 
 errs=0
 
-for cmd in nautilus loupe papers gnome-text-editor gnome-calculator file-roller mpv btop htop 7z brave-origin-beta missioncenter; do
+for cmd in nautilus loupe papers gnome-text-editor gnome-calculator file-roller mpv btop htop 7z mmdc brave-origin-beta missioncenter; do
     if command -v "$cmd" >/dev/null 2>&1; then
         log_ok "command present: $cmd"
     else

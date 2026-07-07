@@ -389,14 +389,16 @@ command -v ufw                                                   || exit 1
 ### Stage 07 — `07-apps.sh`
 
 **What.** Daily-driver GUI apps + TUI utilities + archive backends used
-by file-roller / thunar-archive-plugin under the hood.
+by file-roller / thunar-archive-plugin under the hood, plus the Mermaid
+CLI for rendering local diagrams.
 
 ```bash
 sudo pacman -S --needed --noconfirm \
   nautilus loupe papers gnome-text-editor gnome-calculator \
   file-roller mpv \
   mission-center btop tree htop \
-  unzip zip p7zip tar
+  unzip zip p7zip tar \
+  mermaid-cli
 
 standard_brave=()
 declare -A seen_standard_brave=()
@@ -439,6 +441,7 @@ command -v mpv       || exit 1
 command -v btop      || exit 1
 command -v missioncenter || exit 1
 command -v 7z        || exit 1
+command -v mmdc      || exit 1
 ```
 
 ---

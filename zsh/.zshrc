@@ -167,3 +167,4 @@ opencode() {
 # <<< opencode-dotfiles skills env <<<
 
 export CONTEXT7_API_KEY="ctx7sk-cd580dc4-7d62-42b6-a26a-ce7e2ebc81f3"
+export PATH="$HOME/.local/bin:$PATH"

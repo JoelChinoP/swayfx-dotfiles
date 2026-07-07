@@ -140,6 +140,7 @@ written and tested, the legacy files will be removed.
 | `Mod+Ctrl+l`           | Lock screen                         |
 | `Mod+Ctrl+v`           | Clipboard history (cliphist+fuzzel) |
 | `Print` / `Mod+Print`  | Screenshot full / region            |
+| `Mod+Shift+Print`      | Screenshot region + crop/edit       |
 
 Bottom-bar taskbar clicks: **left** = minimize/restore, **right** =
 maximize, **middle** = close.

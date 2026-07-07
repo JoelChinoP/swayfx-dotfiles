@@ -225,6 +225,8 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Archive backends**: `unzip`, `zip`, `p7zip`, `tar`, `file-roller`,
   `thunar-archive-plugin` (used regardless of Nautilus vs Thunar).
 - **Resource monitors**: `mission-center` (official repo, GUI), `btop` (TUI).
+- **Diagram CLI**: `mermaid-cli` provides `mmdc` for rendering Mermaid
+  diagrams on demand; it does not run in the desktop session.
 - **Custom-module helper**: `jq`.
 - **Terminal pager**: `less`, installed in stage 00 so `git`, GitHub CLI
   workflows, and `man` pages have a reliable pager on minimal installs.

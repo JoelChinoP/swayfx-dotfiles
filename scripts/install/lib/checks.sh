@@ -74,6 +74,7 @@ check_cmd "JetBrainsMono Nerd Font installed" bash -c "fc-match -f '%{family}\n'
 check_cmd "Inter font installed" bash -c "fc-match -f '%{family}\n' 'Inter' | grep -qi 'Inter'"
 check_cmd "Python i3ipc module installed" python -c 'import i3ipc'
 check_cmd "Brave Origin Beta installed" pacman -Q brave-origin-beta-bin
+check_cmd "Mermaid CLI installed" command -v mmdc
 check_cmd "standard Brave package absent" bash -c '
 for pkg in brave-bin brave-beta-bin brave-nightly-bin brave-browser; do
     pacman -Q "$pkg" >/dev/null 2>&1 && exit 1

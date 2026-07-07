@@ -118,6 +118,7 @@ nautilus loupe papers gnome-text-editor gnome-calculator
 file-roller mpv
 mission-center btop tree htop
 unzip zip p7zip tar
+mermaid-cli
 ```
 
 > Lighter alternative for stage 07 if RAM is tight: replace `nautilus`
@@ -345,6 +346,12 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
   with a lighter footprint.
 - **btop**: TUI bound to the cpu/memory waybar pills via
   `on-click: ghostty -e btop`.
+
+### 3.15. Mermaid CLI: local diagram rendering
+
+- `mermaid-cli` provides `mmdc` for rendering Mermaid `.mmd` files to SVG.
+- It is installed in stage 07 with other on-demand applications and does
+  not affect idle RAM because it has no daemon.
 
 ---
 

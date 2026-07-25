@@ -181,6 +181,9 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Lock**: `swaylock-effects` (AUR).
 - **Idle**: `swayidle`.
 - **Power menu**: `wlogout`. Lightweight fallback: `fuzzel --dmenu` script.
+  The physical power key is handled by Sway (`XF86PowerOff`) and opens this
+  menu; logind is configured with `HandlePowerKey=ignore` so it does not
+  power off the laptop directly.
 - **Wallpaper**: `swaybg`. Pure-black if no image set.
 - **Audio**: `pipewire`/`wireplumber`/`pipewire-pulse` + `pavucontrol`.
   Requires `sof-firmware` (premise §2).
@@ -211,12 +214,10 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Blue-light filter**: `gammastep`.
 - **File manager**: Nautilus (preferred per user's stack note). Thunar is
   a lighter alternative if RAM is tight.
-- **Browser**: `brave-origin-beta-bin` (AUR) launched through
-  `swayfx-browser` with Wayland + VAAPI flags. Stable Brave Origin is not
-  available on Arch yet; Origin Beta is the least-volatile current Origin
-  channel. The AUR wrapper currently mishandles multi-line flags files, so
-  the project passes flags from the launcher instead of using
-  `brave-origin-beta-flags.conf`.
+- **Browser**: `brave-origin-bin` (AUR on Arch, per Brave's upstream Linux
+  installer) launched through `swayfx-browser` with Wayland + VAAPI flags.
+  The project passes flags from the launcher instead of using a Brave flags
+  file, so the same behavior survives package wrapper changes.
 - **Editor**: `gnome-text-editor`.
 - **PDF**: `papers`.
 - **Images**: `loupe`.
@@ -480,6 +481,8 @@ Grouped so a failure points to the responsible stage.
 - [ ] `bluetoothctl show` reports the controller.
 - [ ] `swaylock -f` locks with blur over the screenshot.
 - [ ] `wlogout` opens the power menu.
+- [ ] Pressing the physical power button opens the power menu instead of
+      powering off directly.
 - [ ] Optional fingerprint path: `fprintd-verify -f right-index-finger
       "$USER"` succeeds before installing the fingerprint PAM overlays.
       If enabled, ReGreet and swaylock try fingerprint first and fall

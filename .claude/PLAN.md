@@ -420,13 +420,27 @@ if confirm "Delete old standard Brave profile/cache/launchers?"; then
          ~/.local/share/applications/brave-*.desktop
 fi
 
-paru -S --needed --noconfirm brave-origin-beta-bin
+paru -S --needed --noconfirm brave-origin-bin
+
+if [ -e ~/.config/BraveSoftware/Brave-Origin-Beta ] && [ ! -e ~/.config/BraveSoftware/Brave-Origin ]; then
+  mv ~/.config/BraveSoftware/Brave-Origin-Beta ~/.config/BraveSoftware/Brave-Origin
+fi
+if [ -e ~/.cache/BraveSoftware/Brave-Origin-Beta ] && [ ! -e ~/.cache/BraveSoftware/Brave-Origin ]; then
+  mv ~/.cache/BraveSoftware/Brave-Origin-Beta ~/.cache/BraveSoftware/Brave-Origin
+fi
+if [ -e ~/.config/BraveSoftware/Brave-Origin-Beta-Dev ] && [ ! -e ~/.config/BraveSoftware/Brave-Origin-Dev ]; then
+  mv ~/.config/BraveSoftware/Brave-Origin-Beta-Dev ~/.config/BraveSoftware/Brave-Origin-Dev
+fi
+for mime in text/html x-scheme-handler/http x-scheme-handler/https x-scheme-handler/about x-scheme-handler/unknown; do
+  xdg-mime default brave-origin.desktop "$mime"
+done
+paru -Rns --noconfirm brave-origin-beta-bin brave-origin-nightly-bin 2>/dev/null || true
 ```
 
-> `brave-origin-beta-bin` is used because stable Brave Origin is not yet
-> packaged on Arch. The project launches it through `swayfx-browser`
-> instead of `brave-origin-beta-flags.conf`, because the current AUR wrapper
-> passes multi-line flags files as one argument.
+> `brave-origin-bin` is the release Brave Origin package used by Brave's
+> upstream Linux installer on Arch (`FLAVOR=origin`). Existing Beta profile
+> and cache directories are renamed to the release names before removing the
+> preview package, so browser data is preserved.
 >
 > Nautilus is preferred per the user's stack. Thunar is the lighter
 > alternative; if RAM becomes a problem, swap by replacing `nautilus`
@@ -436,7 +450,7 @@ paru -S --needed --noconfirm brave-origin-beta-bin
 
 ```bash
 command -v nautilus  || exit 1
-command -v brave-origin-beta || exit 1
+command -v brave-origin || exit 1
 command -v mpv       || exit 1
 command -v btop      || exit 1
 command -v missioncenter || exit 1
@@ -485,7 +499,8 @@ fc-match 'Inter'                    | grep -qi 'Inter'        || exit 1
 ### Stage 09 — `09-lock-power.sh`
 
 **What.** Lock screen with effects, idle daemon already provided by
-stage 06, power menu, zram, and zram-focused sysctl tuning.
+stage 06, power menu, physical power-key policy, zram, and zram-focused
+sysctl tuning.
 
 ```bash
 sudo pacman -S --needed --noconfirm zram-generator
@@ -494,10 +509,15 @@ paru -S --needed --noconfirm swaylock-effects wlogout
 
 sudo install -m 0644 "$ROOT/system/zram-generator.conf" /etc/systemd/zram-generator.conf
 sudo install -Dm 0644 "$ROOT/system/sysctl.d/99-swayfx-zram.conf" /etc/sysctl.d/99-swayfx-zram.conf
+sudo install -Dm 0644 "$ROOT/system/systemd/logind.conf.d/10-swayfx-power-key.conf" /etc/systemd/logind.conf.d/10-swayfx-power-key.conf
 sudo systemctl daemon-reload
 sudo sysctl --load /etc/sysctl.d/99-swayfx-zram.conf
 sudo systemctl restart systemd-zram-setup@zram0.service
 ```
+
+> Reboot or restart `systemd-logind.service` after installing the drop-in so
+> `HandlePowerKey=ignore` takes effect. The Sway config binds `XF86PowerOff`
+> to `~/.local/bin/swayfx-powermenu`.
 
 `system/zram-generator.conf`:
 
@@ -523,6 +543,7 @@ command -v wlogout                              || exit 1
 zramctl | grep -q zram0                         || exit 1
 sysctl -n vm.swappiness | grep -qx 180          || exit 1
 sysctl -n vm.page-cluster | grep -qx 0          || exit 1
+grep -q '^HandlePowerKey=ignore$' /etc/systemd/logind.conf.d/10-swayfx-power-key.conf || exit 1
 ```
 
 ---
@@ -764,9 +785,9 @@ exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-refresh-rate --
 scratchpad_minimize  enable
 for_window [app_id=".*"] floating enable, resize set 1280 720
 for_window [class=".*"] floating enable, resize set 1280 720
-for_window [app_id="^brave-origin-beta$"] floating disable
+for_window [app_id="^brave-origin$"] floating disable
 for_window [app_id="^brave-origin-nightly$"] floating disable
-for_window [class="^Brave-origin-beta$"] floating disable
+for_window [class="^Brave-origin$"] floating disable
 for_window [class="^Brave-origin-nightly$"] floating disable
 
 bindsym $mod+m            move scratchpad
@@ -1110,6 +1131,7 @@ decisions in CONTEXT.md and the snippets above:
   `system/systemd/system/swayfx-cpu-frequency-limit.service`,
   `system/udev/rules.d/90-swayfx-cpu-frequency-limit.rules`,
   `system/zram-generator.conf`, `system/sysctl.d/99-swayfx-zram.conf`,
+  `system/systemd/logind.conf.d/10-swayfx-power-key.conf`,
   `system/greetd.toml`.
 - `.stow-local-ignore` at repo root, listing
   `^README\.md$`, `^AGENTS\.md$`, `^\.claude/`, `^\.git/`, `^old/`,

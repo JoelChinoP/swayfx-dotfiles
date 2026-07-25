@@ -1,15 +1,15 @@
 # Verified against: https://specifications.freedesktop.org/desktop-entry-spec/latest/
-# Reviewed: 2026-06-01
+# Reviewed: 2026-07-07
 
 [Desktop Entry]
 Version=1.0
 Name=Brave Dev (sin CORS)
 GenericName=Web Browser para desarrollo
-Comment=Brave Origin Beta con --disable-web-security y perfil persistente
+Comment=Brave Origin con --disable-web-security y perfil persistente
 Exec=/home/joel/.local/bin/swayfx-browser --dev %U
 StartupNotify=true
 Terminal=false
-Icon=brave-origin-beta
+Icon=brave-origin
 Type=Application
 Categories=Development;WebDevelopment;
 Keywords=brave;dev;cors;desarrollo;browser;

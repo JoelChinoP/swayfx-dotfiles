@@ -2,10 +2,10 @@
 # Stage 07 - Applications.
 #
 # Installs daily GUI apps, terminal utilities, archive backends, Mermaid
-# CLI, Brave Origin Beta from AUR, and Mission Center from official repos.
+# CLI, Brave Origin release from AUR, and Mission Center from official repos.
 #
-# Verified against: current Arch/AUR package metadata
-# Reviewed: 2026-07-01
+# Verified against: https://brave.com/origin/linux/ and current Arch/AUR package metadata
+# Reviewed: 2026-07-07
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -52,7 +52,7 @@ done
 
 if (( ${#installed_standard_brave[@]} > 0 )); then
     log_warn "standard Brave package(s) installed: ${installed_standard_brave[*]}"
-    if confirm "Remove standard Brave before installing Brave Origin Beta?"; then
+    if confirm "Remove standard Brave before installing Brave Origin?"; then
         require paru
         run paru -Rns --noconfirm "${installed_standard_brave[@]}"
     else
@@ -86,7 +86,72 @@ if (( ${#existing_old_brave_paths[@]} > 0 )); then
     fi
 fi
 
-paru_install brave-origin-beta-bin
+migrate_brave_origin_path() {
+    local old_path="$1" new_path="$2"
+
+    if [[ ! -e "$old_path" && ! -L "$old_path" ]]; then
+        return 0
+    fi
+
+    if [[ -e "$new_path" || -L "$new_path" ]]; then
+        log_warn "not migrating $old_path; destination already exists: $new_path"
+        return 0
+    fi
+
+    run mkdir -p "$(dirname "$new_path")"
+    run mv -- "$old_path" "$new_path"
+    log_ok "migrated $old_path -> $new_path"
+}
+
+paru_install brave-origin-bin
+
+if pgrep -u "$USER" -f 'brave-origin|Brave-Origin' >/dev/null 2>&1; then
+    log_fatal "close Brave Origin/Beta before migrating browser profile data"
+    exit 1
+fi
+
+migrate_brave_origin_path \
+    "$HOME/.config/BraveSoftware/Brave-Origin-Beta" \
+    "$HOME/.config/BraveSoftware/Brave-Origin"
+migrate_brave_origin_path \
+    "$HOME/.cache/BraveSoftware/Brave-Origin-Beta" \
+    "$HOME/.cache/BraveSoftware/Brave-Origin"
+migrate_brave_origin_path \
+    "$HOME/.config/BraveSoftware/Brave-Origin-Beta-Dev" \
+    "$HOME/.config/BraveSoftware/Brave-Origin-Dev"
+
+if command -v xdg-mime >/dev/null 2>&1; then
+    log_info "setting Brave Origin release as default browser"
+    for mime in \
+        text/html \
+        x-scheme-handler/http \
+        x-scheme-handler/https \
+        x-scheme-handler/about \
+        x-scheme-handler/unknown; do
+        run xdg-mime default brave-origin.desktop "$mime"
+    done
+else
+    log_warn "xdg-mime missing; default browser associations were not updated"
+fi
+
+PREVIEW_BRAVE_PKGS=(
+    brave-origin-beta-bin
+    brave-origin-nightly-bin
+)
+installed_preview_brave=()
+for pkg in "${PREVIEW_BRAVE_PKGS[@]}"; do
+    pacman -Qq "$pkg" >/dev/null 2>&1 && installed_preview_brave+=("$pkg")
+done
+
+if (( ${#installed_preview_brave[@]} > 0 )); then
+    log_warn "Brave Origin preview package(s) installed: ${installed_preview_brave[*]}"
+    if confirm "Remove Brave Origin preview packages after installing release?"; then
+        require paru
+        run paru -Rns --noconfirm "${installed_preview_brave[@]}"
+    else
+        log_warn "Brave Origin preview packages left installed"
+    fi
+fi
 
 if (( DRY_RUN )); then
     log_warn "skipping post-install validation (dry-run)"
@@ -96,7 +161,7 @@ fi
 
 errs=0
 
-for cmd in nautilus loupe papers gnome-text-editor gnome-calculator file-roller mpv btop htop 7z mmdc brave-origin-beta missioncenter; do
+for cmd in nautilus loupe papers gnome-text-editor gnome-calculator file-roller mpv btop htop 7z mmdc brave-origin missioncenter; do
     if command -v "$cmd" >/dev/null 2>&1; then
         log_ok "command present: $cmd"
     else

@@ -73,7 +73,7 @@ check_cmd "FiraCode Nerd Font installed" bash -c "fc-match -f '%{family}\n' 'Fir
 check_cmd "JetBrainsMono Nerd Font installed" bash -c "fc-match -f '%{family}\n' 'JetBrainsMono Nerd Font' | grep -qi 'JetBrains.*Nerd'"
 check_cmd "Inter font installed" bash -c "fc-match -f '%{family}\n' 'Inter' | grep -qi 'Inter'"
 check_cmd "Python i3ipc module installed" python -c 'import i3ipc'
-check_cmd "Brave Origin Beta installed" pacman -Q brave-origin-beta-bin
+check_cmd "Brave Origin installed" pacman -Q brave-origin-bin
 check_cmd "Mermaid CLI installed" command -v mmdc
 check_cmd "standard Brave package absent" bash -c '
 for pkg in brave-bin brave-beta-bin brave-nightly-bin brave-browser; do
@@ -107,6 +107,7 @@ done
 check_cmd "zram0 present" bash -c 'zramctl 2>/dev/null | grep -q zram0'
 check_cmd "zram swappiness tuned" bash -c '[ "$(sysctl -n vm.swappiness 2>/dev/null)" = "180" ]'
 check_cmd "zram page-cluster tuned" bash -c '[ "$(sysctl -n vm.page-cluster 2>/dev/null)" = "0" ]'
+check_cmd "logind ignores physical power key" bash -c 'grep -q "^HandlePowerKey=ignore$" /etc/systemd/logind.conf.d/10-swayfx-power-key.conf'
 check_cmd "starship config linked" bash -c 'test -e "$HOME/.config/starship.toml"'
 check_cmd "sway config linked" bash -c 'test -e "$HOME/.config/sway/config"'
 check_cmd "waybar top config linked" bash -c 'test -e "$HOME/.config/waybar/top.jsonc"'

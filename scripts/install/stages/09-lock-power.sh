@@ -2,7 +2,7 @@
 # Stage 09 - Lock, power menu and zram.
 #
 # Installs zram-generator, swaylock-effects and wlogout. Writes the
-# zram-generator and zram sysctl system templates with backup.
+# zram-generator, zram sysctl and logind power-key templates with backup.
 #
 # Verified against: Arch zram-generator and swaylock-effects usage
 # Reviewed: 2026-05-11
@@ -77,10 +77,12 @@ install_system_template() {
 
 install_system_template "$ROOT/system/zram-generator.conf" /etc/systemd/zram-generator.conf 0644
 install_system_template "$ROOT/system/sysctl.d/99-swayfx-zram.conf" /etc/sysctl.d/99-swayfx-zram.conf 0644
+install_system_template "$ROOT/system/systemd/logind.conf.d/10-swayfx-power-key.conf" /etc/systemd/logind.conf.d/10-swayfx-power-key.conf 0644
 
 run sudo systemctl daemon-reload
 run sudo sysctl --load /etc/sysctl.d/99-swayfx-zram.conf
 run sudo systemctl restart systemd-zram-setup@zram0.service
+log_warn "reboot or restart systemd-logind.service to apply the physical power-key policy"
 
 if (( DRY_RUN )); then
     log_warn "skipping post-install validation (dry-run)"
@@ -122,6 +124,14 @@ if [[ "$(sysctl -n vm.page-cluster 2>/dev/null)" == "0" ]]; then
     log_ok "vm.page-cluster is 0"
 else
     log_error "vm.page-cluster is not 0"
+    (( ++errs ))
+fi
+
+if [[ -f /etc/systemd/logind.conf.d/10-swayfx-power-key.conf ]] && \
+    grep -q '^HandlePowerKey=ignore$' /etc/systemd/logind.conf.d/10-swayfx-power-key.conf; then
+    log_ok "logind physical power key policy is installed"
+else
+    log_error "logind physical power key policy is missing"
     (( ++errs ))
 fi
 

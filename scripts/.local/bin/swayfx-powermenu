@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Verified against: wlogout(1), fuzzel --dmenu, swaymsg(1)
-# Reviewed: 2026-06-10
+# Reviewed: 2026-07-08
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -8,6 +8,20 @@ IFS=$'\n\t'
 notify() {
     command -v notify-send >/dev/null 2>&1 || return 0
     notify-send "SwayFX" "$1"
+}
+
+acquire_menu_lock() {
+    local lock_dir lock_file
+    lock_dir="${XDG_RUNTIME_DIR:-/tmp}"
+    lock_file="$lock_dir/swayfx-powermenu.lock"
+
+    exec 9>"$lock_file"
+    if ! flock -n 9; then
+        # Treat repeated power-key/bar clicks as a toggle instead of stacking
+        # multiple layer-shell overlays.
+        pkill -u "$USER" -x wlogout 2>/dev/null || true
+        exit 0
+    fi
 }
 
 run_choice() {
@@ -47,14 +61,18 @@ if command -v wlogout >/dev/null 2>&1 && [[ "${SWAYFX_POWERMENU_FORCE_DMENU:-0}"
         printf 'margins: h=%s v=%s\n' "$margin_h" "$margin_v"
         exit 0
     fi
-    exec wlogout -b 2 \
+    acquire_menu_lock
+    wlogout -b 2 \
         --margin-top "$margin_v" \
         --margin-bottom "$margin_v" \
         --margin-left "$margin_h" \
         --margin-right "$margin_h" \
         --column-spacing 20 \
         --row-spacing 10
+    exit $?
 fi
+
+acquire_menu_lock
 
 command -v fuzzel >/dev/null 2>&1 || {
     notify "No se encontro wlogout ni fuzzel."

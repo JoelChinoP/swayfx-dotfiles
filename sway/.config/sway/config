@@ -1,7 +1,7 @@
 # SwayFX desktop config.
 #
 # Verified against: https://github.com/WillPower3309/swayfx, sway(5)
-# Reviewed: 2026-05-16
+# Reviewed: 2026-07-08
 
 set $mod Mod4
 set $term ghostty
@@ -119,9 +119,9 @@ exec wl-paste --type image --watch cliphist store
 exec gammastep
 exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-refresh-rate --watch
 
-# Idle and lock. `lock` answers loginctl lock-session; suspend closes
-# the chain lock -> screen off -> sleep (before-sleep re-locks anyway).
-exec swayidle -w timeout 300 'swaylock -f' timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' timeout 900 'systemctl suspend' before-sleep 'swaylock -f' lock 'swaylock -f'
+# Idle and lock: 10 min lock, 14 min screen off, 17 min suspend.
+# `lock` answers loginctl lock-session; before-sleep re-locks defensively.
+exec swayidle -w timeout 600 'swaylock -f' timeout 840 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' timeout 1020 'systemctl suspend' before-sleep 'swaylock -f' lock 'swaylock -f'
 
 # Two Waybar instances.
 exec_always sh -lc 'export PATH="$HOME/.local/bin:$PATH"; pkill -x waybar || true; waybar -c "$HOME/.config/waybar/top.jsonc" -s "$HOME/.config/waybar/top.css" & waybar -c "$HOME/.config/waybar/bottom.jsonc" -s "$HOME/.config/waybar/bottom.css" &'
@@ -273,6 +273,7 @@ bindsym XF86AudioRaiseVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+
 bindsym XF86AudioLowerVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
 bindsym XF86AudioMute exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 bindsym XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+bindsym XF86PowerOff exec ~/.local/bin/swayfx-powermenu
 bindsym XF86TouchpadToggle exec ~/.local/bin/swayfx-touchpad-toggle
 bindsym XF86TouchpadOn     exec bash -c 'swaymsg input type:touchpad events enabled;  kill -SIGRTMIN+4 $(pgrep -x waybar) 2>/dev/null || true'
 bindsym XF86TouchpadOff    exec bash -c 'swaymsg input type:touchpad events disabled; kill -SIGRTMIN+4 $(pgrep -x waybar) 2>/dev/null || true'

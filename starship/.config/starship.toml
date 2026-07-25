@@ -4,7 +4,7 @@
 # Reviewed: 2026-05-12
 
 add_newline = false
-scan_timeout = 30
+scan_timeout = 100
 command_timeout = 200
 
 format = """$directory\

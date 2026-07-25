@@ -146,7 +146,7 @@ ssh-add ~/.ssh/gitlab_turing 2>/dev/null
 
 export PATH="$PATH:$HOME/development/flutter/bin"
 
-export CHROME_EXECUTABLE=/usr/bin/brave-origin-beta
+export CHROME_EXECUTABLE=/usr/bin/brave-origin
 
 # SDK gestionado con las command-line tools de Google (no AUR) tras Atomic Arch.
 export ANDROID_HOME=$HOME/Android/Sdk

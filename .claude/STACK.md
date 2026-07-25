@@ -141,6 +141,8 @@ System tuning installed by the stage:
 ```
 /etc/systemd/zram-generator.conf       # 4 GB zram, zstd, priority 100
 /etc/sysctl.d/99-swayfx-zram.conf      # swappiness=180, page-cluster=0
+/etc/systemd/logind.conf.d/10-swayfx-power-key.conf
+                                      # physical power key handled by Sway
 ```
 
 #### Stage 99 — greetd (optional)
@@ -172,7 +174,7 @@ asusctl               # ASUS Fn keys (optional, WARN on failure)
 
 #### Stage 07 — apps
 ```
-brave-origin-beta-bin
+brave-origin-bin
 ```
 
 #### Stage 08 — theming
@@ -253,21 +255,19 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
 - **SDDM/GDM**: pulls in Qt or GTK + their dependencies; overkill for a
   single-user laptop.
 
-### 3.7. Browser: Brave Origin Beta (not Firefox / not Chromium)
+### 3.7. Browser: Brave Origin (not Firefox / not Chromium)
 
-- **Brave Origin Beta**: official minimalist Brave channel. Origin keeps
+- **Brave Origin release**: official minimalist Brave channel. Origin keeps
   Brave Shields and Chromium security updates while removing the extra
-  Brave surfaces the user does not want. Stable Brave Origin is not
-  available on Arch yet, and `brave-origin-beta-bin` is less volatile than
-  `brave-origin-nightly-bin`.
+  Brave surfaces the user does not want. On Arch, Brave's upstream Linux
+  installer uses the AUR package `brave-origin-bin` for the release channel.
 - **Firefox**: viable, but the user has no preference between the two
   and Brave handles VAAPI + Wayland with simpler flags than Chromium.
 - Standard `brave-bin` is removed when present. The old profile/cache and
   `brave-flags.conf` are deleted only after confirmation, or automatically
   when the installer runs with `--yes`.
-- Flags live in `scripts/.local/bin/swayfx-browser` instead of
-  `brave-origin-beta-flags.conf`, because the current AUR wrapper passes
-  multi-line flags files as a single argument:
+- Flags live in `scripts/.local/bin/swayfx-browser` instead of a Brave flags
+  file, so package wrapper changes do not affect the Wayland/VAAPI launch:
   ```
   --ozone-platform-hint=auto
   --enable-wayland-ime

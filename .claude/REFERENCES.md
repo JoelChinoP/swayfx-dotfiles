@@ -319,9 +319,9 @@ Reviewed: 2026-05-18.
 - Starship: <https://starship.rs/config/>
 - gammastep: <https://gitlab.com/chinstrap/gammastep>
 - Brave Origin overview: <https://support.brave.app/hc/en-us/articles/38561489788173-What-is-Brave-Origin>
-- Brave Origin Beta on Linux: <https://brave.com/origin/linux/beta/>
-- Brave Origin Beta AUR: <https://aur.archlinux.org/packages/brave-origin-beta-bin>
-- Brave Origin Beta AUR wrapper: <https://aur.archlinux.org/cgit/aur.git/plain/brave-origin-beta-bin.sh?h=brave-origin-beta-bin>
+- Brave Origin on Linux: <https://brave.com/origin/linux/>
+- Brave Origin Linux installer: <https://dl.brave.com/install.sh>
+- Brave Origin AUR: <https://aur.archlinux.org/packages/brave-origin-bin>
 - Chromium VA-API flags: <https://chromium.googlesource.com/chromium/src/+/main/docs/gpu/vaapi.md>
 - mpv: <https://mpv.io/manual/master/>
 - uosc: <https://github.com/tomasklaen/uosc>

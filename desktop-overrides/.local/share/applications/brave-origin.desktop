@@ -1,5 +1,5 @@
-# Verified against: /usr/share/applications/com.brave.Origin.beta.desktop
-# Reviewed: 2026-05-16
+# Verified against: /usr/share/applications/brave-origin.desktop
+# Reviewed: 2026-07-07
 
 [Desktop Entry]
 Version=1.0
@@ -13,7 +13,7 @@ GenericName[es_PE]=Navegador web
 Comment=Navegador privado minimalista
 Comment[es]=Navegador privado minimalista
 Comment[es_PE]=Navegador privado minimalista
-Icon=brave-origin-beta
+Icon=brave-origin
 Exec=/home/joel/.local/bin/swayfx-browser %U
 Terminal=false
 Categories=Network;WebBrowser;
@@ -21,7 +21,6 @@ Keywords=brave;origin;navegador;web;internet;privacidad;
 MimeType=application/pdf;application/rdf+xml;application/rss+xml;application/xhtml+xml;application/xhtml_xml;application/xml;image/gif;image/jpeg;image/png;image/webp;text/html;text/xml;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/chromium;
 StartupNotify=true
 Actions=new-window;new-private-window;
-NoDisplay=true
 
 [Desktop Action new-window]
 Name=Nueva ventana

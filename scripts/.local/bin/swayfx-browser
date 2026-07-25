@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Launch the project browser with Wayland and VA-API focused flags.
 #
-# Verified against: https://brave.com/origin/linux/beta/ and Chromium VA-API docs
-# Reviewed: 2026-05-16
+# Verified against: https://brave.com/origin/linux/ and Chromium VA-API docs
+# Reviewed: 2026-07-07
 
 set -euo pipefail
 IFS=$'\n\t'
 
-DEV_PROFILE="${HOME}/.config/BraveSoftware/Brave-Origin-Beta-Dev"
+DEV_PROFILE="${HOME}/.config/BraveSoftware/Brave-Origin-Dev"
 
 if [[ "${1:-}" == "--dev" ]]; then
     shift
@@ -19,15 +19,20 @@ if [[ "${1:-}" == "--dev" ]]; then
         --enable-wayland-ime
         --force-dark-mode
         --ignore-gpu-blocklist
+        --disable-vulkan
+        --use-angle=gl
         --enable-features=AcceleratedVideoDecodeLinuxGL,AcceleratedVideoDecodeLinuxZeroCopyGL,AcceleratedVideoEncoder,VaapiIgnoreDriverChecks,WaylandWindowDecorations,WebUIDarkMode
     )
     pkill -f "user-data-dir=$DEV_PROFILE" 2>/dev/null || true
     sleep 0.5
     rm -f "$DEV_PROFILE"/Singleton*
-    if [[ -x /opt/brave.com/brave-origin-beta/brave-origin ]]; then
-        exec /opt/brave.com/brave-origin-beta/brave-origin "${DEV_FLAGS[@]}" "$@"
+    if command -v brave-origin >/dev/null 2>&1; then
+        exec brave-origin "${DEV_FLAGS[@]}" "$@"
+    elif [[ -x /opt/brave-origin-bin/brave-origin ]]; then
+        exec /opt/brave-origin-bin/brave-origin "${DEV_FLAGS[@]}" "$@"
     fi
-    exec brave-origin-beta "${DEV_FLAGS[@]}" "$@"
+    printf 'swayfx-browser: no Brave Origin browser found. Install brave-origin-bin.\n' >&2
+    exit 127
 fi
 
 FLAGS=(
@@ -36,15 +41,18 @@ FLAGS=(
     --password-store=basic
     --force-dark-mode
     --ignore-gpu-blocklist
+    --disable-vulkan
+    --use-angle=gl
     --enable-features=AcceleratedVideoDecodeLinuxGL,AcceleratedVideoDecodeLinuxZeroCopyGL,AcceleratedVideoEncoder,VaapiIgnoreDriverChecks,WaylandWindowDecorations,WebUIDarkMode
 )
 
-launch_origin_beta() {
-    export CHROME_USER_DATA_DIR="${CHROME_USER_DATA_DIR:-$HOME/.config/BraveSoftware/Brave-Origin-Beta}"
-    if [[ -x /opt/brave.com/brave-origin-beta/brave-origin ]]; then
-        exec /opt/brave.com/brave-origin-beta/brave-origin "${FLAGS[@]}" "$@"
+launch_origin_release() {
+    export CHROME_USER_DATA_DIR="${CHROME_USER_DATA_DIR:-$HOME/.config/BraveSoftware/Brave-Origin}"
+    if command -v brave-origin >/dev/null 2>&1; then
+        exec brave-origin "${FLAGS[@]}" "$@"
+    elif [[ -x /opt/brave-origin-bin/brave-origin ]]; then
+        exec /opt/brave-origin-bin/brave-origin "${FLAGS[@]}" "$@"
     fi
-    exec brave-origin-beta "${FLAGS[@]}" "$@"
 }
 
 launch_origin_nightly() {
@@ -55,13 +63,13 @@ launch_origin_nightly() {
     exec brave-origin-nightly "${FLAGS[@]}" "$@"
 }
 
-if command -v brave-origin-beta >/dev/null 2>&1 || [[ -x /opt/brave.com/brave-origin-beta/brave-origin ]]; then
-    launch_origin_beta "$@"
+if command -v brave-origin >/dev/null 2>&1 || [[ -x /opt/brave-origin-bin/brave-origin ]]; then
+    launch_origin_release "$@"
 elif command -v brave-origin-nightly >/dev/null 2>&1 || [[ -x /opt/brave.com/brave-origin-nightly/brave-origin ]]; then
     launch_origin_nightly "$@"
 elif command -v brave >/dev/null 2>&1; then
     exec brave "${FLAGS[@]}" "$@"
 fi
 
-printf 'swayfx-browser: no Brave Origin browser found. Install brave-origin-beta-bin.\n' >&2
+printf 'swayfx-browser: no Brave Origin browser found. Install brave-origin-bin.\n' >&2
 exit 127

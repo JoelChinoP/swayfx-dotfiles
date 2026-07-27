@@ -4,11 +4,11 @@
 > CONTEXT wins. Package decisions live in [STACK.md](STACK.md). Reference
 > repo notes and upstream SwayFX syntax live in [REFERENCES.md](REFERENCES.md).
 >
-> Last reviewed: 2026-05-16.
+> Last reviewed: 2026-07-25.
 
 Hardware: ASUS · Ryzen 7 7730U · Vega 8 · 12 GB RAM · Arch Linux.
 Goal: SwayFX desktop usable as a conventional desktop, dark-only,
-pure-black palette, RAM idle < 600 MB (target ~470 MB; see
+pure-black palette, RAM idle < 600 MB (target ~550 MB; see
 [STACK §6](STACK.md)).
 
 ---
@@ -349,9 +349,9 @@ command -v waycal || exit 1
 ### Stage 06 — `06-utils.sh`
 
 **What.** Utilities used in autostart or via keybind: clipboard manager,
-screenshots, brightness, network, bluetooth, blue-light filter, audio
-GUI, JSON helper for waybar custom modules, optional firewall, optional
-ASUS helper.
+screenshots, brightness, network, bluetooth, Tailscale remote access,
+blue-light filter, audio GUI, JSON helper for waybar custom modules,
+optional firewall, optional ASUS helper.
 
 ```bash
 sudo pacman -S --needed --noconfirm \
@@ -362,15 +362,32 @@ sudo pacman -S --needed --noconfirm \
   networkmanager network-manager-applet \
   bluez bluez-utils blueman \
   swayidle libnotify \
-  jq ufw
+  jq ufw tailscale
 
-sudo systemctl enable --now NetworkManager.service bluetooth.service
+sudo systemctl enable --now \
+  NetworkManager.service bluetooth.service tailscaled.service
+visudo -cf system/sudoers.d/90-tailscale-operator
+sudo install -Dm 0440 system/sudoers.d/90-tailscale-operator \
+  /etc/sudoers.d/90-tailscale-operator
 
 paru -S --needed --noconfirm asusctl || log_warn "asusctl failed; skipping"
 ```
 
 > `ufw` is installed but **not** enabled. The user enables it explicitly
 > after defining rules.
+> `tailscaled.service` is always enabled and running. The installer never
+> runs `up`, `down`, `login`, or supplies an auth key. Tailscale issue #18294
+> prevents a pre-login operator preference from working reliably, so stage 10
+> stows a `tailscale` wrapper and stage 06 installs a `sudoers` rule restricted
+> to `tailscale up --operator=joel` and `tailscale set --operator=joel`.
+> Nothing is elevated until the user runs Tailscale. The second command repairs
+> profiles created manually via `login`. Plain `tailscale up` first requires
+> an HTTP `2xx` or `401` from the local OpenCode health endpoint, then connects, runs
+> `tailscale serve reset`, proxies the configured localhost port at HTTPS root,
+> and enables Tailscale SSH. Plain `tailscale down` resets Serve, disables SSH,
+> and disconnects. The wrapper exclusively owns this node's Serve config.
+> Serve must stay at URL root because OpenCode emits absolute `/assets` paths.
+> Restrict custom Tailscale SSH policies to `joel`.
 > `asusctl` is optional; if compilation fails (kernel headers / dkms),
 > emit WARN and continue.
 
@@ -382,6 +399,10 @@ brightnessctl get >/dev/null                                    || exit 1
 grim /tmp/_test.png && rm -f /tmp/_test.png                     || exit 1
 command -v jq                                                    || exit 1
 command -v ufw                                                   || exit 1
+command -v tailscale                                             || exit 1
+systemctl is-enabled tailscaled.service                          || exit 1
+systemctl is-active tailscaled.service                           || exit 1
+sudo visudo -cf /etc/sudoers.d/90-tailscale-operator             || exit 1
 ```
 
 ---
@@ -1067,6 +1088,7 @@ scripts/.local/bin/
 ├── swayfx-refresh-rate    # 60 Hz on AC, 48 Hz on battery when native
 ├── swayfx-maximize        # floating maximize/restore toggle
 ├── swayfx-waycal-toggle   # opens/closes the top-clock calendar popup
+├── tailscale              # first-profile operator bootstrap wrapper
 └── wallpaper-pick         # optional: change wallpaper via fuzzel
 ```
 
@@ -1127,12 +1149,13 @@ decisions in CONTEXT.md and the snippets above:
 - `scripts/.local/bin/swayfx-browser`.
 - `scripts/.local/bin/swayfx-cpu-cap`.
 - `scripts/.local/bin/swayfx-refresh-rate`.
+- `scripts/.local/bin/tailscale`.
 - `system/usr/local/lib/swayfx-dotfiles/cpu-frequency-limit`,
   `system/systemd/system/swayfx-cpu-frequency-limit.service`,
   `system/udev/rules.d/90-swayfx-cpu-frequency-limit.rules`,
   `system/zram-generator.conf`, `system/sysctl.d/99-swayfx-zram.conf`,
   `system/systemd/logind.conf.d/10-swayfx-power-key.conf`,
-  `system/greetd.toml`.
+  `system/sudoers.d/90-tailscale-operator`, `system/greetd.toml`.
 - `.stow-local-ignore` at repo root, listing
   `^README\.md$`, `^AGENTS\.md$`, `^\.claude/`, `^\.git/`, `^old/`,
   `^scripts/install/`, `^system/`.

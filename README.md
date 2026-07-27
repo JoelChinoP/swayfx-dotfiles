@@ -18,7 +18,7 @@ two-bar layout with pinned launchers and an active-windows taskbar.
   + a `wlr/taskbar` of open windows.
 - Dark **only**. Pure black `#000000` background, neutral grays, a small
   accent palette. No Catppuccin.
-- Idle RAM under 600 MB (estimated ~470 MB after login, with 130 MB
+- Idle RAM under 600 MB (estimated ~550 MB after login, with 50 MB
   headroom kept on purpose so we never sacrifice stability for a few MB).
 - Reproducible, staged install — every step validates before the next
   one runs.
@@ -58,7 +58,7 @@ Installation is split into numbered **stages**:
 | 03    | Replace Sway with SwayFX from AUR                           |
 | 04    | Launcher (fuzzel) + notifications (mako) + XDG portals       |
 | 05    | Waybar (one binary, two configs)                             |
-| 06    | Clipboard, screenshots, brightness, network, bluetooth, BT   |
+| 06    | Clipboard, screenshots, brightness, network, Bluetooth, Tailscale |
 | 07    | GUI apps (Nautilus, Brave Origin, mpv, GNOME utilities, btop…) |
 | 08    | Dark theming for GTK 3/4, Qt, cursor, icons, fonts           |
 | 09    | swaylock-effects + wlogout + zram/sysctl tuning              |
@@ -103,6 +103,80 @@ cd ~/swayfx-dotfile
 
 After the chain completes, log out and log back in on TTY1 — `~/.zprofile`
 will start SwayFX automatically.
+
+## Remote OpenCode access
+
+Stage 06 installs Tailscale and keeps `tailscaled.service` enabled. It
+deliberately does **not** connect or authenticate the machine. A narrow
+operator wrapper works around Tailscale issue #18294: it elevates only the
+manually requested first `tailscale up`, or repairs `operator=joel` if the
+profile was created with `login`.
+
+OpenCode itself is installed and secured by
+`/home/joel/git/opencode-dotfiles`, not by this repository. Before connecting,
+its health endpoint must return `2xx` without auth or `401` with Basic Auth:
+
+```bash
+. ~/.config/opencode-dotfiles/defaults.env
+. ~/.config/opencode-dotfiles/dotfiles.env
+curl -s -o /dev/null -w '%{http_code}\n' \
+  "http://127.0.0.1:${OPENCODE_SERVE_PORT}/global/health"
+```
+
+Then one command enables the complete remote surface:
+
+```bash
+tailscale up
+```
+
+The wrapper connects Tailscale, resets this node's Serve config, proxies
+tailnet-only HTTPS root to the configured localhost OpenCode port, and enables
+Tailscale SSH. The first invocation may print a browser login URL. It refuses
+to publish OpenCode unless the local server is healthy.
+
+Inspect the resulting root URL with `tailscale serve status`. Do not append
+`/app` or `/opencode`: OpenCode interprets the first path segment as a Base64
+directory identifier, and it also uses absolute `/assets` and `/api` URLs.
+
+One command removes the complete remote surface while leaving the daemon ready:
+
+```bash
+tailscale down
+```
+
+The wrapper resets Serve, disables Tailscale SSH, and disconnects the node.
+Do not configure unrelated Serve routes on this machine: this lifecycle owns
+the node's complete Serve configuration.
+
+The default Tailscale policy permits SSH to your own devices. If the tailnet
+uses a custom policy, it must grant both network access and Tailscale SSH to
+this device; restrict the SSH `users` list to `joel` rather than `root` or all
+non-root users.
+
+Never use `tailscale funnel` for OpenCode because Funnel publishes the service
+to the public Internet.
+
+On Android:
+
+1. Install the official [Tailscale app](https://tailscale.com/docs/install/android)
+   and sign in to the same tailnet.
+2. For web access, open the HTTPS hostname printed by
+   `tailscale serve status`. If Basic Auth is configured, authenticate as
+   `opencode` with the configured password.
+3. For the lightest CLI access, install
+   [ConnectBot from F-Droid](https://f-droid.org/packages/org.connectbot/)
+   and connect to `joel@asus` (or the machine name shown by Tailscale).
+   If the client rejects Tailscale SSH's no-password authentication, use the
+   username `joel+password` and enter any non-empty password; Tailscale still
+   performs the real identity check.
+4. Use [Termux from F-Droid](https://f-droid.org/packages/com.termux/) instead
+   only if a full local Linux environment is useful. Install its SSH client
+   with `pkg install openssh`, then run `ssh joel@asus`.
+5. Inside the SSH session, enter the desired project and run `opencode`.
+   To reuse the persistent server, source the two files shown above and run
+   `opencode attach "http://127.0.0.1:${OPENCODE_SERVE_PORT}"`. If Basic Auth
+   is configured, export `OPENCODE_SERVER_PASSWORD`, add `--username opencode`,
+   and unset the variable afterward.
 
 ## Documentation
 

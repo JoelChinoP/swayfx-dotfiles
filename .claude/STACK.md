@@ -4,7 +4,7 @@
 > changes, update CONTEXT first, then mirror it here. Stages in
 > [PLAN.md](PLAN.md) install from these lists.
 >
-> Last reviewed: 2026-05-16.
+> Last reviewed: 2026-07-25.
 
 ---
 
@@ -109,7 +109,14 @@ wdisplays pavucontrol playerctl
 networkmanager network-manager-applet
 bluez bluez-utils blueman
 swayidle libnotify
-jq ufw
+jq ufw tailscale
+```
+
+System integration installed by stage 06 and Stow stage 10:
+
+```
+/etc/sudoers.d/90-tailscale-operator  # exact operator bootstrap commands
+~/.local/bin/tailscale                # delegates to /usr/bin/tailscale
 ```
 
 #### Stage 07 — apps
@@ -353,6 +360,26 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
 - It is installed in stage 07 with other on-demand applications and does
   not affect idle RAM because it has no daemon.
 
+### 3.16. Remote access: Tailscale
+
+- `tailscale` comes from Arch's official `extra` repository; no AUR package,
+  custom unit, public port, or router configuration is needed.
+- `tailscaled.service` stays enabled so manual `tailscale up` is immediate.
+  The installer never authenticates or changes connection state.
+- Tailscale 1.98.9 cannot apply the documented operator preference before the
+  first profile login (upstream issue #18294). A wrapper elevates only the
+  user-requested first `up` or an operator repair, and an exact `sudoers` rule
+  permits only `/usr/bin/tailscale up --operator=joel` and
+  `/usr/bin/tailscale set --operator=joel`. The resulting profile then stores
+  Joel as its operator; later commands use the official binary directly.
+- Plain `up` and `down` are lifecycle commands: `up` refuses an unavailable
+  OpenCode backend, connects, resets Serve, proxies HTTPS root to the configured
+  localhost port, and enables Tailscale SSH; `down` resets Serve, disables SSH,
+  and disconnects. The wrapper exclusively owns this node's Serve config. Root
+  proxying is required because OpenCode emits absolute asset URLs.
+- Tailscale SSH provides CLI access without enabling the system OpenSSH daemon.
+  OpenCode Basic Auth remains available as optional defense in depth.
+
 ---
 
 ## 4. Optional / deferred packages
@@ -388,7 +415,7 @@ Not part of stages 00–10 by default. Install manually when needed.
 
 ## 6. Idle RAM budget
 
-**Target: < 600 MB.** Estimated baseline: ~470 MB. The 130 MB headroom
+**Target: < 600 MB.** Estimated baseline: ~550 MB. The 50 MB headroom
 between the estimate and the ceiling exists so we never have to trade
 stability or convenience for a few MB.
 
@@ -406,7 +433,8 @@ stability or convenience for a few MB.
 | cliphist watchers               | ~10 MB     |
 | polkit-gnome                    | ~20 MB     |
 | gammastep                       | ~5 MB      |
-| **Total estimated**             | **~470 MB**|
+| tailscaled                      | ~80 MB     |
+| **Total estimated**             | **~550 MB**|
 
 ### 6.1. RAM is not performance
 

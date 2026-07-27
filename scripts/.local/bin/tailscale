@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# Verified against: https://github.com/tailscale/tailscale/issues/18294
+# Reviewed: 2026-07-25
+
+set -euo pipefail
+
+TAILSCALE=/usr/bin/tailscale
+OPERATOR=joel
+
+case "${1:-}" in
+up)
+    if (( $# != 1 )); then
+        printf 'Use `tailscale up` sin opciones para activar OpenCode y SSH.\n' >&2
+        exit 2
+    fi
+
+    opencode_config_dir="$HOME/.config/opencode-dotfiles"
+    if [[ -r "$opencode_config_dir/defaults.env" ]]; then
+        # shellcheck disable=SC1091
+        source "$opencode_config_dir/defaults.env"
+    fi
+    if [[ -r "$opencode_config_dir/dotfiles.env" ]]; then
+        # shellcheck disable=SC1091
+        source "$opencode_config_dir/dotfiles.env"
+    fi
+    : "${OPENCODE_SERVE_PORT:=4096}"
+    if [[ ! "$OPENCODE_SERVE_PORT" =~ ^[0-9]+$ ]] \
+        || (( OPENCODE_SERVE_PORT < 1 || OPENCODE_SERVE_PORT > 65535 )); then
+        printf 'OPENCODE_SERVE_PORT no es un puerto valido.\n' >&2
+        exit 1
+    fi
+    opencode_url="http://127.0.0.1:$OPENCODE_SERVE_PORT"
+
+    auth_status="$(curl --silent --output /dev/null --write-out '%{http_code}' \
+        --max-time 5 "$opencode_url/global/health" || true)"
+    if [[ "$auth_status" != 401 && ! "$auth_status" =~ ^2[0-9][0-9]$ ]]; then
+        printf 'OpenCode debe estar activo antes de conectar Tailscale.\n' >&2
+        exit 1
+    fi
+
+    status="$("$TAILSCALE" status --json 2>/dev/null || true)"
+    if ! jq -e '(.BackendState | type) == "string"' <<<"$status" >/dev/null; then
+        printf 'No se pudo leer el estado de Tailscale.\n' >&2
+        exit 1
+    fi
+    bootstrap="$(jq -r '
+        .BackendState == "NoState" or
+        (.BackendState == "NeedsLogin" and .CurrentTailnet == null and (.Self.UserID // 0) == 0)
+    ' <<<"$status")"
+
+    if [[ "$bootstrap" == true ]]; then
+        sudo -n -- "$TAILSCALE" up --operator="$OPERATOR"
+    else
+        # OperatorUser is profile-scoped; repair profiles created via `login`.
+        if ! prefs="$("$TAILSCALE" debug prefs 2>/dev/null)" \
+            || ! jq -e '(.OperatorUser? == null) or ((.OperatorUser | type) == "string")' \
+                <<<"$prefs" >/dev/null; then
+            printf 'No se pudieron leer las preferencias de Tailscale.\n' >&2
+            exit 1
+        fi
+        operator="$(jq -r '.OperatorUser // empty' <<<"$prefs")"
+        if [[ "$operator" != "$OPERATOR" ]]; then
+            sudo -n -- "$TAILSCALE" set --operator="$OPERATOR"
+        fi
+        "$TAILSCALE" up
+    fi
+
+    if ! "$TAILSCALE" serve reset \
+        || ! "$TAILSCALE" serve --bg --https=443 "$opencode_url"; then
+        "$TAILSCALE" set --ssh=false || true
+        "$TAILSCALE" down || true
+        exit 1
+    fi
+    if ! "$TAILSCALE" set --ssh; then
+        "$TAILSCALE" serve reset || true
+        "$TAILSCALE" down || true
+        exit 1
+    fi
+    ;;
+down)
+    if (( $# != 1 )); then
+        printf 'Use `tailscale down` sin opciones.\n' >&2
+        exit 2
+    fi
+
+    status="$("$TAILSCALE" status --json 2>/dev/null || true)"
+    if ! jq -e '(.BackendState | type) == "string"' <<<"$status" >/dev/null; then
+        printf 'No se pudo leer el estado de Tailscale.\n' >&2
+        exit 1
+    fi
+    bootstrap="$(jq -r '
+        .BackendState == "NoState" or
+        (.BackendState == "NeedsLogin" and .CurrentTailnet == null and (.Self.UserID // 0) == 0)
+    ' <<<"$status")"
+    if [[ "$bootstrap" == true ]]; then
+        exit 0
+    fi
+
+    if ! prefs="$("$TAILSCALE" debug prefs 2>/dev/null)" \
+        || ! jq -e '(.OperatorUser? == null) or ((.OperatorUser | type) == "string")' \
+            <<<"$prefs" >/dev/null; then
+        printf 'No se pudieron leer las preferencias de Tailscale.\n' >&2
+        exit 1
+    fi
+    operator="$(jq -r '.OperatorUser // empty' <<<"$prefs")"
+    if [[ "$operator" != "$OPERATOR" ]]; then
+        sudo -n -- "$TAILSCALE" set --operator="$OPERATOR"
+    fi
+
+    rc=0
+    "$TAILSCALE" serve reset || rc=$?
+    "$TAILSCALE" set --ssh=false || rc=$?
+    "$TAILSCALE" down || exit $?
+    exit "$rc"
+    ;;
+*)
+    exec "$TAILSCALE" "$@"
+    ;;
+esac

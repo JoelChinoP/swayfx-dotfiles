@@ -1,0 +1,8 @@
+# Verified against: sudoers(5) and https://github.com/tailscale/tailscale/issues/18294
+# Reviewed: 2026-07-25
+
+# Bootstrap or repair the profile operator. No connection teardown, Serve,
+# SSH, auth key, shell, or other command receives passwordless root access.
+Cmnd_Alias TAILSCALE_OPERATOR = /usr/bin/tailscale up --operator=joel, \
+    /usr/bin/tailscale set --operator=joel
+joel ALL=(root) NOPASSWD: TAILSCALE_OPERATOR

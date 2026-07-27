@@ -5,7 +5,7 @@
 > **this file wins**. If anything is ambiguous, leave a `TODO:` and explain why
 > instead of guessing.
 >
-> Last reviewed: 2026-05-16.
+> Last reviewed: 2026-07-25.
 
 ---
 
@@ -15,7 +15,7 @@
 - **Hardware**: ASUS laptop · AMD Ryzen 7 7730U · iGPU Vega 8 · 16 GB RAM.
 - **Distro**: Arch Linux (with AUR).
 - **Idle RAM target**: < 600 MB after login, no apps running. The
-  estimated baseline (see [STACK §6](STACK.md)) is ~470 MB; the 130 MB
+  estimated baseline (see [STACK §6](STACK.md)) is ~550 MB; the 50 MB
   headroom exists on purpose so that we never trade off
   stability/functionality (the bottom waybar, `nm-applet`,
   `polkit-gnome`) just to shave a few MB.
@@ -188,6 +188,16 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Audio**: `pipewire`/`wireplumber`/`pipewire-pulse` + `pavucontrol`.
   Requires `sof-firmware` (premise §2).
 - **Network**: NetworkManager + `nm-applet` in tray.
+- **Remote access**: Tailscale from the official Arch repository.
+  `tailscaled.service` is always enabled, but the installer never connects or
+  supplies an auth key. Because Tailscale 1.98.9 cannot persist an operator
+  before its first profile login, a wrapper and two exact `sudoers` commands
+  bootstrap `tailscale up --operator=joel` or repair a profile created via
+  `login` with `tailscale set --operator=joel`. A user-invoked plain `up`
+  reads the deployed OpenCode port, verifies server health, connects, resets the
+  node's Serve config, serves the localhost backend at HTTPS root, and enables
+  Tailscale SSH. Plain `down` resets Serve, disables SSH, and disconnects.
+  Other subcommands delegate to the official binary.
 - **Bluetooth**: bluez/bluez-utils + blueman-applet.
 - **AMD drivers**: `mesa`, `vulkan-radeon`, `libva-utils`. Arch's
   `mesa` package provides the VA-API Mesa driver on current repos;
@@ -275,7 +285,7 @@ scripts/install/
     ├── 03-swayfx.sh            # replace sway with SwayFX (AUR)
     ├── 04-session.sh           # fuzzel + mako + xdg portals + polkit
     ├── 05-bars.sh              # waybar (two instances)
-    ├── 06-utils.sh             # clipboard, screenshots, brightness, NM, BT
+    ├── 06-utils.sh             # clipboard, screenshots, brightness, NM, BT, Tailscale
     ├── 07-apps.sh              # GUI apps + TUI utilities + archive backends
     ├── 08-theming.sh           # GTK/Qt dark, fonts, cursor, icons
     ├── 09-lock-power.sh        # swayidle, swaylock-effects, wlogout, zram
@@ -411,6 +421,14 @@ swayfx-dotfile/
   for explicit low-level TDP experiments.
 - **Do not** auto-enable `ufw`. Install it disabled; user enables it
   after defining their own ruleset.
+- **Do not** connect Tailscale during installation, automate login/auth keys,
+  or run the remote OpenCode lifecycle on boot. The wrapper may orchestrate
+  Serve and SSH only after a user explicitly invokes plain `up` or `down`, and
+  may elevate only the exact operator bootstrap/repair commands.
+- **Do not** mount OpenCode below a path prefix. Basic Auth is optional; proxy
+  the backend at HTTPS root so OpenCode's absolute assets work.
+- **Do not** use this node's Tailscale Serve config for unrelated services.
+  The wrapper owns it exclusively and resets it during both `up` and `down`.
 - **Do not** copy configs with `cp` from the install scripts. Always
   `stow -R`.
 - **Do not** advance past a stage whose validation failed.
@@ -479,6 +497,15 @@ Grouped so a failure points to the responsible stage.
 - [ ] `brightnessctl set +5%` changes brightness.
 - [ ] `nmcli device status` lists wifi; the top bar reflects it.
 - [ ] `bluetoothctl show` reports the controller.
+- [ ] `pacman -Q tailscale` succeeds and `tailscaled.service` is enabled
+      and active even while disconnected.
+- [ ] The exact operator-bootstrap `sudoers` policy and `~/.local/bin/tailscale`
+      wrapper are installed. Before login, `BackendState` may be `NeedsLogin`;
+      after wrapper login, `tailscale debug prefs | jq -r .OperatorUser`
+      prints `joel`.
+- [ ] While connected through the wrapper, Tailscale SSH is enabled and Serve
+      proxies HTTPS root to the configured localhost OpenCode port; after plain
+      `down`, Serve is absent, SSH is disabled, and `WantRunning` is false.
 - [ ] `swaylock -f` locks with blur over the screenshot.
 - [ ] `wlogout` opens the power menu.
 - [ ] Pressing the physical power button opens the power menu instead of
@@ -501,7 +528,7 @@ Grouped so a failure points to the responsible stage.
 ### 10.5. Resources (stage 09 / 10)
 
 - [ ] `free -m` 30 s after login with no apps → < 600 MB used (target
-      ~470 MB; ceiling 600 MB).
+      ~550 MB; ceiling 600 MB).
 - [ ] `zramctl` shows `/dev/zram0` 4 GB zstd.
 - [ ] `sysctl -n vm.swappiness` → `180`.
 - [ ] `sysctl -n vm.page-cluster` → `0`.

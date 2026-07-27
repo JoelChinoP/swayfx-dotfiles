@@ -4,7 +4,7 @@
 > and [PLAN.md](PLAN.md). When upstream behavior changes, update this
 > file with the new revision date and reflect the change in CONTEXT.
 >
-> Last reviewed: 2026-05-16.
+> Last reviewed: 2026-07-25.
 
 ---
 
@@ -285,7 +285,7 @@ Reviewed: 2026-05-18.
 
 - **Eww widgets** for the bar/dock: 4 of 5 references use them, but Eww
   pulls in GTK + custom Lua and easily adds 80–120 MB to idle RAM. Our
-  budget is < 600 MB total (target ~470 MB); spending a quarter on
+  budget is < 600 MB total (target ~550 MB); spending a quarter on
   chrome is not viable.
 - **Catppuccin Mocha** (Mocha or any variant): the pure-black design is
   intentionally neutral. Catppuccin-style purples would clash with the
@@ -347,3 +347,9 @@ Reviewed: 2026-05-18.
 - libfprint ELAN MoC 0c4c/0c90 work: <https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/330>
 - xdg-desktop-portal-wlr: <https://github.com/emersion/xdg-desktop-portal-wlr>
 - XDG portals.conf: <https://flatpak.github.io/xdg-desktop-portal/docs/portals.conf.html>
+- Tailscale on Linux: <https://tailscale.com/docs/install/linux>
+- Tailscale on Arch Linux: <https://wiki.archlinux.org/title/Tailscale>
+- Tailscale Linux operator permission: <https://tailscale.com/docs/reference/troubleshooting/linux/linux-operator-permission>
+- Tailscale pre-login operator bug: <https://github.com/tailscale/tailscale/issues/18294>
+- Tailscale Serve: <https://tailscale.com/docs/reference/tailscale-cli/serve>
+- Tailscale SSH: <https://tailscale.com/docs/features/tailscale-ssh>

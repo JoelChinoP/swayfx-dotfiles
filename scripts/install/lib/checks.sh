@@ -7,7 +7,7 @@
 # CHECK_LIVE=1 after logging into SwayFX to make live checks fatal.
 #
 # Verified against: .claude/CONTEXT.md acceptance checklist
-# Reviewed: 2026-05-18
+# Reviewed: 2026-07-25
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -67,12 +67,65 @@ exit 0
 '
 check_cmd "NetworkManager active" systemctl is-active NetworkManager.service
 check_cmd "systemd-timesyncd active" systemctl is-active systemd-timesyncd.service
+check_cmd "Tailscale installed" pacman -Q tailscale
+check_cmd "Tailscale daemon enabled" systemctl is-enabled tailscaled.service
+check_cmd "Tailscale daemon active" systemctl is-active tailscaled.service
+check_cmd "Tailscale wrapper installed" test -x "$HOME/.local/bin/tailscale"
+check_cmd "Tailscale wrapper syntax" bash -n "$HOME/.local/bin/tailscale"
+check_cmd "Tailscale login pending or operator configured" bash -c '
+status="$(/usr/bin/tailscale status --json 2>/dev/null || true)"
+jq -e "(.BackendState | type) == \"string\"" <<<"$status" >/dev/null || exit 1
+bootstrap="$(jq -r '\''
+    .BackendState == "NoState" or
+    (.BackendState == "NeedsLogin" and .CurrentTailnet == null and (.Self.UserID // 0) == 0)
+'\'' <<<"$status")"
+[[ "$bootstrap" == true ]] && exit 0
+prefs="$(/usr/bin/tailscale debug prefs 2>/dev/null)" || exit 1
+jq -e '\''(.OperatorUser? == null) or ((.OperatorUser | type) == "string")'\'' <<<"$prefs" >/dev/null || exit 1
+operator="$(jq -r ".OperatorUser // empty" <<<"$prefs")"
+[[ -z "$operator" || "$operator" == "$USER" ]]
+'
+check_cmd "Tailscale remote lifecycle state" bash -c '
+status="$(/usr/bin/tailscale status --json 2>/dev/null || true)"
+jq -e "(.BackendState | type) == \"string\"" <<<"$status" >/dev/null || exit 1
+bootstrap="$(jq -r '\''
+    .BackendState == "NoState" or
+    (.BackendState == "NeedsLogin" and .CurrentTailnet == null and (.Self.UserID // 0) == 0)
+'\'' <<<"$status")"
+[[ "$bootstrap" == true ]] && exit 0
+prefs="$(/usr/bin/tailscale debug prefs 2>/dev/null)" || exit 1
+jq -e '\''(.OperatorUser? == null) or ((.OperatorUser | type) == "string")'\'' <<<"$prefs" >/dev/null || exit 1
+operator="$(jq -r ".OperatorUser // empty" <<<"$prefs")"
+[[ -z "$operator" ]] && exit 0
+[[ "$operator" == "$USER" ]] || exit 1
+want_running="$(jq -r ".WantRunning" <<<"$prefs")"
+run_ssh="$(jq -r ".RunSSH" <<<"$prefs")"
+serve="$(/usr/bin/tailscale serve status --json 2>/dev/null)" || exit 1
+if [[ "$want_running" == true ]]; then
+    [[ "$run_ssh" == true ]] || exit 1
+    config_dir="$HOME/.config/opencode-dotfiles"
+    [[ -r "$config_dir/defaults.env" ]] && source "$config_dir/defaults.env"
+    [[ -r "$config_dir/dotfiles.env" ]] && source "$config_dir/dotfiles.env"
+    target="http://127.0.0.1:${OPENCODE_SERVE_PORT:-4096}"
+    auth_status="$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$target/global/health" || true)"
+    [[ "$auth_status" == 401 || "$auth_status" =~ ^2[0-9][0-9]$ ]] || exit 1
+    jq -e --arg target "$target" '\''
+        keys == ["TCP", "Web"] and
+        (.TCP | keys == ["443"]) and
+        .TCP["443"].HTTPS == true and
+        (.Web | length) == 1 and
+        all(.Web[]; (.Handlers | keys) == ["/"] and .Handlers["/"].Proxy == $target)
+    '\'' <<<"$serve" >/dev/null
+else
+    [[ "$run_ssh" == false ]] && jq -e ". == {} or . == null" <<<"$serve" >/dev/null
+fi
+'
 check_cmd "zsh is login shell" bash -c 'getent passwd "$USER" | grep -q "/zsh$"'
 check_cmd "dark color scheme set" bash -c '[ "$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null)" = "'\''prefer-dark'\''" ]'
 check_cmd "FiraCode Nerd Font installed" bash -c "fc-match -f '%{family}\n' 'FiraCode Nerd Font Mono' | grep -qi 'FiraCode.*Nerd'"
 check_cmd "JetBrainsMono Nerd Font installed" bash -c "fc-match -f '%{family}\n' 'JetBrainsMono Nerd Font' | grep -qi 'JetBrains.*Nerd'"
 check_cmd "Inter font installed" bash -c "fc-match -f '%{family}\n' 'Inter' | grep -qi 'Inter'"
-check_cmd "Python i3ipc module installed" python -c 'import i3ipc'
+check_cmd "Python i3ipc module installed" /usr/bin/python -c 'import i3ipc'
 check_cmd "Brave Origin installed" pacman -Q brave-origin-bin
 check_cmd "Mermaid CLI installed" command -v mmdc
 check_cmd "standard Brave package absent" bash -c '

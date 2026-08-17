@@ -1,5 +1,5 @@
 // Verified against: waybar(5), waybar-clock(5), waybar-battery(5), waybar-sway-workspaces(5)
-// Reviewed: 2026-05-14
+// Reviewed: 2026-08-03
 {
   "name": "top",
   "layer": "top",
@@ -85,6 +85,8 @@
     "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
   },
   "battery": {
+    // Per-percentage alerts stay in swayfx-battery-alert because Waybar
+    // collapses all capacities at or below 15% into the critical state.
     "format": "{icon} {capacity}%",
     "format-discharging": "{icon} {capacity}% ({time})",
     "format-charging": "󰂄 {capacity}% ({time})",

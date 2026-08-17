@@ -4,7 +4,7 @@
 > changes, update CONTEXT first, then mirror it here. Stages in
 > [PLAN.md](PLAN.md) install from these lists.
 >
-> Last reviewed: 2026-07-25.
+> Last reviewed: 2026-08-03.
 
 ---
 
@@ -150,6 +150,8 @@ System tuning installed by the stage:
 /etc/sysctl.d/99-swayfx-zram.conf      # swappiness=180, page-cluster=0
 /etc/systemd/logind.conf.d/10-swayfx-power-key.conf
                                       # physical power key handled by Sway
+/etc/UPower/UPower.conf.d/50-swayfx-battery.conf
+                                      # suspend policy at 5%
 ```
 
 #### Stage 99 — greetd (optional)

@@ -161,6 +161,13 @@ check_cmd "zram0 present" bash -c 'zramctl 2>/dev/null | grep -q zram0'
 check_cmd "zram swappiness tuned" bash -c '[ "$(sysctl -n vm.swappiness 2>/dev/null)" = "180" ]'
 check_cmd "zram page-cluster tuned" bash -c '[ "$(sysctl -n vm.page-cluster 2>/dev/null)" = "0" ]'
 check_cmd "logind ignores physical power key" bash -c 'grep -q "^HandlePowerKey=ignore$" /etc/systemd/logind.conf.d/10-swayfx-power-key.conf'
+check_cmd "UPower suspend policy at 5%" bash -c '
+conf=/etc/UPower/UPower.conf.d/50-swayfx-battery.conf
+grep -qx "UsePercentageForPolicy=true" "$conf" &&
+grep -qx "PercentageLow=20.0" "$conf" &&
+grep -qx "PercentageCritical=7.0" "$conf" &&
+grep -qx "PercentageAction=5.0" "$conf"
+'
 check_cmd "starship config linked" bash -c 'test -e "$HOME/.config/starship.toml"'
 check_cmd "sway config linked" bash -c 'test -e "$HOME/.config/sway/config"'
 check_cmd "waybar top config linked" bash -c 'test -e "$HOME/.config/waybar/top.jsonc"'
@@ -183,10 +190,12 @@ for helper in \
     swayfx-waybar-bottom-toggle \
     swayfx-waycal-toggle \
     swayfx-browser \
+    swayfx-battery-alert \
     swayfx-refresh-rate
 do
     check_cmd "helper installed: $helper" bash -c 'test -x "$HOME/.local/bin/$1"' _ "$helper"
 done
+check_cmd "battery alert helper behavior" "$HOME/.local/bin/swayfx-battery-alert" --self-test
 
 check_live_cmd "running compositor is SwayFX" bash -c '
 swaymsg -t get_version >/dev/null 2>&1 || exit 1

@@ -118,6 +118,8 @@ exec wl-paste --type text --watch cliphist store
 exec wl-paste --type image --watch cliphist store
 exec gammastep
 exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-refresh-rate --watch
+# Warn on each real percentage drop from 10% through 6%; locked sessions stay silent.
+exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-battery-alert --watch
 
 # Idle and lock: 10 min lock, 14 min screen off, 17 min suspend.
 # `lock` answers loginctl lock-session; before-sleep re-locks defensively.

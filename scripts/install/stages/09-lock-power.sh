@@ -2,10 +2,10 @@
 # Stage 09 - Lock, power menu and zram.
 #
 # Installs zram-generator, swaylock-effects and wlogout. Writes the
-# zram-generator, zram sysctl and logind power-key templates with backup.
+# zram-generator, zram sysctl, UPower battery and logind templates with backup.
 #
 # Verified against: Arch zram-generator and swaylock-effects usage
-# Reviewed: 2026-05-11
+# Reviewed: 2026-08-03
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -78,10 +78,12 @@ install_system_template() {
 install_system_template "$ROOT/system/zram-generator.conf" /etc/systemd/zram-generator.conf 0644
 install_system_template "$ROOT/system/sysctl.d/99-swayfx-zram.conf" /etc/sysctl.d/99-swayfx-zram.conf 0644
 install_system_template "$ROOT/system/systemd/logind.conf.d/10-swayfx-power-key.conf" /etc/systemd/logind.conf.d/10-swayfx-power-key.conf 0644
+install_system_template "$ROOT/system/UPower/UPower.conf.d/50-swayfx-battery.conf" /etc/UPower/UPower.conf.d/50-swayfx-battery.conf 0644
 
 run sudo systemctl daemon-reload
 run sudo sysctl --load /etc/sysctl.d/99-swayfx-zram.conf
 run sudo systemctl restart systemd-zram-setup@zram0.service
+run sudo systemctl restart upower.service
 log_warn "reboot or restart systemd-logind.service to apply the physical power-key policy"
 
 if (( DRY_RUN )); then
@@ -132,6 +134,14 @@ if [[ -f /etc/systemd/logind.conf.d/10-swayfx-power-key.conf ]] && \
     log_ok "logind physical power key policy is installed"
 else
     log_error "logind physical power key policy is missing"
+    (( ++errs ))
+fi
+
+if [[ -f /etc/UPower/UPower.conf.d/50-swayfx-battery.conf ]] && \
+   grep -qx 'PercentageAction=5.0' /etc/UPower/UPower.conf.d/50-swayfx-battery.conf; then
+    log_ok "UPower suspends at 5%"
+else
+    log_error "UPower 5% suspend policy is missing"
     (( ++errs ))
 fi
 

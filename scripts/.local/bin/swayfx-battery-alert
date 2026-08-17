@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Play one warning on each discharging percentage from 10% through 6%.
+#
+# Verified against: Linux power_supply sysfs, pw-play(1)
+# Reviewed: 2026-08-03
+
+set -euo pipefail
+IFS=$'\n\t'
+
+SOUND_FILE="${SOUND_FILE:-/usr/share/sounds/freedesktop/stereo/dialog-warning.oga}"
+WATCH_INTERVAL="${WATCH_INTERVAL:-15}"
+
+discharging_capacity() {
+    local supply type status capacity lowest=""
+
+    for supply in /sys/class/power_supply/*; do
+        [[ -r "$supply/type" && -r "$supply/status" && -r "$supply/capacity" ]] || continue
+        type="$(<"$supply/type")"
+        status="$(<"$supply/status")"
+        capacity="$(<"$supply/capacity")"
+        [[ "$type" == "Battery" && "$status" == "Discharging" && "$capacity" =~ ^[0-9]+$ ]] || continue
+
+        if [[ -z "$lowest" || "$capacity" -lt "$lowest" ]]; then
+            lowest="$capacity"
+        fi
+    done
+
+    [[ -n "$lowest" ]] || return 1
+    printf '%s\n' "$lowest"
+}
+
+should_alert() {
+    local capacity="$1"
+    [[ "$capacity" =~ ^[0-9]+$ ]] && (( capacity <= 10 && capacity > 5 ))
+}
+
+session_is_locked() {
+    pgrep -x swaylock >/dev/null 2>&1
+}
+
+play_warning() {
+    [[ -r "$SOUND_FILE" ]] || return 0
+    command -v pw-play >/dev/null 2>&1 || return 0
+    pw-play "$SOUND_FILE" >/dev/null 2>&1 &
+}
+
+watch() {
+    local capacity last_capacity
+
+    # Seed the current value so starting or restarting the watcher is silent.
+    last_capacity="$(discharging_capacity || true)"
+
+    while true; do
+        sleep "$WATCH_INTERVAL"
+        capacity="$(discharging_capacity || true)"
+
+        if [[ ! "$capacity" =~ ^[0-9]+$ ]]; then
+            last_capacity=""
+            continue
+        fi
+
+        if [[ "$last_capacity" =~ ^[0-9]+$ ]] && (( capacity < last_capacity )) && \
+            should_alert "$capacity" && ! session_is_locked; then
+            play_warning
+        fi
+
+        last_capacity="$capacity"
+    done
+}
+
+self_test() {
+    should_alert 10
+    should_alert 6
+    ! should_alert 5
+    ! should_alert 11
+}
+
+case "${1:---watch}" in
+    --watch) watch ;;
+    --self-test) self_test ;;
+    *)
+        printf 'usage: swayfx-battery-alert [--watch|--self-test]\n' >&2
+        exit 2
+        ;;
+esac

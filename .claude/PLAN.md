@@ -4,7 +4,7 @@
 > CONTEXT wins. Package decisions live in [STACK.md](STACK.md). Reference
 > repo notes and upstream SwayFX syntax live in [REFERENCES.md](REFERENCES.md).
 >
-> Last reviewed: 2026-07-25.
+> Last reviewed: 2026-08-03.
 
 Hardware: ASUS · Ryzen 7 7730U · Vega 8 · 12 GB RAM · Arch Linux.
 Goal: SwayFX desktop usable as a conventional desktop, dark-only,
@@ -520,8 +520,8 @@ fc-match 'Inter'                    | grep -qi 'Inter'        || exit 1
 ### Stage 09 — `09-lock-power.sh`
 
 **What.** Lock screen with effects, idle daemon already provided by
-stage 06, power menu, physical power-key policy, zram, and zram-focused
-sysctl tuning.
+stage 06, power menu, physical power-key policy, UPower 5% suspend policy,
+zram, and zram-focused sysctl tuning.
 
 ```bash
 sudo pacman -S --needed --noconfirm zram-generator
@@ -531,9 +531,11 @@ paru -S --needed --noconfirm swaylock-effects wlogout
 sudo install -m 0644 "$ROOT/system/zram-generator.conf" /etc/systemd/zram-generator.conf
 sudo install -Dm 0644 "$ROOT/system/sysctl.d/99-swayfx-zram.conf" /etc/sysctl.d/99-swayfx-zram.conf
 sudo install -Dm 0644 "$ROOT/system/systemd/logind.conf.d/10-swayfx-power-key.conf" /etc/systemd/logind.conf.d/10-swayfx-power-key.conf
+sudo install -Dm 0644 "$ROOT/system/UPower/UPower.conf.d/50-swayfx-battery.conf" /etc/UPower/UPower.conf.d/50-swayfx-battery.conf
 sudo systemctl daemon-reload
 sudo sysctl --load /etc/sysctl.d/99-swayfx-zram.conf
 sudo systemctl restart systemd-zram-setup@zram0.service
+sudo systemctl restart upower.service
 ```
 
 > Reboot or restart `systemd-logind.service` after installing the drop-in so
@@ -565,6 +567,7 @@ zramctl | grep -q zram0                         || exit 1
 sysctl -n vm.swappiness | grep -qx 180          || exit 1
 sysctl -n vm.page-cluster | grep -qx 0          || exit 1
 grep -q '^HandlePowerKey=ignore$' /etc/systemd/logind.conf.d/10-swayfx-power-key.conf || exit 1
+grep -qx 'PercentageAction=5.0' /etc/UPower/UPower.conf.d/50-swayfx-battery.conf || exit 1
 ```
 
 ---

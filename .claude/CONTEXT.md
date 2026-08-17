@@ -5,7 +5,7 @@
 > **this file wins**. If anything is ambiguous, leave a `TODO:` and explain why
 > instead of guessing.
 >
-> Last reviewed: 2026-07-25.
+> Last reviewed: 2026-08-03.
 
 ---
 
@@ -206,6 +206,9 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Power management**: `cpupower` plus a project systemd/udev helper.
   Battery caps CPU scaling max at 2 GHz; AC caps it at 3 GHz. This is
   deliberately frequency-only, not TDP tuning.
+- **Battery safety**: UPower suspends at 5% through a local drop-in. While
+  discharging, `swayfx-battery-alert` plays the Freedesktop warning sound once
+  at each percentage transition from 10% through 6%, unless `swaylock` is active.
 - **Display refresh policy**: `swayfx-refresh-rate` runs inside the Sway
   session and switches only between native modes advertised by the panel.
   On the ASUS internal panel verified on 2026-05-16, Sway reports
@@ -288,7 +291,7 @@ scripts/install/
     ├── 06-utils.sh             # clipboard, screenshots, brightness, NM, BT, Tailscale
     ├── 07-apps.sh              # GUI apps + TUI utilities + archive backends
     ├── 08-theming.sh           # GTK/Qt dark, fonts, cursor, icons
-    ├── 09-lock-power.sh        # swayidle, swaylock-effects, wlogout, zram
+    ├── 09-lock-power.sh        # swayidle, swaylock-effects, wlogout, UPower, zram
     └── 10-final.sh             # stow everything + run final checklist
 ```
 
@@ -491,6 +494,9 @@ Grouped so a failure points to the responsible stage.
 - [ ] `systemctl is-enabled swayfx-cpu-frequency-limit` → `enabled`.
 - [ ] On battery, CPU `scaling_max_freq` is at or below `2000000`; on AC,
       at or below `3000000`.
+- [ ] `/etc/UPower/UPower.conf.d/50-swayfx-battery.conf` sets
+      `PercentageAction=5.0`; while discharging and unlocked, a warning sound
+      plays once as the capacity enters 10%, 9%, 8%, 7%, and 6%.
 - [ ] `swaymsg -t get_outputs` shows the internal panel at ~60 Hz on AC
       and ~48 Hz on battery, using modes listed under that output.
 - [ ] `notify-send "test" "ok"` displays a notification.

@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# Temporarily disable idle actions and ignore the laptop lid.
+#
+# Verified against: systemd-inhibit(1), swayidle(1)
+# Reviewed: 2026-08-16
+
+set -euo pipefail
+IFS=$'\n\t'
+
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
+exec 9>"$RUNTIME_DIR/swayfx-keep-awake.lock"
+if ! flock -n 9; then
+    printf 'El modo sin bloqueo ya esta activo en otra terminal.\n' >&2
+    exit 1
+fi
+
+SWAYIDLE_PIDS=()
+mapfile -t SWAYIDLE_PIDS < <(pgrep -u "$UID" -x swayidle || true)
+if (( ${#SWAYIDLE_PIDS[@]} > 1 )); then
+    printf 'Hay mas de un swayidle activo; no se modifico ninguno.\n' >&2
+    exit 1
+fi
+
+SWAYIDLE_COMMAND=()
+if (( ${#SWAYIDLE_PIDS[@]} == 1 )); then
+    SWAYIDLE_PID="${SWAYIDLE_PIDS[0]}"
+    mapfile -d '' -t SWAYIDLE_COMMAND < "/proc/$SWAYIDLE_PID/cmdline"
+    if (( ${#SWAYIDLE_COMMAND[@]} == 0 )); then
+        printf 'No se pudo guardar el comando de swayidle; no se modifico.\n' >&2
+        exit 1
+    fi
+fi
+
+restore_idle() {
+    STATUS=$?
+    trap - EXIT HUP INT TERM
+
+    if [[ -n "${INHIBITOR_PID:-}" ]] && kill -0 "$INHIBITOR_PID" 2>/dev/null; then
+        kill "$INHIBITOR_PID" 2>/dev/null || true
+        wait "$INHIBITOR_PID" 2>/dev/null || true
+    fi
+
+    flock -u 9
+    exec 9>&-
+
+    if (( ${#SWAYIDLE_COMMAND[@]} > 0 )) && ! pgrep -u "$UID" -x swayidle >/dev/null; then
+        setsid -f "${SWAYIDLE_COMMAND[@]}" >/dev/null 2>&1
+        for _ in {1..20}; do
+            pgrep -u "$UID" -x swayidle >/dev/null && break
+            sleep 0.05
+        done
+
+        if pgrep -u "$UID" -x swayidle >/dev/null; then
+            printf '\nModo normal restaurado: swayidle esta activo otra vez.\n'
+        else
+            printf '\nNo se pudo restaurar swayidle; recarga Sway o reinicia.\n' >&2
+            STATUS=1
+        fi
+    else
+        printf '\nModo temporal finalizado.\n'
+    fi
+
+    exit "$STATUS"
+}
+
+trap restore_idle EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+systemd-inhibit \
+    --what=handle-lid-switch \
+    --who=swayfx-keep-awake \
+    --why="Trabajo temporal con la tapa cerrada" \
+    --mode=block \
+    sleep infinity &
+INHIBITOR_PID=$!
+sleep 0.1
+if ! kill -0 "$INHIBITOR_PID" 2>/dev/null; then
+    printf 'No se pudo inhibir el cierre de la tapa.\n' >&2
+    exit 1
+fi
+
+if (( ${#SWAYIDLE_PIDS[@]} == 1 )); then
+    kill "${SWAYIDLE_PIDS[0]}"
+fi
+
+printf '%s\n' \
+    'Modo sin bloqueo ACTIVO.' \
+    '- Sin bloqueo, apagado de pantalla ni suspension por inactividad.' \
+    '- Cerrar la tapa no suspendera el equipo.' \
+    '- El bloqueo manual de Waybar sigue disponible y no apagara la pantalla.' \
+    '- Pulsa Ctrl+C para volver al modo normal.'
+
+wait "$INHIBITOR_PID"

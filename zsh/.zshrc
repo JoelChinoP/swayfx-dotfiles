@@ -1,7 +1,7 @@
 # ~/.zshrc — read by interactive zsh shells.
 #
 # Verified against: ArchWiki "zsh", zshoptions(1)
-# Reviewed: 2026-05-16
+# Reviewed: 2026-08-16
 
 # ── History ───────────────────────────────────────────────────────────
 HISTFILE="$XDG_STATE_HOME/zsh/history"
@@ -108,6 +108,7 @@ alias y='paru'
 
 # Quick reload.
 alias zreload='exec zsh -l'
+alias awake='swayfx-keep-awake'
 
 # ── Prompt: starship ──────────────────────────────────────────────────
 if command -v starship >/dev/null 2>&1; then

@@ -1,14 +1,13 @@
 # SwayFX desktop config.
 #
 # Verified against: https://github.com/WillPower3309/swayfx, sway(5)
-# Reviewed: 2026-07-08
+# Reviewed: 2026-08-23
 
 set $mod Mod4
 set $term ghostty
 set $launcher fuzzel
 set $files nautilus
 set $editor gnome-text-editor
-set $browser swayfx-browser
 
 # Pure-black palette.
 set $bg          #000000
@@ -90,6 +89,7 @@ scratchpad_minimize enable
 # a different layout.
 input type:keyboard {
     xkb_layout latam
+    xkb_numlock enabled
 }
 
 input type:touchpad {
@@ -141,7 +141,6 @@ bindsym --release Super_L exec bash -c 'pgrep -x fuzzel >/dev/null 2>&1 && pkill
 bindsym $mod+Return exec $term
 bindsym $mod+Shift+e exec $files
 bindsym $mod+Shift+t exec $editor
-bindsym $mod+b exec $browser
 
 # Desktop-like actions.
 bindsym $mod+q kill
@@ -236,18 +235,6 @@ bindsym $mod+Shift+KP_8 move container to workspace number $ws8
 bindsym $mod+Shift+KP_9 move container to workspace number $ws9
 bindsym $mod+Shift+KP_0 move container to workspace number $ws10
 
-bindsym $mod+Shift+KP_End move container to workspace number $ws1
-bindsym $mod+Shift+KP_Down move container to workspace number $ws2
-bindsym $mod+Shift+KP_Next move container to workspace number $ws3
-bindsym $mod+Shift+KP_Left move container to workspace number $ws4
-bindsym $mod+Shift+KP_Begin move container to workspace number $ws5
-bindsym $mod+Shift+KP_Right move container to workspace number $ws6
-bindsym $mod+Shift+KP_Home move container to workspace number $ws7
-bindsym $mod+Shift+KP_Up move container to workspace number $ws8
-bindsym $mod+Shift+KP_Prior move container to workspace number $ws9
-bindsym $mod+Shift+KP_Insert move container to workspace number $ws10
-
-
 # Workspaces — navegar por dirección.
 bindsym Ctrl+$mod+Right workspace next
 bindsym Ctrl+$mod+Left  workspace prev
@@ -266,8 +253,8 @@ bindsym $mod+Ctrl+l exec swaylock -f
 bindsym $mod+Ctrl+v exec ~/.local/bin/swayfx-cliphist-menu
 bindsym $mod+n exec nmgui
 bindsym $mod+Shift+b exec ~/.local/bin/swayfx-waybar-bottom-toggle
-bindsym Print exec ~/.local/bin/swayfx-screenshot full
-bindsym $mod+Print exec ~/.local/bin/swayfx-screenshot area
+bindsym Print exec ~/.local/bin/swayfx-screenshot area
+bindsym $mod+Print exec ~/.local/bin/swayfx-screenshot full
 bindsym $mod+Shift+Print exec ~/.local/bin/swayfx-screenshot edit
 bindsym XF86MonBrightnessUp exec brightnessctl set +5%
 bindsym XF86MonBrightnessDown exec brightnessctl set 5%-

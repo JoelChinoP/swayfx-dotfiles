@@ -17,8 +17,8 @@ selection-background = #1e1e2e
 selection-foreground = #ffffff
 
 gtk-single-instance = true
-window-decoration = false
-tab-bar = auto
+window-decoration = none
+window-show-tab-bar = auto
 
 confirm-close-surface = true
 copy-on-select = clipboard

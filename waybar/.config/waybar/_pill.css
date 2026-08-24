@@ -1,6 +1,6 @@
 /* Shared pill style.
  * Verified against: waybar(5)
- * Reviewed: 2026-05-12
+ * Reviewed: 2026-08-23
  */
 
 @define-color bg #000000;
@@ -30,11 +30,8 @@
 #custom-notifications,
 #custom-cpucap,
 #custom-power,
-#custom-terminal,
-#custom-browser,
-#custom-files,
-#custom-editor,
-#taskbar {
+#launchers,
+#windows {
   background: @surface;
   border: 1px solid @border;
   border-radius: 18px;

@@ -5,7 +5,7 @@
 # centered 1000x600 floating window.
 #
 # Verified against: swaymsg(1), sway-ipc(7)
-# Reviewed: 2026-06-10
+# Reviewed: 2026-08-23
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -13,7 +13,8 @@ IFS=$'\n\t'
 RESTORE_WIDTH=1000
 RESTORE_HEIGHT=600
 RESTORE_BORDER=3
-MARK_NAME="maximize"
+MARK_PREFIX="_swayfx_maximize_"
+RESTORE_MARK_PREFIX="_swayfx_restore_"
 
 require_cmd() {
     command -v "$1" >/dev/null 2>&1 || {
@@ -36,9 +37,13 @@ if [[ -z "$focused_json" ]]; then
 fi
 
 con_id="$(jq -r '.id' <<< "$focused_json")"
+mark_name="${MARK_PREFIX}${con_id}"
+restore_mark="${RESTORE_MARK_PREFIX}${con_id}"
 
-if jq -e --arg mark "$MARK_NAME" '(.marks // []) | index($mark)' <<< "$focused_json" >/dev/null; then
-    swaymsg "[con_id=$con_id] floating enable, unmark $MARK_NAME, border pixel $RESTORE_BORDER, resize set $RESTORE_WIDTH $RESTORE_HEIGHT, move position center" >/dev/null
+if jq -e --arg mark "$mark_name" '(.marks // []) | index($mark) or index("maximize")' <<< "$focused_json" >/dev/null; then
+    # A separate intent mark distinguishes explicit restore from scratchpad
+    # minimize, which also emits window::floating for a maximized window.
+    swaymsg "[con_id=$con_id] mark --add $restore_mark, floating enable, border pixel $RESTORE_BORDER, resize set $RESTORE_WIDTH $RESTORE_HEIGHT, move position center" >/dev/null
     swaymsg "[con_id=$con_id] raise" >/dev/null 2>&1 || true
     exit 0
 fi
@@ -46,4 +51,4 @@ fi
 # Tiling does the real maximizing: a lone tiled window fills the
 # workspace (smart_gaps) and further maximized windows join the normal
 # sway tiling tree — the placement daemon pre-sets fibonacci splits.
-swaymsg "[con_id=$con_id] mark --add $MARK_NAME, floating disable, border none" >/dev/null
+swaymsg "[con_id=$con_id] mark --add $mark_name, floating disable, border none" >/dev/null

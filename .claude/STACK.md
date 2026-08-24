@@ -4,7 +4,7 @@
 > changes, update CONTEXT first, then mirror it here. Stages in
 > [PLAN.md](PLAN.md) install from these lists.
 >
-> Last reviewed: 2026-08-03.
+> Last reviewed: 2026-08-23.
 
 ---
 
@@ -335,7 +335,7 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
 - `zstd` keeps a good compression ratio without making the desktop feel
   CPU-bound.
 - 4 GB is enough headroom for Docker/container memory pressure on a
-  12 GB laptop without overcommitting the machine by default.
+  16 GB laptop without overcommitting the machine by default.
 - `vm.swappiness=180` makes the kernel prefer compressed in-RAM swap
   before heavier reclaim.
 - `vm.page-cluster=0` disables swap readahead, which is appropriate for
@@ -492,6 +492,6 @@ core UX:
 
 If you genuinely need to keep the bigger pieces and the measured idle
 sits around 550–600 MB, **leave it**. Stability and ergonomics beat
-shaving 50 MB on a 12 GB machine. Update [CONTEXT §1](CONTEXT.md) and
+shaving 50 MB on a 16 GB machine. Update [CONTEXT §1](CONTEXT.md) and
 this section if the ceiling needs to move; do not silently start
 removing components.

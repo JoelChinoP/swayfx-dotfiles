@@ -1,7 +1,7 @@
 /* Top bar — estilo cinta (ribbon)
  * No usa _pill.css; el bar es opaco edge-to-edge.
  * Verified against: waybar(5)
- * Reviewed: 2026-05-13
+ * Reviewed: 2026-08-24
  */
 
 * {
@@ -69,7 +69,6 @@ window#waybar {
 #workspaces button {
   background: transparent;
   color: #6c7086;
-  /* @text-dim */
   border-radius: 14px;
   margin: 4px 2px;
   /* separación entre workspaces */

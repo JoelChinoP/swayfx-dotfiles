@@ -1,7 +1,7 @@
 # SwayFX desktop config.
 #
 # Verified against: https://github.com/WillPower3309/swayfx, sway(5)
-# Reviewed: 2026-08-23
+# Reviewed: 2026-08-24
 
 set $mod Mod4
 set $term ghostty
@@ -16,18 +16,22 @@ set $surface_alt #15151a
 set $border      #1f1f24
 set $text        #e6e6e6
 set $text_dim    #9a9aa6
+set $tab_text_dim #a6a6a6
 set $accent      #89b4fa
 set $focus_border #ffffaa
 set $ok          #a6e3a1
 set $warn        #f9e2af
 set $crit        #f38ba8
 
-font pango:Inter 14
+font pango:JetBrainsMono Nerd Font Propo Bold 12
 
-client.focused           $focus_border $bg $text $focus_border $focus_border
-client.focused_inactive  $border  $bg $text $border $border
-client.unfocused         $surface $bg $text $surface $surface
-client.urgent            $crit    $bg $text $crit $crit
+# Adjacent opaque 2px title borders form a 4px black gutter. The
+# focused child border remains yellow for split layouts; tab focus uses color.
+client.focused           $bg $border  #ffffff $bg $focus_border
+client.focused_inactive  $bg $surface $tab_text_dim $bg $border
+client.focused_tab_title $bg $border  #ffffff
+client.unfocused         $bg $surface $tab_text_dim $bg $surface
+client.urgent            $bg $crit    #ffffff $bg $crit
 
 # SwayFX visuals.
 default_border pixel 3
@@ -39,16 +43,23 @@ focus_on_window_activation focus
 gaps inner 6
 gaps horizontal 1
 gaps vertical 1
-# smart_gaps: a lone tiled window (swayfx-maximize "ventana completa")
-# gets no gaps, so maximized windows reach the workspace edges.
+# A lone tiled/tabbed group stays flush with the workspace when maximized.
 smart_gaps on
 corner_radius 10
-# Square the corners when a window covers the whole workspace (maximized
-# Brave / swayfx-maximize) so no background peeks through.
-smart_corner_radius enable
+# DEVIATION: native Sway cannot add real per-tab margins or inner corner
+# radii. Adjacent 2px title borders provide a 4px seam inside the tab strip.
+titlebar_border_thickness 4
+titlebar_padding 5 4
+title_align center
+titlebar_separator enable
+show_marks no
 shadows disable
 default_dim_inactive 0.075
 dim_inactive_colors.unfocused #000000FF
+
+# SwayFX rounds only the outside of the opaque tab group.
+for_window [app_id="com.mitchellh.ghostty"] title_format "Ghostty - %title"
+for_window [app_id="org.gnome.Nautilus"] title_format "Archivos - %title"
 
 # Shadows disabled globally (GPU/battery savings on Vega 8).
 
@@ -68,8 +79,9 @@ blur_radius 5
 blur disable
 for_window [app_id="com.mitchellh.ghostty"] blur enable, blur_passes 3, blur_radius 5, opacity set 0.85
 # Reload re-applies the global `blur disable` to existing windows but
-# for_window criteria only run for new ones: re-apply terminal effects.
-exec_always swaymsg '[app_id="com.mitchellh.ghostty"] blur enable, opacity set 0.85'
+# for_window criteria only run for new ones: re-apply terminal effects while
+# keeping tiled/tabbed SSD titles opaque.
+exec_always swaymsg '[app_id="com.mitchellh.ghostty" floating] blur enable, opacity set 0.85; [app_id="com.mitchellh.ghostty" tiling] blur enable, opacity set 1.0'
 
 # Keep graphics/video apps color-accurate.
 for_window [app_id="^gimp.*$"] blur disable, opacity set 1.0
@@ -81,8 +93,8 @@ for_window [app_id="mpv"] blur disable, opacity set 1.0
 
 # DEVIATION: SwayFX upstream marks scratchpad_minimize as experimental.
 # It is enabled because the project explicitly wants desktop-like
-# minimize behavior. If restore quirks appear, disable it and rely on
-# wlr/taskbar raise/lower.
+# minimize behavior. If restore quirks appear, disable it and accept
+# activation without minimize semantics in wlr/taskbar and CSD buttons.
 scratchpad_minimize enable
 
 # Input. Adjust with `swaymsg -t get_inputs` if the laptop keyboard uses
@@ -117,6 +129,9 @@ exec blueman-applet
 exec wl-paste --type text --watch cliphist store
 exec wl-paste --type image --watch cliphist store
 exec gammastep
+# Reload may reset the active output mode without changing power source;
+# reconcile after Sway has finished applying its output configuration.
+exec_always sh -c 'sleep 1; exec "$HOME/.local/bin/swayfx-refresh-rate" --once'
 exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-refresh-rate --watch
 # Warn on each real percentage drop from 10% through 6%; locked sessions stay silent.
 exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-battery-alert --watch
@@ -131,8 +146,9 @@ exec_always sh -lc 'export PATH="$HOME/.local/bin:$PATH"; pkill -x waybar || tru
 # Refresca módulo touchpad de waybar tras arranque completo (evita estado desactualizado).
 exec_always bash -c 'sleep 2 && kill -SIGRTMIN+4 $(pgrep -x waybar) 2>/dev/null || true'
 
-# Floating placement and border policy.
-exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-placement-daemon
+# Floating placement and border policy. Replacement waits on the same lock,
+# so reload loads current code without duplicate daemons or an event gap.
+exec_always ~/.local/bin/swayfx-daemon-watch --replace ~/.local/bin/swayfx-placement-daemon
 
 # Application launchers.
 # --release Super_L solo dispara cuando Super se suelta sin combinar con otra tecla.
@@ -173,10 +189,13 @@ bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
 # Layouts and splits.
-bindsym $mod+w layout tabbed
+# DEVIATION: target the workspace root so Fibonacci depth does not change scope.
+bindsym $mod+w exec ~/.local/bin/swayfx-placement-daemon --tabbed
 bindsym $mod+e layout toggle split
-bindsym $mod+v splitv
-bindsym $mod+c splith
+# DEVIATION: the daemon chooses Fibonacci splits after windows join tiling;
+# on floating windows these commands only create invisible one-child wrappers.
+# bindsym $mod+v splitv
+# bindsym $mod+c splith
 
 # Workspaces.
 set $ws1 "1"
@@ -294,5 +313,5 @@ for_window [app_id="org.gnome.FileRoller"] floating enable
 for_window [title="Picture-in-Picture"] floating enable, sticky enable
 
 # waycal click-trap overlay: fullscreen transparent, no chrome, excluded
-# from cascade placement via the maximize mark so the daemon ignores it.
-for_window [app_id="swayfx.waycal.trap"] floating enable, mark --add maximize, border none, shadows disable, blur disable, opacity set 1.0, move position 0 0
+# from cascade placement via a private technical mark.
+for_window [app_id="swayfx.waycal.trap"] floating enable, mark --add _swayfx_no_place, border none, shadows disable, blur disable, opacity set 1.0, move position 0 0

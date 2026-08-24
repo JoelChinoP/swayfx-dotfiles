@@ -1,11 +1,12 @@
-#!/usr/bin/env python3
-"""SwayFX floating-window placement and border policy daemon."""
+#!/usr/bin/python3
+"""SwayFX window placement, layout, and border policy daemon."""
 
 # Verified against: https://github.com/altdesktop/i3ipc-python, sway-ipc(7)
-# Reviewed: 2026-06-10
+# Reviewed: 2026-08-24
 
 from __future__ import annotations
 
+import html
 import sys
 import time
 from typing import Iterable, Optional
@@ -24,9 +25,13 @@ except ImportError:
 CASCADE_STEP = 25
 SIDE_MARGIN = 80
 DEFAULT_FLOATING_BORDER = 3
-DEFAULT_WINDOW_WIDTH = 1280
-DEFAULT_WINDOW_HEIGHT = 720
-MAXIMIZE_MARK = "maximize"
+DEFAULT_WINDOW_WIDTH = 1000
+DEFAULT_WINDOW_HEIGHT = 600
+TERMINAL_APP_ID = "com.mitchellh.ghostty"
+MAXIMIZE_MARK_PREFIX = "_swayfx_maximize_"
+RESTORE_MARK_PREFIX = "_swayfx_restore_"
+NO_AUTOSPLIT_MARK_PREFIX = "_swayfx_no_autosplit_"
+NO_PLACE_MARK = "_swayfx_no_place"
 
 # Anything at or below this size is treated as a dialog/confirmation
 # popup: sway already centers it (over its parent for transient
@@ -55,6 +60,7 @@ AUTO_MAXIMIZE_WM_CLASSES = frozenset({
 class CascadeState:
     def __init__(self) -> None:
         self.index = 0
+        self.formatted_titles = {}
 
 
 state = CascadeState()
@@ -75,16 +81,117 @@ def find_by_id(root, con_id: int):
     return None
 
 
+def fresh_event_windows(tree, event_container) -> list:
+    windows = []
+    for event_con in walk(event_container):
+        if not is_window(event_con):
+            continue
+        con = find_by_id(tree, event_con.id)
+        if con is not None and is_window(con):
+            windows.append(con)
+    return windows
+
+
 def is_window(con) -> bool:
     return bool(getattr(con, "window", None) or getattr(con, "app_id", None))
 
 
 def is_floating(con) -> bool:
-    return str(getattr(con, "floating", "")).endswith("_on")
+    current = con
+    while current is not None and getattr(current, "type", "") != "workspace":
+        if (
+            getattr(current, "type", "") == "floating_con"
+            or str(getattr(current, "floating", "")).endswith("_on")
+        ):
+            return True
+        current = getattr(current, "parent", None)
+    return False
+
+
+def has_tabbed_parent(con) -> bool:
+    return getattr(getattr(con, "parent", None), "layout", "") in (
+        "tabbed",
+        "stacked",
+    )
 
 
 def has_mark(con, mark: str) -> bool:
     return mark in (getattr(con, "marks", None) or [])
+
+
+def is_maximized(con) -> bool:
+    return any(
+        mark.startswith(MAXIMIZE_MARK_PREFIX)
+        for mark in (getattr(con, "marks", None) or [])
+    )
+
+
+def maximize_marks(con) -> list[str]:
+    return [
+        mark
+        for mark in (getattr(con, "marks", None) or [])
+        if mark == "maximize" or mark.startswith(MAXIMIZE_MARK_PREFIX)
+    ]
+
+
+def restore_intent_marks(con) -> list[str]:
+    return [
+        mark
+        for mark in (getattr(con, "marks", None) or [])
+        if mark.startswith(RESTORE_MARK_PREFIX)
+    ]
+
+
+def is_scratchpad_window(con) -> bool:
+    return getattr(con, "scratchpad_state", "none") != "none"
+
+
+def set_terminal_opacity(con) -> None:
+    if getattr(con, "app_id", None) == TERMINAL_APP_ID:
+        con.command(f"opacity set {0.85 if is_floating(con) else 1.0}")
+
+
+def friendly_title(app_id: Optional[str], title: str) -> Optional[str]:
+    if app_id and app_id.startswith("brave-origin"):
+        label = "Brave Origin"
+        detail = title.removesuffix(f" - {label}")
+    elif app_id == "code":
+        label = "Visual Studio Code"
+        parts = title.removesuffix(f" - {label}").split(" - ")
+        if len(parts) >= 3:
+            detail = parts[-2]
+        elif len(parts) == 2:
+            detail = parts[0] if parts[-1].isupper() else parts[-1]
+        else:
+            detail = parts[0]
+    elif app_id == "org.gnome.TextEditor":
+        label = "Editor de texto"
+        detail = title.removesuffix(f" - {label}")
+    else:
+        return None
+
+    detail = "" if title == label else detail.strip()
+    return f"{label} - {detail}" if detail else label
+
+
+def set_friendly_title(con) -> None:
+    title = getattr(con, "name", None) or ""
+    formatted = friendly_title(getattr(con, "app_id", None), title)
+    if formatted is None:
+        return
+
+    cache_key = (title, formatted)
+    if state.formatted_titles.get(con.id) == cache_key:
+        return
+    # ponytail: reuse the resident daemon; the cache absorbs the title event
+    # emitted by our own title_format command instead of adding another watcher.
+    state.formatted_titles[con.id] = cache_key
+    escaped = (
+        html.escape(formatted, quote=False)
+        .replace("\\", "\\\\")
+        .replace('"', '\\"')
+    )
+    con.command(f'title_format "{escaped}"')
 
 
 def is_dialog(con) -> bool:
@@ -123,7 +230,7 @@ def maximize_window(conn, con) -> None:
     # receives the xdg maximized state (CSD clients drop their borders).
     # Additional maximized windows join the tiling tree (fibonacci).
     con.command(
-        f"mark --add {MAXIMIZE_MARK}, floating disable, "
+        f"mark --add {MAXIMIZE_MARK_PREFIX}{con.id}, floating disable, "
         f"border none, shadows disable"
     )
 
@@ -133,10 +240,15 @@ def autosplit(con) -> None:
     tiled window's split so the next window divides its longer side."""
     if con is None or not is_window(con):
         return
+    if any(
+        mark.startswith(NO_AUTOSPLIT_MARK_PREFIX)
+        for mark in (getattr(con, "marks", None) or [])
+    ):
+        return
     if is_floating(con) or getattr(con, "fullscreen_mode", 0):
         return
     parent = getattr(con, "parent", None)
-    if parent is None or getattr(parent, "layout", "") in ("tabbed", "stacked"):
+    if parent is None or has_tabbed_parent(con):
         return
     rect = getattr(con, "rect", None)
     if rect is None or rect.width <= 0 or rect.height <= 0:
@@ -188,7 +300,11 @@ def place_floating_window(conn, con) -> None:
 def visible_workspace_windows(ws) -> list:
     if ws is None:
         return []
-    return [con for con in walk(ws) if is_window(con)]
+    return [
+        con
+        for con in walk(ws)
+        if is_window(con) and not has_mark(con, NO_PLACE_MARK)
+    ]
 
 
 def set_border(con, style: str) -> None:
@@ -196,7 +312,7 @@ def set_border(con, style: str) -> None:
     current_width = getattr(con, "current_border_width", -1)
 
     if style == "none":
-        if current != "none" or current_width != 0:
+        if current != "none":
             con.command("border none")
         return
 
@@ -217,18 +333,16 @@ def update_borders(conn, tree=None) -> None:
     tiled_count = sum(1 for con in windows if not is_floating(con))
 
     for con in windows:
-        # A lone maximized/tiled window is borderless (full window);
-        # once the tiling area is shared (fibonacci) borders separate
-        # the tiles again, together with the smart gaps.
-        if has_mark(con, MAXIMIZE_MARK) or getattr(con, "fullscreen_mode", 0):
-            if is_floating(con) or tiled_count <= 1:
-                set_border(con, "none")
-            else:
-                set_border(con, "pixel")
-            continue
-        if not is_floating(con):
-            continue
-        if visible_count == 1 and getattr(con, "id", None) == getattr(focused, "id", None):
+        # Tiled borders depend on whether the tiling area is shared, not
+        # on maximize state; the mark only records restore behavior.
+        if getattr(con, "fullscreen_mode", 0):
+            set_border(con, "none")
+        elif not is_floating(con):
+            set_border(
+                con,
+                "none" if tiled_count <= 1 or has_tabbed_parent(con) else "pixel",
+            )
+        elif visible_count == 1 and getattr(con, "id", None) == getattr(focused, "id", None):
             set_border(con, "none")
         else:
             set_border(con, "pixel")
@@ -240,10 +354,12 @@ def on_window_new(conn, event) -> None:
     con = find_by_id(tree, event.container.id) or event.container
     if not is_window(con):
         return
+    set_friendly_title(con)
+    set_terminal_opacity(con)
 
     # Auto-maximize only on window::new so that swayfx-maximize restores
     # are not re-maximized by the window::floating event they trigger.
-    if should_auto_maximize(con) and not has_mark(con, MAXIMIZE_MARK):
+    if should_auto_maximize(con) and not is_maximized(con):
         maximize_window(conn, con)
         update_borders(conn)
         return
@@ -256,19 +372,50 @@ def on_window_floating(conn, event) -> None:
     # re-maximize the browser whenever swayfx-maximize issues 'floating enable'.
     time.sleep(0.08)
     tree = conn.get_tree()
-    con = find_by_id(tree, event.container.id) or event.container
-    if not is_window(con):
-        return
-    if not is_floating(con):
-        # Window just joined the tiling area: no focus event fires after
-        # `floating disable`, so pre-set its fibonacci split here, then
-        # refresh borders (lone tile borderless, shared tiles bordered).
-        autosplit(con)
+    windows = fresh_event_windows(tree, event.container)
+
+    # Floating splits emit the event for their non-window wrapper. Its stale
+    # event tree still identifies the leaf IDs, so process those fresh leaves.
+    if not windows:
+        reconcile_maximize_marks(conn, tree=tree)
         update_borders(conn, tree=tree)
         return
-    if not has_mark(con, MAXIMIZE_MARK) and not is_dialog(con):
-        place_floating_window(conn, con)
+
+    restored = []
+    for con in windows:
+        set_terminal_opacity(con)
+        if not is_floating(con):
+            # Window just joined the tiling area: no focus event fires after
+            # `floating disable`, so pre-set its fibonacci split here.
+            if not is_maximized(con):
+                con.command(f"mark --add {MAXIMIZE_MARK_PREFIX}{con.id}")
+            autosplit(con)
+            continue
+
+        restore_intents = restore_intent_marks(con)
+        if restore_intents:
+            for mark in restore_intents + maximize_marks(con):
+                con.command(f"unmark {mark}")
+            restored.append(con)
+            continue
+        if is_maximized(con):
+            # Minimize also floats a tiled window. Keep its maximize state
+            # while it lives in scratchpad so focus-on-show can restore it.
+            if not is_scratchpad_window(con):
+                for mark in maximize_marks(con):
+                    con.command(f"unmark {mark}")
+            continue
+        if not has_mark(con, NO_PLACE_MARK) and not is_dialog(con):
+            place_floating_window(conn, con)
+
     update_borders(conn, tree=tree)
+    for con in restored:
+        # Border policy changes the content rect; finalize the requested
+        # outer size and center only after that policy has been applied.
+        con.command(
+            f"resize set {DEFAULT_WINDOW_WIDTH} {DEFAULT_WINDOW_HEIGHT}, "
+            "move position center"
+        )
 
 
 def on_focus(conn, event) -> None:
@@ -279,7 +426,18 @@ def on_focus(conn, event) -> None:
     except Exception:
         pass
     tree = conn.get_tree()
-    autosplit(tree.find_focused())
+    focused = tree.find_focused()
+    if (
+        focused is not None
+        and is_floating(focused)
+        and is_scratchpad_window(focused)
+        and is_maximized(focused)
+        and not restore_intent_marks(focused)
+    ):
+        maximize_window(conn, focused)
+        update_borders(conn)
+        return
+    autosplit(focused)
     update_borders(conn, tree=tree)
 
 
@@ -297,18 +455,283 @@ def on_layout_event(conn, _event) -> None:
     update_borders(conn)
 
 
+def on_window_title(conn, event) -> None:
+    con = find_by_id(conn.get_tree(), event.container.id)
+    if con is not None and is_window(con):
+        set_friendly_title(con)
+
+
+def on_window_close(conn, event) -> None:
+    state.formatted_titles.pop(event.container.id, None)
+    update_borders(conn)
+
+
+def on_tick(conn, event) -> None:
+    # Sway emits first=true immediately after the event subscription becomes
+    # active. Reconcile again to close the startup snapshot/subscribe gap.
+    if getattr(event, "first", False):
+        reconcile_maximize_marks(conn)
+        update_borders(conn)
+
+
+def reconcile_maximize_marks(conn, tree=None) -> None:
+    """Migrate the old shared mark and align marks with floating state."""
+    if tree is None:
+        tree = conn.get_tree()
+    for con in walk(tree):
+        if not is_window(con):
+            continue
+        set_friendly_title(con)
+        if getattr(con, "fullscreen_mode", 0):
+            continue
+        set_terminal_opacity(con)
+        marks = maximize_marks(con)
+        restore_intents = restore_intent_marks(con)
+        if is_floating(con):
+            if restore_intents:
+                for mark in restore_intents + marks:
+                    con.command(f"unmark {mark}")
+            elif is_scratchpad_window(con) and marks:
+                for mark in marks:
+                    if mark == "maximize":
+                        con.command("unmark maximize")
+                if not is_maximized(con):
+                    con.command(f"mark --add {MAXIMIZE_MARK_PREFIX}{con.id}")
+                if getattr(con, "focused", False):
+                    maximize_window(conn, con)
+            else:
+                for mark in marks:
+                    con.command(f"unmark {mark}")
+            continue
+        for mark in restore_intents:
+            con.command(f"unmark {mark}")
+        for mark in marks:
+            if mark == "maximize":
+                con.command("unmark maximize")
+        if not is_maximized(con):
+            con.command(f"mark --add {MAXIMIZE_MARK_PREFIX}{con.id}")
+
+
+def set_workspace_tabbed(conn) -> None:
+    tree = conn.get_tree()
+    focused = tree.find_focused()
+    if focused is None or not is_window(focused):
+        return
+
+    if not is_maximized(focused):
+        focused.command(f"mark --add {MAXIMIZE_MARK_PREFIX}{focused.id}")
+    if is_floating(focused):
+        focused.command("floating disable")
+
+    focused = find_by_id(conn.get_tree(), focused.id)
+    ws = focused.workspace() if focused else None
+    if ws is None:
+        return
+
+    tiled = [con for con in visible_workspace_windows(ws) if not is_floating(con)]
+    if not tiled:
+        return
+    for con in tiled:
+        set_terminal_opacity(con)
+
+    marked = []
+    try:
+        parent_ids = {
+            getattr(getattr(con, "parent", None), "id", None) for con in tiled
+        }
+        if len(parent_ids) > 1:
+            # Moving leaves through a temporary workspace collapses arbitrary
+            # Fibonacci wrappers. Keep the focused leaf visible so Super+w
+            # never exposes an empty workspace between IPC commands.
+            # ponytail: stage only siblings; a placeholder surface is needless.
+            stage = f"_swayfx_tab_stage_{ws.id}"
+            if getattr(ws, "num", -1) >= 0:
+                destination = f"number {ws.num}"
+            else:
+                escaped_name = ws.name.replace("\\", "\\\\").replace('"', '\\"')
+                destination = f'"{escaped_name}"'
+
+            for con in tiled:
+                mark = f"{NO_AUTOSPLIT_MARK_PREFIX}{con.id}"
+                con.command(f"mark --add {mark}")
+                marked.append((con, mark))
+            staged = [con for con in tiled if con.id != focused.id]
+            for con in staged:
+                con.command(f"move container to workspace {stage}")
+            for con in staged:
+                con.command(f"move container to workspace {destination}")
+
+        target = find_by_id(conn.get_tree(), tiled[0].id)
+        if target is not None:
+            target.command("layout tabbed")
+
+        desired_ids = [con.id for con in tiled]
+        first = find_by_id(conn.get_tree(), desired_ids[0])
+        parent = getattr(first, "parent", None)
+        current_ids = [
+            child.id
+            for child in (getattr(parent, "nodes", None) or [])
+            if child.id in desired_ids
+        ]
+        if len(current_ids) == len(desired_ids):
+            for index, desired_id in enumerate(desired_ids):
+                if current_ids[index] == desired_id:
+                    continue
+                other_index = current_ids.index(desired_id)
+                con = find_by_id(conn.get_tree(), desired_id)
+                if con is not None:
+                    con.command(f"swap container with con_id {current_ids[index]}")
+                current_ids[index], current_ids[other_index] = (
+                    current_ids[other_index],
+                    current_ids[index],
+                )
+    finally:
+        for con, mark in marked:
+            con.command(f"unmark {mark}")
+
+    focused = find_by_id(conn.get_tree(), focused.id)
+    if focused is not None:
+        focused.command("focus")
+    update_borders(conn)
+
+
+def self_test() -> None:
+    class Stub:
+        def __init__(self, **values):
+            self.__dict__.update(values)
+
+    workspace = Stub(type="workspace", floating=None, parent=None)
+    floating_parent = Stub(type="floating_con", floating="user_on", parent=workspace)
+    floating_child = Stub(
+        type="con", floating="auto_off", parent=floating_parent, marks=[]
+    )
+    tiled = Stub(
+        id=42,
+        type="con",
+        app_id="test",
+        floating="auto_off",
+        parent=workspace,
+        marks=[f"{MAXIMIZE_MARK_PREFIX}42"],
+    )
+    stale_tiled = Stub(
+        id=42,
+        type="con",
+        app_id="test",
+        nodes=[],
+        floating_nodes=[],
+    )
+    stale_wrapper = Stub(
+        id=43,
+        type="floating_con",
+        app_id=None,
+        window=None,
+        nodes=[stale_tiled],
+        floating_nodes=[],
+    )
+    restoring = Stub(
+        marks=[f"{MAXIMIZE_MARK_PREFIX}42", f"{RESTORE_MARK_PREFIX}42"],
+        scratchpad_state="none",
+    )
+    minimized = Stub(
+        marks=[f"{MAXIMIZE_MARK_PREFIX}42"],
+        scratchpad_state="changed",
+    )
+    no_autosplit = Stub(
+        type="con",
+        app_id="test",
+        floating="auto_off",
+        fullscreen_mode=0,
+        parent=workspace,
+        marks=[f"{NO_AUTOSPLIT_MARK_PREFIX}42"],
+    )
+    tabbed_parent = Stub(type="con", layout="tabbed", parent=workspace)
+    tabbed_child = Stub(type="con", parent=tabbed_parent)
+    terminal = Stub(
+        app_id=TERMINAL_APP_ID,
+        floating="auto_off",
+        parent=tabbed_parent,
+        commands=[],
+        command=lambda command: terminal.commands.append(command),
+    )
+    borderless = Stub(
+        border="none",
+        current_border_width=DEFAULT_FLOATING_BORDER,
+        commands=[],
+        command=lambda command: borderless.commands.append(command),
+    )
+    browser = Stub(
+        id=99,
+        app_id="brave-origin",
+        name="A & B - Brave Origin",
+        commands=[],
+        command=lambda command: browser.commands.append(command),
+    )
+    fresh_tree = Stub(
+        id=1,
+        type="root",
+        app_id=None,
+        window=None,
+        nodes=[tiled],
+        floating_nodes=[],
+    )
+
+    assert is_floating(floating_child)
+    assert not is_floating(tiled)
+    assert is_maximized(tiled)
+    assert not is_maximized(floating_child)
+    assert fresh_event_windows(fresh_tree, stale_wrapper) == [tiled]
+    assert maximize_marks(tiled) == [f"{MAXIMIZE_MARK_PREFIX}42"]
+    assert restore_intent_marks(restoring) == [f"{RESTORE_MARK_PREFIX}42"]
+    assert is_scratchpad_window(minimized)
+    assert has_tabbed_parent(tabbed_child)
+    assert friendly_title("brave-origin", "Nueva pestaña - Brave Origin") == (
+        "Brave Origin - Nueva pestaña"
+    )
+    assert friendly_title("brave-origin", "Brave Origin") == "Brave Origin"
+    assert friendly_title(
+        "code", "config - dotfiles - BASE - Visual Studio Code"
+    ) == "Visual Studio Code - dotfiles"
+    assert friendly_title("code", "sim-plant - PHP - Visual Studio Code") == (
+        "Visual Studio Code - sim-plant"
+    )
+    assert friendly_title(
+        "org.gnome.TextEditor", "aut.txt - Editor de texto"
+    ) == "Editor de texto - aut.txt"
+    assert friendly_title(TERMINAL_APP_ID, "OC") is None
+    set_friendly_title(browser)
+    set_friendly_title(browser)
+    assert browser.commands == ['title_format "Brave Origin - A &amp; B"']
+    set_terminal_opacity(terminal)
+    assert terminal.commands == ["opacity set 1.0"]
+    set_border(borderless, "none")
+    assert borderless.commands == []
+    autosplit(no_autosplit)
+
+
 def main() -> int:
+    if sys.argv[1:] == ["--self-test"]:
+        self_test()
+        return 0
+    if sys.argv[1:] not in ([], ["--tabbed"]):
+        print("usage: swayfx-placement-daemon [--tabbed|--self-test]", file=sys.stderr)
+        return 2
+
     conn = i3ipc.Connection()
+    if sys.argv[1:] == ["--tabbed"]:
+        set_workspace_tabbed(conn)
+        return 0
+
+    reconcile_maximize_marks(conn)
     conn.on("window::new", on_window_new)
+    conn.on("window::title", on_window_title)
+    conn.on("window::close", on_window_close)
     conn.on("window::floating", on_window_floating)
     conn.on("window::focus", on_focus)
     conn.on("window::fullscreen_mode", on_fullscreen_mode)
+    conn.on("tick", on_tick)
     # window::move was dropped from the triggers: it duplicated the focus
     # event in practice and each handler costs a full get_tree round-trip.
-    for event_name in (
-        "window::close",
-        "workspace::focus",
-    ):
+    for event_name in ("workspace::focus",):
         conn.on(event_name, on_layout_event)
 
     update_borders(conn)

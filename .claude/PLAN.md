@@ -4,9 +4,9 @@
 > CONTEXT wins. Package decisions live in [STACK.md](STACK.md). Reference
 > repo notes and upstream SwayFX syntax live in [REFERENCES.md](REFERENCES.md).
 >
-> Last reviewed: 2026-08-03.
+> Last reviewed: 2026-08-24.
 
-Hardware: ASUS · Ryzen 7 7730U · Vega 8 · 12 GB RAM · Arch Linux.
+Hardware: ASUS · Ryzen 7 7730U · Vega 8 · 16 GB RAM · Arch Linux.
 Goal: SwayFX desktop usable as a conventional desktop, dark-only,
 pure-black palette, RAM idle < 600 MB (target ~550 MB; see
 [STACK §6](STACK.md)).
@@ -735,7 +735,7 @@ files themselves are not yet committed.
 
 ```sway
 # Verified against: https://github.com/WillPower3309/swayfx
-# Reviewed: 2026-05-10
+# Reviewed: 2026-08-24
 
 # === Pure-black palette ===
 set $bg          #000000
@@ -743,42 +743,56 @@ set $surface     #0e0e10
 set $surface_alt #15151a
 set $border      #1f1f24
 set $text        #e6e6e6
+set $tab_text_dim #a6a6a6
 set $accent      #89b4fa
+set $focus_border #ffffaa
 set $crit        #f38ba8
 
-# class                  border    bg   text  indicator child_border
-font pango:Inter 12
-client.focused           $accent  $bg  $text $accent  $accent
-client.focused_inactive  $border  $bg  $text $border  $border
-client.unfocused         $surface $bg  $text $surface $surface
-client.urgent            $crit    $bg  $text $crit    $crit
+# Adjacent 2 px title borders form a 4 px black gutter between compact tabs.
+font pango:JetBrainsMono Nerd Font Propo Bold 12
+client.focused           $bg $border  #ffffff $bg $focus_border
+client.focused_inactive  $bg $surface $tab_text_dim $bg $border
+client.focused_tab_title $bg $border  #ffffff
+client.unfocused         $bg $surface $tab_text_dim $bg $surface
+client.urgent            $bg $crit    #ffffff $bg $crit
 
 # === SwayFX visuals ===
-default_border       pixel 2
-smart_borders        on
-default_floating_border pixel 2
+default_border       pixel 3
+smart_borders        no
+default_floating_border pixel 3
 floating_modifier    $mod normal
 focus_follows_mouse  no
 focus_on_window_activation focus
 gaps inner           6
-gaps outer           4
+gaps horizontal      1
+gaps vertical        1
+# Keep a lone tiled/tabbed group flush to the workspace when maximized.
 smart_gaps           on
 corner_radius        10
+titlebar_border_thickness 2
+titlebar_padding      4 3
+title_align           center
+titlebar_separator    enable
+show_marks            no
+
+for_window [app_id="com.mitchellh.ghostty"] title_format "Ghostty - %title"
+for_window [app_id="org.gnome.Nautilus"] title_format "Archivos - %title"
+# The resident placement daemon normalizes Brave, VS Code, and Text Editor
+# titles because those applications already append their product name.
 shadows              disable
-default_dim_inactive 0.05
+default_dim_inactive 0.075
 dim_inactive_colors.unfocused #000000FF
 
-# Floating windows keep subtle depth; maximized windows disable shadows.
-for_window [floating] shadows enable, shadow_blur_radius 20, shadow_color #00000060
+# Shadows stay disabled globally for GPU/battery savings.
 
 # DEVIATION: wlogout uses layer blur to make the power menu feel modal.
 # The rest of the layer-shell UI stays unblurred.
 layer_effects "wlogout" {
   blur enable
-  blur_passes 3
-  blur_radius 6
   shadows disable
 }
+blur_passes 3
+blur_radius 5
 
 # Blur ONLY on the terminal
 blur                 disable
@@ -786,6 +800,8 @@ for_window [app_id="com.mitchellh.ghostty"]    blur enable
 for_window [app_id="com.mitchellh.ghostty"]    blur_passes 3
 for_window [app_id="com.mitchellh.ghostty"]    blur_radius 5
 for_window [app_id="com.mitchellh.ghostty"]    opacity set 0.85
+# The placement daemon switches tiled/tabbed Ghostty to 1.0 so its native
+# title strip is opaque, then restores 0.85 when it returns to floating.
 
 # Disable blur for graphics editors (color accuracy)
 for_window [app_id="^gimp.*$"]                 blur disable, opacity set 1.0
@@ -796,29 +812,30 @@ for_window [app_id="virt-manager"]             blur disable, opacity set 1.0
 for_window [app_id="mpv"]                      blur disable, opacity set 1.0
 
 # === Dynamic floating-window policy ===
-exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-placement-daemon
+# Atomically replace the resident watcher/daemon so reload uses current code.
+exec_always ~/.local/bin/swayfx-daemon-watch --replace ~/.local/bin/swayfx-placement-daemon
 
 # === Native refresh-rate policy ===
 # Uses only modes advertised by swaymsg -t get_outputs.
+exec_always sh -c 'sleep 1; exec "$HOME/.local/bin/swayfx-refresh-rate" --once'
 exec_always ~/.local/bin/swayfx-daemon-watch ~/.local/bin/swayfx-refresh-rate --watch
 
 # === "Desktop-like" behavior ===
 # DEVIATION: upstream marks scratchpad_minimize as experimental.
 # We enable it because it is the only way to get true minimize-from-CSD.
-# If quirks appear, set to disable and rely on wlr/taskbar raise/lower.
+# If quirks appear, disable it and accept activation without minimize.
 scratchpad_minimize  enable
-for_window [app_id=".*"] floating enable, resize set 1280 720
-for_window [class=".*"] floating enable, resize set 1280 720
-for_window [app_id="^brave-origin$"] floating disable
-for_window [app_id="^brave-origin-nightly$"] floating disable
-for_window [class="^Brave-origin$"] floating disable
-for_window [class="^Brave-origin-nightly$"] floating disable
+for_window [app_id=".*"] floating enable, resize set 1000 600
+for_window [class=".*"] floating enable
+# Brave is auto-maximized by swayfx-placement-daemon on window::new.
 
 bindsym $mod+m            move scratchpad
 bindsym $mod+Shift+m      scratchpad show
-bindsym $mod+f            fullscreen toggle
-bindsym $mod+Shift+f      exec ~/.local/bin/swayfx-maximize
-bindsym $mod+Shift+space  floating toggle
+bindsym $mod+Shift+f      fullscreen toggle
+bindsym $mod+f            exec ~/.local/bin/swayfx-maximize
+bindsym $mod+w            exec ~/.local/bin/swayfx-placement-daemon --tabbed
+# bindsym $mod+v splitv  # Fibonacci owns split orientation
+# bindsym $mod+c splith
 bindsym $mod+Shift+b      exec ~/.local/bin/swayfx-waybar-bottom-toggle
 
 # === Two waybars ===
@@ -828,89 +845,70 @@ exec_always pkill -x waybar; \
 
 # Outputs are intentionally not hardcoded.
 # Discover with:  swaymsg -t get_outputs
-output * bg #000000 solid_color
+output * bg ~/.config/sway/wallpaper.png fill
 ```
 
 ### 3.2. `waybar/.config/waybar/top.jsonc`
 
 ```jsonc
-// Verified against: man waybar(5), waybar-wlr-taskbar(5)
-// Reviewed: 2026-05-10
+// Verified against: waybar(5), waybar-clock(5), waybar-battery(5), waybar-sway-workspaces(5)
+// Reviewed: 2026-08-23
 {
   "layer":        "top",
   "position":     "top",
+  "fixed-center": true,
+  "expand-left":  true,
+  "expand-right": true,
   "height":       32,
-  "spacing":      8,
-  "margin-top":   6,
-  "margin-left":  10,
-  "margin-right": 10,
+  "spacing":      0,
 
   "modules-left":   ["custom/distro", "sway/workspaces", "sway/mode"],
   "modules-center": ["clock"],
   "modules-right":  ["network", "pulseaudio", "battery",
-                     "custom/cpucap", "custom/notifications", "custom/power"],
+                     "custom/cpucap", "custom/touchpad", "custom/gammastep",
+                     "custom/notifications", "custom/power"],
 
-  "custom/distro":      { "format": " ", "tooltip": false, "on-click": "fuzzel" },
-  "sway/workspaces":    { "format": "{name}", "disable-scroll": true },
-  "clock":              { "format": "{:%H:%M}",
-                          "tooltip-format": "<tt>{calendar}</tt>" },
-  "network":            { "format-wifi": "  {signalStrength}%",
-                          "format-ethernet": "󰈀",
-                          "format-disconnected": "󰤭",
-                          "on-click": "ghostty -e nmtui" },
-  "pulseaudio":         { "format": "{icon} {volume}%",
-                          "format-icons": ["󰕿","󰖀","󰕾"],
-                          "format-muted": "󰝟",
-                          "on-click": "pavucontrol" },
-  "battery":            { "format": "{icon} {capacity}%",
-                          "format-icons": ["󰁺","󰁻","󰁼","󰁽","󰁾","󰁿","󰂀","󰂁","󰂂","󰁹"],
-                          "states": { "warning": 30, "critical": 15 } },
-  "custom/cpucap":      { "exec": "bash ~/.local/bin/swayfx-cpu-cap",
-                          "return-type": "json",
-                          "interval": 10 },
-  "custom/notifications": { "exec": "makoctl mode | tr -d '\\n'",
-                            "interval": 2, "format": "󰂚",
-                            "on-click": "makoctl dismiss --all",
-                            "on-click-right": "makoctl restore" },
-  "custom/power":       { "format": "󰐥", "on-click": "bash ~/.local/bin/swayfx-powermenu",
-                          "tooltip": false }
+  "custom/distro":   { "format": "󰣇", "tooltip": false, "on-click": "fuzzel" },
+  "sway/workspaces": { "format": "{name}", "disable-scroll": true,
+                        "sort-by-number": true, "all-outputs": false },
+  "clock":           { "format": "<b>{:%H:%M}</b>", "tooltip": false,
+                        "on-click": "bash ~/.local/bin/swayfx-waycal-toggle" }
+  // Status module details live in the deployed top.jsonc.
 }
 ```
 
 ### 3.3. Shared pill style
 
-`waybar/.config/waybar/_pill.css` — single source of truth for pill
-appearance, imported by both bars:
+`waybar/.config/waybar/_pill.css` — single source of truth for the two
+bottom-bar group surfaces:
 
 ```css
-.pill, #workspaces, #clock, #network, #pulseaudio, #battery,
-#custom-distro, #custom-cpucap, #custom-notifications, #custom-power,
-#custom-terminal, #custom-browser, #custom-files, #custom-editor,
-#taskbar {
+#launchers, #windows {
   background: #0e0e10;
   border: 1px solid #1f1f24;
   border-radius: 18px;
-  padding: 2px 12px;
-  margin: 0 2px;
+  color: #e6e6e6;
+  padding: 0 8px;
+  margin: 0 3px;
 }
 ```
 
 ### 3.4. `waybar/.config/waybar/top.css`
 
 ```css
-@import url("_pill.css");
 * {
-  font-family: "JetBrainsMono Nerd Font", "Inter";
-  font-size: 14px;
+  font-family: "JetBrainsMono Nerd Font Propo", "JetBrainsMono Nerd Font",
+               "Symbols Nerd Font", "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
   border: none;
   min-height: 0;
 }
-window#waybar { background: transparent; color: #e6e6e6; }
+window#waybar { background: #000000; color: #cdd6f4; }
 
-#custom-distro { padding: 2px 10px; border-radius: 999px; font-size: 16px; }
-#workspaces button             { color: #9a9aa6; padding: 0 6px; border-radius: 12px; }
-#workspaces button.focused     { background: #89b4fa; color: #000000; }
-#workspaces button.urgent      { background: #f38ba8; color: #000000; }
+#workspaces button             { color: #6c7086; border-radius: 14px; }
+#workspaces button.active      { background: #89b4fa; color: #1e1e2e; }
+#workspaces button.urgent      { background: #f38ba8; color: #1e1e2e; }
 #battery.warning   { color: #f9e2af; }
 #battery.critical  { color: #f38ba8; }
 ```
@@ -919,27 +917,32 @@ window#waybar { background: transparent; color: #e6e6e6; }
 
 ```jsonc
 {
-  "id":            "swayfx-bottom",
-  "ipc":           true,
   "layer":         "top",
   "position":      "bottom",
-  "mode":          "dock",
-  "height":        52,
+  "height":        64,
   "spacing":       0,
-  "margin-bottom": 8,
+  "margin-bottom": 4,
   "exclusive":     false,
 
   "modules-left":   [],
-  "modules-center": ["custom/terminal", "custom/browser", "custom/files",
-                     "wlr/taskbar"],
+  "modules-center": ["group/launchers", "group/windows"],
   "modules-right":  [],
 
-  "custom/terminal": { "format": "", "on-click": "ghostty",
-                       "tooltip": true, "tooltip-format": "Terminal" },
-  "custom/browser":  { "format": "", "on-click": "swayfx-browser",
-                       "tooltip": true, "tooltip-format": "Brave Origin" },
-  "custom/files":    { "format": "", "on-click": "nautilus",
-                       "tooltip": true, "tooltip-format": "Archivos" },
+  "group/launchers": {
+    "orientation": "horizontal",
+    "modules": ["custom/terminal", "custom/browser", "custom/files"]
+  },
+  "group/windows": {
+    "orientation": "horizontal",
+    "modules": ["wlr/taskbar", "sway/scratchpad"]
+  },
+
+  "custom/terminal": { "format": "", "on-click": "ghostty",
+                        "tooltip": true, "tooltip-format": "Terminal" },
+  "custom/browser":  { "format": "", "on-click": "swayfx-browser",
+                        "tooltip": true, "tooltip-format": "Brave Origin" },
+  "custom/files":    { "format": "", "on-click": "nautilus",
+                        "tooltip": true, "tooltip-format": "Archivos" },
   "wlr/taskbar": {
     "format":          "{icon}",
     "icon-size":       28,
@@ -950,6 +953,14 @@ window#waybar { background: transparent; color: #e6e6e6; }
     "on-click":        "minimize-raise",
     "on-click-right":  "maximize",
     "on-click-middle": "close"
+  },
+  "sway/scratchpad": {
+    "format":         "{icon} {count}",
+    "format-icons":   ["", ""],
+    "show-empty":     false,
+    // Global across all Sway workspaces and outputs.
+    "tooltip-format": "{app}: {title}",
+    "on-click":       "swaymsg scratchpad show"
   }
 }
 ```
@@ -962,16 +973,17 @@ window#waybar { background: transparent; color: #e6e6e6; }
     border: none; min-height: 0; }
 window#waybar { background: transparent; }
 
+#launchers, #windows { margin: 8px 3px; padding: 0 6px; border-radius: 26px; }
 #custom-terminal, #custom-browser, #custom-files, #custom-editor {
-  border-radius: 24px;
-  min-width: 28px;
-  padding: 7px 14px;
+  background: transparent; border: none; margin: 0 3px; padding: 0 4px;
 }
-#taskbar { margin-left: 8px; padding: 7px 14px; border-radius: 26px; }
-#taskbar button { margin: 0 3px; padding: 4px 9px; border-radius: 16px; background: transparent; border: 1px solid transparent; }
-#taskbar button.active { background: #15151a; border-color: #89b4fa; }
+#taskbar, #scratchpad { background: transparent; border: none; margin: 0; }
+#taskbar { padding: 0 2px; }
+#scratchpad { padding: 0 8px; }
+#taskbar button { margin: 4px; padding: 4px; border-radius: 26px; background: transparent; border: 1px solid transparent; }
+#taskbar button.active { background: rgba(255, 255, 170, 0.15); }
 #taskbar button.fullscreen, #taskbar button.maximized { border-color: #a6e3a1; }
-#taskbar button.minimized { opacity: 0.55; }
+#taskbar button.minimized { opacity: 0.65; }
 ```
 
 ### 3.7. `starship/.config/starship.toml`
@@ -1086,8 +1098,8 @@ scripts/.local/bin/
 ├── powermenu              # invoked by wlogout or $mod+Shift+e
 ├── screenshot-full        # grim → ~/Pictures
 ├── screenshot-area        # grim -g "$(slurp)" → ~/Pictures + satty
-├── swayfx-daemon-watch    # restart wrapper for user IPC daemons
-├── swayfx-placement-daemon # floating placement + border policy
+├── swayfx-daemon-watch    # restart/replace wrapper for user IPC daemons
+├── swayfx-placement-daemon # placement + tabbed layout + border policy
 ├── swayfx-refresh-rate    # 60 Hz on AC, 48 Hz on battery when native
 ├── swayfx-maximize        # floating maximize/restore toggle
 ├── swayfx-waycal-toggle   # opens/closes the top-clock calendar popup

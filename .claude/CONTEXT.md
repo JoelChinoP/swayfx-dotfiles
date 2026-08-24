@@ -5,7 +5,7 @@
 > **this file wins**. If anything is ambiguous, leave a `TODO:` and explain why
 > instead of guessing.
 >
-> Last reviewed: 2026-08-03.
+> Last reviewed: 2026-08-24.
 
 ---
 
@@ -75,19 +75,20 @@ Mapping to SwayFX features:
 | Minimize               | `scratchpad_minimize enable` + `$mod+m`                      |
 | Minimize / restore     | `wlr/taskbar` left click (`minimize-raise`)                  |
 | Maximize               | `wlr/taskbar` right click (`maximize`)                       |
-| Fullscreen             | `$mod+f` or browser F11                                      |
-| Window mode            | floating by default; toggle tiling with `$mod+Shift+space`   |
+| Fullscreen             | `$mod+Shift+f` or browser F11                                |
+| Window mode            | floating by default; maximize/tile with `$mod+f`              |
 | Close from bar         | `wlr/taskbar` middle click                                   |
-| Tile / split           | Sway defaults (`splith`, `splitv`, `tabbed`, `stacking`)     |
+| Tabbed                 | `$mod+w`; joins the focused window to the workspace tab group |
+| Tile / split           | automatic Fibonacci splits; `$mod+e` toggles split direction |
 | Top bar                | Waybar instance with `top.jsonc` + `top.css`                 |
-| Bottom bar             | **Second Waybar instance** with `bottom.jsonc` + `bottom.css`; manual IPC toggle |
+| Bottom bar             | **Second Waybar instance** with taskbar + scratchpad indicator; manual toggle |
 
 > **Upstream warning about `scratchpad_minimize`**: the SwayFX README says
 > "we recommend keeping this setting off, as there are many kinks to iron
 > out here." We enable it on purpose — it is the only way to get true
 > minimize-from-CSD — but if quirks appear (lost windows, wrong workspace
-> on restore), the fallback is: leave it `disable` and rely solely on
-> `wlr/taskbar` raise/lower behavior.
+> on restore), the fallback is: leave it `disable` and accept activation
+> without minimize semantics in `wlr/taskbar` and CSD buttons.
 
 ## 4. Aesthetic
 
@@ -112,51 +113,76 @@ Catppuccin. The project uses a neutral very-dark palette:
 > "Near-pure" means the bar background may be `#000000` or `#0a0a0a`.
 > The hard rule is **no blue/purple tints** like Catppuccin. Accents may
 > reuse Catppuccin hexes, but they must not dominate.
+> **Scoped exception:** the top ribbon restores its legacy cool text colors
+> (`#cdd6f4`, `#6c7086`, `#45475a`, and `#1e1e2e`) by explicit user choice.
+> Its surface remains opaque `#000000`; the compositor and bottom bar keep
+> the neutral palette above.
 
-### 4.2. Top bar (visual reference)
+### 4.2. Top bar
 
-Inspired by a screenshot with three floating pills (round distro logo on
-the left, workspace pills in the center, status pills on the right):
-
-- Floating bar: `margin-top: 6px`, `margin-left/right: 10px`.
-- **Bar background: transparent** (`rgba(0,0,0,0)`).
-- Each module group is a **pill**: `padding: 4px 12px`,
-  `background: --surface`, `border: 1px solid --border`,
-  `border-radius: 18px`.
-- **Pill spacing**: 8 px.
-- Icons/text: JetBrainsMono Nerd Font + Inter at 14 px; distro glyph 16 px.
-- Distro pill (left): perfect circle, Arch glyph.
-- Active workspace pill: `--accent` background, `--bg` text.
+- Edge-to-edge 32 px ribbon with an opaque pure-black (`#000000`)
+  background; no floating margins or module pills.
+- Distro/workspaces/mode stay left, the clock stays centered, and status
+  modules stay right.
+- Normal icons/text use JetBrainsMono Nerd Font Propo Bold in `#cdd6f4`;
+  state warnings keep their semantic colors.
+- Active workspace: `--accent` rounded background with `#1e1e2e` text.
+- Inactive workspaces use `#6c7086`; disabled state indicators use
+  `#45475a`.
 
 ### 4.3. Bottom bar
 
-- Same pill style; **two centered pills**, do not span full width.
-- Pill 1 (left): pinned launchers as `custom/*` modules.
-- Pill 2 (right): `wlr/taskbar` with active windows (icons only,
-  `icon-size: 28`).
+- Same pill style; **two centered groups**, do not span full width.
+- Group 1 (left): pinned launchers as `custom/*` modules.
+- Group 2 (right): `wlr/taskbar` with active windows (icons only,
+  `icon-size: 28`) plus the scratchpad counter when needed.
 - Initial pinned apps: terminal, browser, files.
 - Click left = minimize/restore; click right = maximize;
   click middle = close (on `wlr/taskbar`).
-- `height: 52`, `margin-bottom: 8px`. `exclusive: false` so floating
+- Hidden scratchpad windows appear as a native global `sway/scratchpad`
+  counter. Its tooltip lists their app/title and each click restores or
+  cycles one from any workspace/output.
+- `height: 64`, `margin-bottom: 4px`. `exclusive: false` so floating
   windows can pass underneath.
-- `swayfx-waybar-bottom-toggle` manually switches the bottom bar between
-  `dock` and `hide` via Sway bar IPC (`$mod+Shift+b`).
+- `swayfx-waybar-bottom-toggle` manually stops/starts the bottom Waybar
+  instance (`$mod+Shift+b`).
 
 ### 4.4. Blur, opacity, shadows, corners
 
 - **Blur**: only on the terminal, plus the `wlogout` layer-shell power
   menu as a documented modal overlay deviation. Other apps stay opaque
   and unblurred.
-- **Opacity**: only on the terminal, **0.85** (do not drop to 0.75 — text
-  becomes hard to read on light backgrounds behind it).
-- **Shadows**: disabled globally, then enabled only for non-maximized
-  floating windows. Maximized floating windows disable shadows again.
+- **Opacity**: floating terminal **0.85** (do not drop to 0.75 — text becomes
+  hard to read on light backgrounds behind it). Tiled/tabbed terminal `1.0`
+  because Sway applies container alpha to the SSD title background too.
+- **Shadows**: disabled globally for GPU/battery savings.
 - **Corners**: `corner_radius 10`.
-- **Borders**: `default_border pixel 2`, `default_floating_border pixel 2`,
-  `smart_borders on`.
+- **Borders**: `default_border pixel 3`, `default_floating_border pixel 3`,
+  `smart_borders no`.
+- **Outer gaps**: 1 px horizontal and vertical when the tiling area is shared.
+  Lone tiled or tabbed groups stay flush to the workspace (`smart_gaps on`).
 - Per-window blur **disabled** for graphics editors (gimp, krita,
   inkscape, OBS, mpv, virt-manager) so colors are not distorted while
   editing. Pattern from the [vaelixd reference](REFERENCES.md).
+
+### 4.5. Tabbed layout
+
+- Tabs are 28 px high and use `JetBrainsMono Nerd Font Propo Bold 12`.
+  `titlebar_padding 4 3` supplies 4 px horizontal and 3 px vertical padding.
+- The tab strip/gutter is `#000000`; adjacent 2 px title borders produce
+  a 4 px black visual seam. This is a frame, not a real margin.
+- Active tab: `#1f1f24` background and `#ffffff` text. Inactive tabs:
+  `#0e0e10` background and `#a6a6a6` text. Focus is expressed through
+  contrast, not a colored title border. All title colors are opaque.
+- Titles are centered. Ghostty and Nautilus use native `<program> - %title`;
+  the resident placement daemon removes product-name suffix duplication from
+  Brave, VS Code, and GNOME Text Editor. VS Code displays only product and
+  project; Sway still ellipsizes any title that exceeds its tab width.
+- Tiled content borders stay hidden inside tabbed/stacked groups; the title
+  strip already separates each program.
+- SwayFX rounds the outer tab group only; it cannot round every tab as an
+  independent island without patching the compositor.
+- Technical marks start with `_swayfx_` and remain hidden from titles.
 
 ## 5. Stack
 
@@ -176,8 +202,8 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Notifications**: mako.
 - **Bars**: two waybar instances (top: status; bottom: pinned + taskbar).
 - **Calendar popup**: `waycal` (AUR), launched from the top bar clock.
-- **Window IPC helpers**: `python-i3ipc` for floating placement and border
-  policy daemons.
+- **Window IPC helpers**: `python-i3ipc` for floating placement, stable
+  workspace-root tabbing, maximize state, and border policy.
 - **Lock**: `swaylock-effects` (AUR).
 - **Idle**: `swayidle`.
 - **Power menu**: `wlogout`. Lightweight fallback: `fuzzel --dmenu` script.
@@ -211,6 +237,8 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
   at each percentage transition from 10% through 6%, unless `swaylock` is active.
 - **Display refresh policy**: `swayfx-refresh-rate` runs inside the Sway
   session and switches only between native modes advertised by the panel.
+  Sway reload also runs a delayed one-shot reconciliation because output
+  mode can reset without a power-source transition.
   On the ASUS internal panel verified on 2026-05-16, Sway reports
   `1920x1080@60.001Hz` and `1920x1080@48.003Hz`; AC uses ~60 Hz, battery
   uses ~48 Hz. Do not add forced modelines.
@@ -406,16 +434,16 @@ swayfx-dotfile/
 
 ## 9. Hard rules ("don't do this")
 
-- **Do not** mix Catppuccin Mocha or any non-black palette into the bars
-  or compositor surfaces. The palette is §4.1.
+- **Do not** mix Catppuccin surfaces into the bars or compositor. The only
+  exception is the explicit legacy top-ribbon text set in §4.1; its surface
+  remains pure black.
 - **Do not** use `nwg-dock` for the bottom bar. Use a second waybar
   instance with pinned `custom/*` + `wlr/taskbar`.
 - **Do not** drop terminal opacity below `0.85`.
 - **Do not** install `swaylock` (official) alongside `swaylock-effects`
   (AUR) — they conflict. Stick to `swaylock-effects`.
-- **Do not** enable global `shadows`. Only the documented non-maximized
-  floating-window rule may enable shadows, and maximized windows must
-  disable them again.
+- **Do not** enable shadows globally or per-window; they stay disabled for
+  GPU/battery savings.
 - **Do not** install `power-profiles-daemon`, `tlp` or `auto-cpufreq`
   in the main path. Stage 00 removes them when confirmed. CPU policy is
   handled by the project cpupower helper.
@@ -474,17 +502,20 @@ Grouped so a failure points to the responsible stage.
 - [ ] `swaymsg -t get_version` responds and `sway --version | grep -i swayfx`
       (or `pacman -Q swayfx`) confirms the SwayFX provider.
 - [ ] `pgrep -a waybar | wc -l` → 2.
-- [ ] Top bar visible, transparent background, pure-black pills.
+- [ ] Top bar visible as an opaque pure-black 32 px ribbon.
 - [ ] Bottom bar visible on the desktop: pinned apps + active windows.
-- [ ] `$mod+Shift+b` toggles the bottom bar between visible dock and
-      hidden edge mode.
+- [ ] Minimizing a window hides its task icon and shows/increments the
+      scratchpad indicator; tooltip lists it and clicking restores/cycles it.
+- [ ] `$mod+Shift+b` toggles the bottom bar between visible and hidden.
 - [ ] Pinned apps launch terminal, browser, files.
 - [ ] Left click on taskbar minimizes/restores; right maximizes;
       middle closes.
 - [ ] Most normal apps open floating and centered; Brave Origin opens maximized with
       the top bar visible.
-- [ ] `$mod+f` toggles fullscreen; `$mod+Shift+space` toggles floating/tiling.
-- [ ] Terminal blurred and at 0.85 opacity; everything else opaque.
+- [ ] `$mod+Shift+f` toggles fullscreen; `$mod+f` maximizes/restores and
+      `$mod+w` creates a stable 28 px tabbed group without a workspace flash.
+- [ ] Terminal blurred at 0.85 while floating and opaque while tiled/tabbed;
+      everything else remains opaque.
 
 ### 10.3. Hardware and services (stages 02 / 06 / 09)
 

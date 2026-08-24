@@ -1,7 +1,7 @@
 # swayfx-dotfile
 
 Personal SwayFX desktop on Arch Linux for an ASUS laptop
-(Ryzen 7 7730U · Vega 8 · 12 GB RAM). Dark-only, near-pure-black palette,
+(Ryzen 7 7730U · Vega 8 · 16 GB RAM). Dark-only, near-pure-black palette,
 two-bar layout with pinned launchers and an active-windows taskbar.
 
 > **AI agent?** Open [`AGENTS.md`](AGENTS.md) first.
@@ -13,7 +13,7 @@ two-bar layout with pinned launchers and an active-windows taskbar.
 
 - Sway's tiling efficiency **plus** conventional desktop ergonomics
   (minimize, maximize, close from a taskbar).
-- A floating top bar with status pills (clock, battery, wifi, audio,
+- An opaque pure-black top ribbon (clock, battery, wifi, audio,
   notifications, power) and a floating bottom bar with pinned launchers
   + a `wlr/taskbar` of open windows.
 - Dark **only**. Pure black `#000000` background, neutral grays, a small
@@ -30,10 +30,9 @@ top:    [󰣇]  [1 2 3 …]  ········  [  85%]  [󰕾 60%]  [󰂀 72%]  
 bottom:                       [    ]  [   …running… ]
 ```
 
-The top bar is transparent; each module group is a "pill" (rounded
-rectangle, dark background, subtle border). The bottom bar shows a
-pinned-apps pill (Ghostty / Brave Origin / Files / Editor) and a
-`wlr/taskbar` pill with active window icons.
+The top bar is an edge-to-edge pure-black ribbon. The bottom bar shows a
+pinned-apps group (Ghostty / Brave Origin / Files) and a windows group
+containing `wlr/taskbar` icons plus the scratchpad counter when needed.
 
 ## Hardware target
 
@@ -42,7 +41,7 @@ pinned-apps pill (Ghostty / Brave Origin / Files / Editor) and a
 | Laptop    | ASUS                                   |
 | CPU       | AMD Ryzen 7 7730U (Zen 3, 8c/16t)      |
 | GPU       | iGPU AMD Radeon Vega 8                 |
-| RAM       | 12 GB                                  |
+| RAM       | 16 GB                                  |
 | Distro    | Arch Linux (with AUR)                  |
 | Session   | Wayland                                |
 
@@ -200,24 +199,26 @@ written and tested, the legacy files will be removed.
 | Combo                  | Action                              |
 |------------------------|-------------------------------------|
 | `Mod+Return`           | Open terminal                       |
-| `Mod+d`                | Open fuzzel launcher                |
+| release left `Mod`     | Open/close fuzzel launcher          |
 | `Mod+Shift+e`          | Open file manager                   |
 | `Mod+q`                | Close window                        |
-| `Mod+f`                | Toggle fullscreen                   |
-| `Mod+Shift+space`      | Toggle floating                     |
+| `Mod+f`                | Maximize/restore                    |
+| `Mod+Shift+f`          | Toggle fullscreen                   |
+| `Mod+w`                | Join/use tabbed workspace layout    |
 | `Mod+m` / `Mod+Shift+m`| Send to / show scratchpad           |
 | `Mod+h/j/k/l`          | Move focus                          |
 | `Mod+Shift+h/j/k/l`    | Move window                         |
 | `Mod+1..9`             | Switch workspace                    |
 | `Mod+Shift+1..9`       | Move window to workspace            |
-| `Mod+r`                | Resize mode                         |
 | `Mod+Ctrl+l`           | Lock screen                         |
 | `Mod+Ctrl+v`           | Clipboard history (cliphist+fuzzel) |
-| `Print` / `Mod+Print`  | Screenshot full / region            |
+| `Print` / `Mod+Print`  | Screenshot region / full            |
 | `Mod+Shift+Print`      | Screenshot region + crop/edit       |
 
 Bottom-bar taskbar clicks: **left** = minimize/restore, **right** =
-maximize, **middle** = close.
+maximize, **middle** = close. Hidden windows are summarized by a global
+scratchpad counter; hover lists their titles and clicking restores/cycles
+one from any workspace/output.
 
 ## License
 

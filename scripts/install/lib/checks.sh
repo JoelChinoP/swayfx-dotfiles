@@ -7,7 +7,7 @@
 # CHECK_LIVE=1 after logging into SwayFX to make live checks fatal.
 #
 # Verified against: .claude/CONTEXT.md acceptance checklist
-# Reviewed: 2026-07-25
+# Reviewed: 2026-08-23
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -196,6 +196,7 @@ do
     check_cmd "helper installed: $helper" bash -c 'test -x "$HOME/.local/bin/$1"' _ "$helper"
 done
 check_cmd "battery alert helper behavior" "$HOME/.local/bin/swayfx-battery-alert" --self-test
+check_cmd "placement daemon helpers" "$HOME/.local/bin/swayfx-placement-daemon" --self-test
 
 check_live_cmd "running compositor is SwayFX" bash -c '
 swaymsg -t get_version >/dev/null 2>&1 || exit 1

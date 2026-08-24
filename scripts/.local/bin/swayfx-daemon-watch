@@ -1,27 +1,90 @@
 #!/usr/bin/env bash
 # Restart a user daemon if it exits, without spawning duplicates on reload.
+# Optional --replace atomically supersedes the current watcher and child.
 #
-# Verified against: flock(1)
-# Reviewed: 2026-05-14
+# Verified against: flock(1), pgrep(1)
+# Reviewed: 2026-08-23
 
 set -euo pipefail
 IFS=$'\n\t'
 
-daemon="${1:?usage: swayfx-daemon-watch <daemon-path> [args...]}"
+replace=0
+if [[ "${1:-}" == "--replace" ]]; then
+    replace=1
+    shift
+fi
+
+daemon="${1:?usage: swayfx-daemon-watch [--replace] <daemon-path> [args...]}"
 shift
+daemon_args=("$@")
 name="$(basename "$daemon")"
 runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
-lock_file="$runtime_dir/${name}.lock"
+lock_scope=""
+if (( replace )) && [[ -n "${SWAYSOCK:-}" ]]; then
+    lock_scope=".$(basename "$SWAYSOCK")"
+fi
+lock_file="$runtime_dir/${name}${lock_scope}.lock"
+
+matches_daemon_args() {
+    local start="$1" index
+    shift
+    local -a argv=("$@")
+
+    (( ${#argv[@]} - start == ${#daemon_args[@]} )) || return 1
+    for (( index = 0; index < ${#daemon_args[@]}; index++ )); do
+        [[ "${argv[start + index]}" == "${daemon_args[index]}" ]] || return 1
+    done
+}
+
+if (( replace )); then
+    # Serialize replacements and scope both process selection and lock files
+    # to this compositor socket so isolated/headless sessions remain untouched.
+    exec 8>"${lock_file}.replace"
+    flock 8
+    pgrep_args=(-f "${name}$")
+    if [[ -n "${SWAYSOCK:-}" ]]; then
+        pgrep_args=(--env "SWAYSOCK=$SWAYSOCK" "${pgrep_args[@]}")
+    fi
+    for pid in $(pgrep "${pgrep_args[@]}" || true); do
+        [[ "$pid" == "$$" ]] && continue
+        mapfile -d '' -t argv < "/proc/$pid/cmdline" 2>/dev/null || continue
+
+        should_kill=0
+        if [[ "${argv[1]:-}" == "$0" ]]; then
+            start=2
+            [[ "${argv[start]:-}" == "--replace" ]] && (( ++start ))
+            if [[ "${argv[start]:-}" == "$daemon" ]] \
+                && matches_daemon_args "$(( start + 1 ))" "${argv[@]}"; then
+                should_kill=1
+            fi
+        elif [[ "${argv[0]:-}" == "$daemon" ]] \
+            && matches_daemon_args 1 "${argv[@]}"; then
+            should_kill=1
+        elif [[ "${argv[1]:-}" == "$daemon" ]] \
+            && [[ "${argv[0]##*/}" == python* || "${argv[0]##*/}" == bash || "${argv[0]##*/}" == sh ]] \
+            && matches_daemon_args 2 "${argv[@]}"; then
+            should_kill=1
+        fi
+
+        (( should_kill )) && kill "$pid" 2>/dev/null || true
+    done
+fi
 
 exec 9>"$lock_file"
-flock -n 9 || exit 0
+if (( replace )); then
+    flock 9
+    flock -u 8
+    exec 8>&-
+else
+    flock -n 9 || exit 0
+fi
 
 # Exponential backoff so a permanently crashing daemon cannot busy-loop
 # at 1 restart/s; a run that survives >60s resets the delay.
 delay=1
 while true; do
     start="$(date +%s)"
-    "$daemon" "$@" || true
+    "$daemon" "$@" 9>&- || true
     elapsed=$(( $(date +%s) - start ))
 
     if (( elapsed > 60 )); then

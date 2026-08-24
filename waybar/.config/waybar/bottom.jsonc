@@ -1,12 +1,9 @@
-// Verified against: waybar(5), waybar-wlr-taskbar(5), waybar-custom(5)
-// Reviewed: 2026-05-16
+// Verified against: waybar(5), waybar-wlr-taskbar(5), waybar-sway-scratchpad(5)
+// Reviewed: 2026-08-23
 {
   "name": "bottom",
-  "id": "swayfx-bottom",
-  "ipc": true,
   "layer": "top",
   "position": "bottom",
-  //"mode": "dock",
   "height": 64,
   "spacing": 0,
   "margin-bottom": 4,
@@ -21,13 +18,26 @@
   "exclusive": false,
   "modules-left": [],
   "modules-center": [
-    "custom/terminal",
-    "custom/browser",
-    "custom/files",
-    // "custom/editor",
-    "wlr/taskbar"
+    "group/launchers",
+    "group/windows"
   ],
   "modules-right": [],
+  "group/launchers": {
+    "orientation": "horizontal",
+    "modules": [
+      "custom/terminal",
+      "custom/browser",
+      "custom/files"
+      // "custom/editor"
+    ]
+  },
+  "group/windows": {
+    "orientation": "horizontal",
+    "modules": [
+      "wlr/taskbar",
+      "sway/scratchpad"
+    ]
+  },
   "custom/terminal": {
     "format": "",
     "on-click": "ghostty",
@@ -65,5 +75,16 @@
     "on-click": "minimize-raise",
     "on-click-right": "maximize",
     "on-click-middle": "close"
+  },
+  "sway/scratchpad": {
+    "format": "{icon} {count}",
+    "show-empty": false,
+    "format-icons": [
+      "",
+      ""
+    ],
+    "tooltip": true,
+    "tooltip-format": "{app}: {title}",
+    "on-click": "swaymsg scratchpad show"
   }
 }

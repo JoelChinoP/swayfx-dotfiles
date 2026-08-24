@@ -4,7 +4,7 @@
 > and [PLAN.md](PLAN.md). When upstream behavior changes, update this
 > file with the new revision date and reflect the change in CONTEXT.
 >
-> Last reviewed: 2026-07-25.
+> Last reviewed: 2026-08-24.
 
 ---
 
@@ -86,7 +86,7 @@ scratchpad_minimize enable|disable
   *"we recommend keeping this setting off, as there are many kinks to
   iron out here."* We enable it on purpose — it is the only path to
   CSD-button minimize semantics — but the plan documents the fallback
-  (`disable` and rely on `wlr/taskbar` raise/lower).
+  (`disable` and accept activation without minimize semantics).
 - **`smart_corner_radius`**: appears in some forks and old configs. The
   current upstream README does **not** list it. We do not use it.
 - **`opacity` syntax**: in `for_window` blocks, both `opacity 0.85` and
@@ -99,6 +99,24 @@ Some references (e.g. vaelixd) use `blur on`. Upstream README only lists
 `blur enable|disable`. Both work in current builds because of an
 internal alias, but `enable|disable` is the documented form and we use
 that.
+
+### 1.6. Tab titles and technical marks
+
+- `titlebar_padding` includes `titlebar_border_thickness`; with the
+  installed JetBrains Mono Propo Bold 12 metrics, `4 3` padding (horizontal,
+  vertical) and a 2 px border produce a 28 px title row in SwayFX 0.6.
+- Adjacent 2 px black title borders provide a 4 px visual seam. Native
+  SwayFX cannot add real per-tab margins or round every tab independently.
+- `title_align center` centers native titles. App-specific `title_format`
+  rules cover apps without their own product suffix; the resident placement
+  daemon normalizes Brave, VS Code, and Text Editor without another process.
+- Sway's container alpha also multiplies SSD title border/background colors.
+  The terminal therefore uses opacity 1.0 while tiled/tabbed and restores
+  0.85 when floating; opaque `client.*` hex colors alone are insufficient.
+- Sway marks are globally unique by name. Technical per-window state marks
+  therefore include the container ID; singleton sentinel marks such as
+  `_swayfx_no_place` remain fixed. Marks beginning with `_` are hidden from
+  titles even when `show_marks yes`; this project also sets it to `no`.
 
 ---
 
@@ -245,6 +263,7 @@ for_window [app_id="com.obsproject.Studio"]      blur disable
 | GNU Stow                      | CarbonMonoxide                      | Idempotent, reversible, conflict-aware                      |
 | Two waybar instances          | None of the references             | All five use Eww for the dock; we trade animations for RAM  |
 | `wlr/taskbar` minimize-raise  | `man waybar-wlr-taskbar(5)`        | Canonical                                                   |
+| Scratchpad visibility         | `man waybar-sway-scratchpad(5)`    | Global count + title tooltip; click cycles hidden windows   |
 | Per-app blur disable          | vaelixd                            | Color accuracy in editors                                   |
 | `dim_inactive_colors`         | vaelixd                            | Visual cue on a pure-black canvas                           |
 | Pure-black palette (no CP)    | None — original to this repo       | User preference; references trend Catppuccin/Oxocarbon      |
@@ -306,6 +325,7 @@ Reviewed: 2026-05-18.
 - Sway input: `man 5 sway-input`
 - Waybar: `man 5 waybar`
 - Waybar wlr/taskbar: `man 5 waybar-wlr-taskbar`
+- Waybar sway/scratchpad: `man 5 waybar-sway-scratchpad`
 - Waybar sway/workspaces: `man 5 waybar-sway-workspaces`
 - Waybar custom: `man 5 waybar-custom`
 - Waybar clock / battery / network / pulseaudio / bluetooth / cpu /

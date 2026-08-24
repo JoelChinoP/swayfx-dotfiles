@@ -5,7 +5,7 @@
 > the four files inside `.claude/`. Everything you need is there. Do not
 > ask the user to re-explain context.
 >
-> Last reviewed: 2026-06-14.
+> Last reviewed: 2026-08-24.
 
 ---
 
@@ -49,8 +49,9 @@ the canonical English versions in `.claude/` supersede them.
 If you only remember six things, remember these. Full list in
 [.claude/CONTEXT.md §9](.claude/CONTEXT.md):
 
-1. **Palette is pure / near-pure black.** No Catppuccin. No purple
-   tints. Hexes in CONTEXT §4.1.
+1. **Surfaces are pure / near-pure black.** No Catppuccin surfaces. The
+   legacy cool text colors on the top ribbon are the sole scoped exception;
+   exact hexes live in CONTEXT §4.1.
 2. **One stage = one script** in `scripts/install/stages/NN-*.sh`. Each
    exits non-zero on failure and the master stops the chain. Resumable
    with `--from NN`.
@@ -62,7 +63,7 @@ If you only remember six things, remember these. Full list in
    (`custom/*`) + active windows (`wlr/taskbar`).
 6. **`scratchpad_minimize enable`** is a deliberate deviation from
    upstream's recommendation. Document it (`# DEVIATION:`) wherever you
-   touch it. Fallback: disable and rely on `wlr/taskbar` raise/lower.
+   touch it. Fallback: disable and accept activation without minimize semantics.
 
 ---
 

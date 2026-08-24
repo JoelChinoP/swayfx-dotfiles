@@ -1,5 +1,7 @@
 # Stow only user helper binaries from the scripts package.
 # Verified against: GNU Stow manual
-# Reviewed: 2026-05-11
+# Reviewed: 2026-08-23
 
-^install/
+^install$
+.*__pycache__.*
+.*\.py[co]$

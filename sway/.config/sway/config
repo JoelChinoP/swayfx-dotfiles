@@ -1,7 +1,7 @@
 # SwayFX desktop config.
 #
 # Verified against: https://github.com/WillPower3309/swayfx, sway(5)
-# Reviewed: 2026-08-24
+# Reviewed: 2026-09-06
 
 set $mod Mod4
 set $term ghostty
@@ -27,7 +27,8 @@ font pango:JetBrainsMono Nerd Font Propo Bold 12
 
 # Adjacent opaque 2px title borders form a 4px black gutter. The
 # focused child border remains yellow for split layouts; tab focus uses color.
-client.focused           $bg $border  #ffffff $bg $focus_border
+# Match the split indicator: it replaces the bottom/right edge of a sole child.
+client.focused           $bg $border  #ffffff $focus_border $focus_border
 client.focused_inactive  $bg $surface $tab_text_dim $bg $border
 client.focused_tab_title $bg $border  #ffffff
 client.unfocused         $bg $surface $tab_text_dim $bg $surface

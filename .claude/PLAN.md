@@ -766,7 +766,7 @@ files themselves are not yet committed.
 
 ```sway
 # Verified against: https://github.com/WillPower3309/swayfx
-# Reviewed: 2026-08-24
+# Reviewed: 2026-09-06
 
 # === Pure-black palette ===
 set $bg          #000000
@@ -781,7 +781,8 @@ set $crit        #f38ba8
 
 # Adjacent 2 px title borders form a 4 px black gutter between compact tabs.
 font pango:JetBrainsMono Nerd Font Propo Bold 12
-client.focused           $bg $border  #ffffff $bg $focus_border
+# Match the split indicator: it replaces the bottom/right edge of a sole child.
+client.focused           $bg $border  #ffffff $focus_border $focus_border
 client.focused_inactive  $bg $surface $tab_text_dim $bg $border
 client.focused_tab_title $bg $border  #ffffff
 client.unfocused         $bg $surface $tab_text_dim $bg $surface

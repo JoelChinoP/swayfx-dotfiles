@@ -5,7 +5,7 @@
 > the four files inside `.claude/`. Everything you need is there. Do not
 > ask the user to re-explain context.
 >
-> Last reviewed: 2026-08-24.
+> Last reviewed: 2026-08-26.
 
 ---
 
@@ -255,13 +255,14 @@ be retired.
   [system/usr/local/lib/swayfx-dotfiles/cpu-frequency-limit](system/usr/local/lib/swayfx-dotfiles/cpu-frequency-limit)
   (`AC_BLUETOOTH` / `BATTERY_BLUETOOTH`; set both to `block` for
   always-off).
+- **Power-policy ownership is intentionally split**: `asusd` alone owns
+  platform profiles/EPP (AC `Balanced` / `BalancePower`, battery `Quiet` /
+  `Power`) and the 92% charge threshold. `cpu-frequency-limit` owns the
+  ceilings, boost, USB autosuspend, and Bluetooth: AC uses 3.4 GHz with boost
+  enabled; battery uses the 2.0 GHz nominal ceiling with boost disabled.
 - **PCIe ASPM** = `powersave` via `pcie_aspm=force pcie_aspm.policy=powersave`
   in **`/etc/kernel/cmdline`** (the firmware does not grant OS ASPM
   control, so `force` is required). This is a **UKI**
   (`/boot/EFI/Linux/arch-linux.efi`, built by mkinitcpio) — the cmdline
   is **not** tracked in this repo; rebuild with `sudo mkinitcpio -P`
   after editing it.
-- The `BATTERY_MAX_KHZ=2000000` (2 GHz) ceiling in `cpu-frequency-limit`
-  is intentionally kept but is **mildly counterproductive** (race-to-idle:
-  cores already reach ~100% deep C-state). Raising it to ~3 GHz is a safe
-  future tweak if more autonomy is wanted.

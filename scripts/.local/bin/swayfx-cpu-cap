@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 # Verified against: waybar-custom(5), Linux power_supply sysfs
-# Reviewed: 2026-05-12
+# Reviewed: 2026-08-26
 
 set -euo pipefail
 IFS=$'\n\t'
-
-AC_MAX_KHZ="${AC_MAX_KHZ:-3000000}"
-BATTERY_MAX_KHZ="${BATTERY_MAX_KHZ:-2000000}"
 
 has_ac_power() {
     local supply type online
@@ -25,13 +22,13 @@ has_ac_power() {
 }
 
 if has_ac_power; then
-    text="3.0GHz"
+    text="3.4GHz"
     class="ac"
-    tooltip="CPU con cargador: limite 3.0 GHz"
+    tooltip="CPU con cargador: limite 3.4 GHz"
 else
     text="2.0GHz"
     class="battery"
-    tooltip="CPU en bateria: limite 2.0 GHz"
+    tooltip="CPU en bateria: limite 2.0 GHz, boost desactivado"
 fi
 
 printf '{"text":"%s","class":"%s","tooltip":"%s"}\n' "$text" "$class" "$tooltip"

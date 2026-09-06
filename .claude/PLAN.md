@@ -4,11 +4,11 @@
 > CONTEXT wins. Package decisions live in [STACK.md](STACK.md). Reference
 > repo notes and upstream SwayFX syntax live in [REFERENCES.md](REFERENCES.md).
 >
-> Last reviewed: 2026-08-24.
+> Last reviewed: 2026-08-26.
 
 Hardware: ASUS · Ryzen 7 7730U · Vega 8 · 16 GB RAM · Arch Linux.
 Goal: SwayFX desktop usable as a conventional desktop, dark-only,
-pure-black palette, RAM idle < 600 MB (target ~550 MB; see
+pure-black palette, RAM idle < 600 MB (target ~560 MB; see
 [STACK §6](STACK.md)).
 
 ---
@@ -240,8 +240,9 @@ sudo sensors-detect --auto
 > packages intentionally conflict while still providing `/usr/bin/sway`.
 > CPU limits are applied with `cpupower`, not PPD, TLP, auto-cpufreq or
 > RyzenAdj. The helper detects AC from `/sys/class/power_supply` without
-> hardcoding adapter or battery names, then caps scaling max at 2 GHz on
-> battery and 3 GHz on AC.
+> hardcoding adapter or battery names. Battery uses a 2.0 GHz ceiling with
+> boost disabled; AC uses 3.4 GHz with boost enabled. The helper does not
+> write ASUS platform profiles or EPP; `asusd` owns those in stage 06.
 
 **Validation**:
 
@@ -351,7 +352,7 @@ command -v waycal || exit 1
 **What.** Utilities used in autostart or via keybind: clipboard manager,
 screenshots, brightness, network, bluetooth, Tailscale remote access,
 blue-light filter, audio GUI, JSON helper for waybar custom modules,
-optional firewall, optional ASUS helper.
+optional firewall, and ASUS power management.
 
 ```bash
 sudo pacman -S --needed --noconfirm \
@@ -370,7 +371,18 @@ visudo -cf system/sudoers.d/90-tailscale-operator
 sudo install -Dm 0440 system/sudoers.d/90-tailscale-operator \
   /etc/sudoers.d/90-tailscale-operator
 
-paru -S --needed --noconfirm asusctl || log_warn "asusctl failed; skipping"
+paru -S --needed --noconfirm asusctl
+sudo systemctl start asusd.service
+busctl set-property xyz.ljones.Asusd /xyz/ljones xyz.ljones.Platform PlatformProfileLinkedEpp b true
+busctl set-property xyz.ljones.Asusd /xyz/ljones xyz.ljones.Platform ChangePlatformProfileOnAc b true
+busctl set-property xyz.ljones.Asusd /xyz/ljones xyz.ljones.Platform ChangePlatformProfileOnBattery b true
+busctl set-property xyz.ljones.Asusd /xyz/ljones xyz.ljones.Platform ProfileBalancedEpp u 3
+busctl set-property xyz.ljones.Asusd /xyz/ljones xyz.ljones.Platform ProfileQuietEpp u 4
+asusctl profile set -a Balanced
+asusctl profile set -b Quiet
+asusctl battery limit 92
+# Re-apply Balanced or Quiet last according to the current power source.
+asusctl profile set <current-source-profile>
 ```
 
 > `ufw` is installed but **not** enabled. The user enables it explicitly
@@ -388,8 +400,16 @@ paru -S --needed --noconfirm asusctl || log_warn "asusctl failed; skipping"
 > and disconnects. The wrapper exclusively owns this node's Serve config.
 > Serve must stay at URL root because OpenCode emits absolute `/assets` paths.
 > Restrict custom Tailscale SSH policies to `joel`.
-> `asusctl` is optional; if compilation fails (kernel headers / dkms),
-> emit WARN and continue.
+> `asusctl` is required on this ASUS target. Its static `asusd.service` is
+> started, not enabled: package udev/D-Bus integration activates it later.
+> `asusd` exclusively owns platform profile and linked EPP selection
+> (`Balanced` / `BalancePower` on AC, `Quiet` / `Power` on battery) and
+> persists the 92% charge limit. Stage 06 explicitly converges the automatic
+> source-switching flags and EPP mappings, then reapplies the profile for the
+> current source because each source-specific setter also activates its value.
+> The stage-02 helper owns the disjoint CPU
+> ceiling/boost, USB autosuspend, and Bluetooth settings, so event ordering
+> cannot create a writer race.
 
 **Validation**:
 
@@ -403,6 +423,17 @@ command -v tailscale                                             || exit 1
 systemctl is-enabled tailscaled.service                          || exit 1
 systemctl is-active tailscaled.service                           || exit 1
 sudo visudo -cf /etc/sudoers.d/90-tailscale-operator             || exit 1
+systemctl is-active asusd.service                                || exit 1
+asusctl profile get | grep -qx 'AC profile Balanced'             || exit 1
+asusctl profile get | grep -qx 'Battery profile Quiet'           || exit 1
+test "$(busctl get-property xyz.ljones.Asusd /xyz/ljones xyz.ljones.Platform PlatformProfileLinkedEpp)" = 'b true' || exit 1
+test "$(busctl get-property xyz.ljones.Asusd /xyz/ljones xyz.ljones.Platform ChangePlatformProfileOnAc)" = 'b true' || exit 1
+test "$(busctl get-property xyz.ljones.Asusd /xyz/ljones xyz.ljones.Platform ChangePlatformProfileOnBattery)" = 'b true' || exit 1
+test "$(busctl get-property xyz.ljones.Asusd /xyz/ljones xyz.ljones.Platform ProfileBalancedEpp)" = 'u 3' || exit 1
+test "$(busctl get-property xyz.ljones.Asusd /xyz/ljones xyz.ljones.Platform ProfileQuietEpp)" = 'u 4' || exit 1
+asusctl battery info | grep -qx 'Current battery charge limit: 92%' || exit 1
+# The stage also derives the current power source, validates Active profile,
+# and requires every CPU EPP node to match balance_power (AC) or power (battery).
 ```
 
 ---

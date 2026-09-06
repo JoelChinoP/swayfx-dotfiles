@@ -1,8 +1,8 @@
 # Verified against: systemd.service(5)
-# Reviewed: 2026-05-12
+# Reviewed: 2026-08-24
 
 [Unit]
-Description=SwayFX CPU frequency ceiling by power source
+Description=SwayFX CPU and device policy by power source
 Documentation=man:cpupower-frequency-set(1)
 ConditionPathExistsGlob=/sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq
 

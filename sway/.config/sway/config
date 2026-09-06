@@ -49,7 +49,7 @@ corner_radius 10
 # DEVIATION: native Sway cannot add real per-tab margins or inner corner
 # radii. Adjacent 2px title borders provide a 4px seam inside the tab strip.
 titlebar_border_thickness 4
-titlebar_padding 5 4
+titlebar_padding 8 6
 title_align center
 titlebar_separator enable
 show_marks no

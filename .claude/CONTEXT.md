@@ -5,7 +5,7 @@
 > **this file wins**. If anything is ambiguous, leave a `TODO:` and explain why
 > instead of guessing.
 >
-> Last reviewed: 2026-08-24.
+> Last reviewed: 2026-08-26.
 
 ---
 
@@ -15,7 +15,7 @@
 - **Hardware**: ASUS laptop · AMD Ryzen 7 7730U · iGPU Vega 8 · 16 GB RAM.
 - **Distro**: Arch Linux (with AUR).
 - **Idle RAM target**: < 600 MB after login, no apps running. The
-  estimated baseline (see [STACK §6](STACK.md)) is ~550 MB; the 50 MB
+  estimated baseline (see [STACK §6](STACK.md)) is ~560 MB; the 40 MB
   headroom exists on purpose so that we never trade off
   stability/functionality (the bottom waybar, `nm-applet`,
   `polkit-gnome`) just to shave a few MB.
@@ -229,10 +229,13 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
   `mesa` package provides the VA-API Mesa driver on current repos;
   `mesa-vdpau` is no longer available. Requires `amd-ucode`
   (premise §2).
-- **Power management**: `cpupower` plus a project systemd/udev helper.
-  Battery caps CPU scaling max at 2 GHz; AC caps it at 3 GHz. This is
-  deliberately frequency-only, not TDP tuning.
-- **Battery safety**: UPower suspends at 5% through a local drop-in. While
+- **Power management**: `asusd` is the sole owner of ASUS platform profiles
+  and linked EPP: AC uses `Balanced` / `BalancePower`, battery uses `Quiet` /
+  `Power`. A project systemd/udev helper separately owns CPU boost, frequency
+  ceilings, USB autosuspend, and Bluetooth: AC uses 3.4 GHz with boost
+  enabled; battery uses 2.0 GHz with boost disabled. No TDP tuning is used.
+- **Battery safety**: `asusd` limits charging to 92%. UPower suspends at 5%
+  through a local drop-in. While
   discharging, `swayfx-battery-alert` plays the Freedesktop warning sound once
   at each percentage transition from 10% through 6%, unless `swaylock` is active.
 - **Display refresh policy**: `swayfx-refresh-rate` runs inside the Sway
@@ -242,12 +245,15 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
   On the ASUS internal panel verified on 2026-05-16, Sway reports
   `1920x1080@60.001Hz` and `1920x1080@48.003Hz`; AC uses ~60 Hz, battery
   uses ~48 Hz. Do not add forced modelines.
-- **Do not use power policy daemons in the main path**: no
+- **Do not use competing generic power policy daemons in the main path**: no
   `power-profiles-daemon`, no `tlp`, no `auto-cpufreq`, no `ryzenadj`.
   Stage 00 detects and removes them only after confirmation or `--yes`.
+  The vendor-specific `asusd` daemon is the deliberate exception and owns
+  only ASUS profile/EPP selection and the charge threshold.
 - **Sensors**: `lm_sensors` + `sensors-detect --auto` so waybar's
   temperature module has data.
-- **ASUS-specific (optional)**: `asusctl` (AUR) for Fn keys.
+- **ASUS-specific**: `asusctl` (AUR) is required for Fn keys, ASUS
+  profile/EPP switching, and the 92% battery charge limit.
   `supergfxctl` does not apply (7730U is iGPU-only).
 - **Clipboard**: `wl-clipboard` + `cliphist`.
 - **Screenshots**: `grim` + `slurp` + `satty` (official repo).
@@ -316,7 +322,7 @@ scripts/install/
     ├── 03-swayfx.sh            # replace sway with SwayFX (AUR)
     ├── 04-session.sh           # fuzzel + mako + xdg portals + polkit
     ├── 05-bars.sh              # waybar (two instances)
-    ├── 06-utils.sh             # clipboard, screenshots, brightness, NM, BT, Tailscale
+    ├── 06-utils.sh             # clipboard, screenshots, NM/BT, Tailscale, ASUS power
     ├── 07-apps.sh              # GUI apps + TUI utilities + archive backends
     ├── 08-theming.sh           # GTK/Qt dark, fonts, cursor, icons
     ├── 09-lock-power.sh        # swayidle, swaylock-effects, wlogout, UPower, zram
@@ -445,8 +451,9 @@ swayfx-dotfile/
 - **Do not** enable shadows globally or per-window; they stay disabled for
   GPU/battery savings.
 - **Do not** install `power-profiles-daemon`, `tlp` or `auto-cpufreq`
-  in the main path. Stage 00 removes them when confirmed. CPU policy is
-  handled by the project cpupower helper.
+  in the main path. Stage 00 removes them when confirmed. CPU ceilings,
+  boost, USB autosuspend, and Bluetooth are handled by the project helper;
+  ASUS profiles/EPP and charge protection are handled only by `asusd`.
 - **Do not** install `ryzenadj` in the main path. Stage 00 removes it
   when confirmed. CPU frequency ceilings use `cpupower`; RyzenAdj is only
   for explicit low-level TDP experiments.
@@ -523,8 +530,13 @@ Grouped so a failure points to the responsible stage.
 - [ ] `wpctl status` lists sink and source.
 - [ ] `sensors` reports CPU temperature (lm_sensors configured).
 - [ ] `systemctl is-enabled swayfx-cpu-frequency-limit` → `enabled`.
-- [ ] On battery, CPU `scaling_max_freq` is at or below `2000000`; on AC,
-      at or below `3000000`.
+- [ ] On battery, CPU `scaling_max_freq` is exactly `2000000` and boost is
+      `0`; on AC, the ceiling is exactly `3400000` and boost is `1`.
+- [ ] `asusd.service` is active; `asusctl profile get` reports AC
+      `Balanced` and battery `Quiet`; active EPP is `balance_power` on AC or
+      `power` on battery. Automatic source switching and linked EPP mappings
+      are enabled.
+- [ ] Every battery `charge_control_end_threshold` is `92`.
 - [ ] `/etc/UPower/UPower.conf.d/50-swayfx-battery.conf` sets
       `PercentageAction=5.0`; while discharging and unlocked, a warning sound
       plays once as the capacity enters 10%, 9%, 8%, 7%, and 6%.
@@ -565,7 +577,7 @@ Grouped so a failure points to the responsible stage.
 ### 10.5. Resources (stage 09 / 10)
 
 - [ ] `free -m` 30 s after login with no apps → < 600 MB used (target
-      ~550 MB; ceiling 600 MB).
+      ~560 MB; ceiling 600 MB).
 - [ ] `zramctl` shows `/dev/zram0` 4 GB zstd.
 - [ ] `sysctl -n vm.swappiness` → `180`.
 - [ ] `sysctl -n vm.page-cluster` → `0`.

@@ -4,7 +4,7 @@
 > changes, update CONTEXT first, then mirror it here. Stages in
 > [PLAN.md](PLAN.md) install from these lists.
 >
-> Last reviewed: 2026-08-23.
+> Last reviewed: 2026-08-26.
 
 ---
 
@@ -176,9 +176,9 @@ swayfx
 waycal                # top-clock calendar popup
 ```
 
-#### Stage 06 — utils (optional)
+#### Stage 06 — utils
 ```
-asusctl               # ASUS Fn keys (optional, WARN on failure)
+asusctl               # ASUS Fn keys, profile/EPP policy, 92% charge limit
 ```
 
 #### Stage 07 — apps
@@ -239,10 +239,15 @@ Justifications for non-obvious choices. Update only with CONTEXT first.
   popups.
 - **mako**: layer-shell native, ~6–10 MB, scriptable via `makoctl`.
 
-### 3.5. Power management: cpupower helper (not PPD/TLP)
+### 3.5. Power management: cpupower helper + asusd (not PPD/TLP)
 
-- **cpupower**: sets a hard CPU scaling maximum. The project caps the CPU
-  at 2 GHz on battery and 3 GHz on AC via a systemd/udev helper.
+- **cpupower helper**: exclusively owns the hard CPU scaling maximum, boost,
+  USB autosuspend, and Bluetooth policy. Battery uses a 2.0 GHz ceiling with
+  boost disabled; AC uses a 3.4 GHz ceiling with boost enabled.
+- **asusd**: exclusively owns the vendor platform profile and linked EPP
+  (`Quiet` / `Power` on battery, `Balanced` / `BalancePower` on AC), plus
+  the 92% charge threshold. Keeping these knobs disjoint removes the
+  asynchronous writer race without systemd ordering workarounds.
 - **swayfx-refresh-rate**: user-session helper, not a root service,
   because refresh changes must go through Sway IPC. It inspects
   `/sys/class/power_supply`, then applies only modes already advertised by
@@ -408,7 +413,7 @@ Not part of stages 00–10 by default. Install manually when needed.
 | `swayfx`            | `sway` (official)          | Let paru replace `sway`.    |
 | `swaylock-effects`  | `swaylock` (official)      | Install only the AUR one.   |
 | `libfprint-elanmoc2-0c90-git` | `libfprint` (official) | Let pacman replace official `libfprint`; install interactively and answer `s`. |
-| `cpupower` policy helper | `power-profiles-daemon` / `tlp` / `auto-cpufreq` / `ryzenadj` | Stage 00 removes rejected policy layers when confirmed. |
+| `cpupower` helper + `asusd` | `power-profiles-daemon` / `tlp` / `auto-cpufreq` / `ryzenadj` | Stage 00 removes rejected policy layers when confirmed. |
 | `pipewire-pulse`    | `pulseaudio`               | We use the pipewire stack.  |
 | `pipewire-jack`     | `jack2`                    | We use pipewire's JACK.     |
 | `wireplumber`       | `pipewire-media-session`   | wireplumber is current.     |
@@ -417,7 +422,7 @@ Not part of stages 00–10 by default. Install manually when needed.
 
 ## 6. Idle RAM budget
 
-**Target: < 600 MB.** Estimated baseline: ~550 MB. The 50 MB headroom
+**Target: < 600 MB.** Estimated baseline: ~560 MB. The 40 MB headroom
 between the estimate and the ceiling exists so we never have to trade
 stability or convenience for a few MB.
 
@@ -436,7 +441,8 @@ stability or convenience for a few MB.
 | polkit-gnome                    | ~20 MB     |
 | gammastep                       | ~5 MB      |
 | tailscaled                      | ~80 MB     |
-| **Total estimated**             | **~550 MB**|
+| asusd                           | ~12 MB     |
+| **Total estimated**             | **~560 MB**|
 
 ### 6.1. RAM is not performance
 
@@ -468,14 +474,13 @@ Common real causes (fix these first, before touching the stack):
 
 Ordered from "least painful to remove" to "do not touch unless cornered":
 
-1. **`asusctl`** (if installed) — only useful for ASUS Fn keys.
-2. **`blueman-applet`** — replace with `bluetoothctl` from a terminal
+1. **`blueman-applet`** — replace with `bluetoothctl` from a terminal
    keybind. Saves ~20 MB. Loses tray icon for quick toggle.
-3. **`nm-applet`** — replace with waybar's `network` module
+2. **`nm-applet`** — replace with waybar's `network` module
    (`on-click: nm-connection-editor`, `on-click-right: nmtui`). Saves
    ~25 MB. Loses tray icon and quick connection menu.
-4. **`gammastep`** — only meaningful at night. Saves ~5 MB.
-5. **`cliphist` watchers** — saves ~10 MB. Loses clipboard history.
+3. **`gammastep`** — only meaningful at night. Saves ~5 MB.
+4. **`cliphist` watchers** — saves ~10 MB. Loses clipboard history.
 
 **Do NOT remove these even under pressure** — they are stability and
 core UX:
@@ -487,11 +492,12 @@ core UX:
   polkit agent.
 - **`pipewire-pulse` / `wireplumber`**: audio.
 - **`mako`**: notifications. Without it, `notify-send` is a no-op.
+- **`asusd`**: ASUS profile/EPP switching and the battery charge threshold.
 
 ### 6.4. Changing the ceiling
 
 If you genuinely need to keep the bigger pieces and the measured idle
-sits around 550–600 MB, **leave it**. Stability and ergonomics beat
-shaving 50 MB on a 16 GB machine. Update [CONTEXT §1](CONTEXT.md) and
+sits around 560–600 MB, **leave it**. Stability and ergonomics beat
+shaving a few MB on a 16 GB machine. Update [CONTEXT §1](CONTEXT.md) and
 this section if the ceiling needs to move; do not silently start
 removing components.

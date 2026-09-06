@@ -18,7 +18,7 @@ two-bar layout with pinned launchers and an active-windows taskbar.
   + a `wlr/taskbar` of open windows.
 - Dark **only**. Pure black `#000000` background, neutral grays, a small
   accent palette. No Catppuccin.
-- Idle RAM under 600 MB (estimated ~550 MB after login, with 50 MB
+- Idle RAM under 600 MB (estimated ~560 MB after login, with 40 MB
   headroom kept on purpose so we never sacrifice stability for a few MB).
 - Reproducible, staged install — every step validates before the next
   one runs.
@@ -45,6 +45,12 @@ containing `wlr/taskbar` icons plus the scratchpad counter when needed.
 | Distro    | Arch Linux (with AUR)                  |
 | Session   | Wayland                                |
 
+## Power policy
+
+- AC: ASUS `Balanced` / EPP `BalancePower`, CPU capped at 3.4 GHz.
+- Battery: ASUS `Quiet` / EPP `Power`, CPU capped at 2.0 GHz.
+- Boost is enabled on AC and disabled on battery; `asusd` limits charging to 92%.
+
 ## How it gets installed
 
 Installation is split into numbered **stages**:
@@ -57,7 +63,7 @@ Installation is split into numbered **stages**:
 | 03    | Replace Sway with SwayFX from AUR                           |
 | 04    | Launcher (fuzzel) + notifications (mako) + XDG portals       |
 | 05    | Waybar (one binary, two configs)                             |
-| 06    | Clipboard, screenshots, brightness, network, Bluetooth, Tailscale |
+| 06    | Clipboard/screenshots, network, Bluetooth, Tailscale, ASUS power |
 | 07    | GUI apps (Nautilus, Brave Origin, mpv, GNOME utilities, btop…) |
 | 08    | Dark theming for GTK 3/4, Qt, cursor, icons, fonts           |
 | 09    | swaylock-effects + wlogout + zram/sysctl tuning              |

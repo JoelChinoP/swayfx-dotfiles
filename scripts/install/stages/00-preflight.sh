@@ -130,7 +130,7 @@ remove_rejected_power_policy() {
     fi
 
     if ! confirm "Remove rejected power policy packages now?"; then
-        log_fatal "remove $joined before continuing; the project uses cpupower as the only CPU policy layer"
+        log_fatal "remove $joined before continuing; the project uses cpupower as the only CPU frequency-ceiling layer"
         exit 1
     fi
 

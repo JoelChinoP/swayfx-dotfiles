@@ -21,19 +21,6 @@ paru_install() {
     run paru -S --needed --noconfirm "$@"
 }
 
-# Install AUR packages but log_warn on failure instead of failing the
-# stage. Use for genuinely optional things (asusctl, satty).
-paru_install_optional() {
-    (( $# > 0 )) || return 0
-    require paru
-    local IFS=' '
-    log_info "paru -S --needed (optional) $*"
-    if ! run paru -S --needed --noconfirm "$@"; then
-        log_warn "optional AUR package(s) failed to install: $*"
-        return 0
-    fi
-}
-
 # Bootstrap paru. Tries paru-bin first (binary, ~5 MB, instant install).
 # If the binary cannot load (ABI mismatch with current libalpm), falls
 # back to a source build of `paru` (rust toolchain, ~500 MB transitive

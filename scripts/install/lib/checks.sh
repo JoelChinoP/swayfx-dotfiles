@@ -135,6 +135,34 @@ done
 exit 0
 '
 check_cmd "cpupower installed" command -v cpupower
+check_cmd "asusctl installed" pacman -Q asusctl
+check_cmd "asusd active" systemctl is-active asusd.service
+check_cmd "ASUS profiles configured" bash -c '
+profiles="$(asusctl profile get 2>/dev/null)" || exit 1
+grep -qx "AC profile Balanced" <<<"$profiles" &&
+grep -qx "Battery profile Quiet" <<<"$profiles"
+'
+check_cmd "ASUS automatic profile/EPP mapping configured" bash -c '
+service=xyz.ljones.Asusd
+object=/xyz/ljones
+interface=xyz.ljones.Platform
+[[ "$(busctl get-property "$service" "$object" "$interface" PlatformProfileLinkedEpp 2>/dev/null)" == "b true" ]] &&
+[[ "$(busctl get-property "$service" "$object" "$interface" ChangePlatformProfileOnAc 2>/dev/null)" == "b true" ]] &&
+[[ "$(busctl get-property "$service" "$object" "$interface" ChangePlatformProfileOnBattery 2>/dev/null)" == "b true" ]] &&
+[[ "$(busctl get-property "$service" "$object" "$interface" ProfileBalancedEpp 2>/dev/null)" == "u 3" ]] &&
+[[ "$(busctl get-property "$service" "$object" "$interface" ProfileQuietEpp 2>/dev/null)" == "u 4" ]]
+'
+check_cmd "battery charge limit set to 92%" bash -c '
+found=0
+for supply in /sys/class/power_supply/*; do
+    [[ -r "$supply/type" ]] || continue
+    [[ "$(< "$supply/type")" == "Battery" ]] || continue
+    [[ -r "$supply/charge_control_end_threshold" ]] || exit 1
+    [[ "$(< "$supply/charge_control_end_threshold")" == "92" ]] || exit 1
+    found=1
+done
+(( found ))
+'
 check_cmd "CPU frequency ceiling service enabled" systemctl is-enabled swayfx-cpu-frequency-limit.service
 check_cmd "CPU frequency ceiling active" bash -c '
 shopt -s nullglob
@@ -147,14 +175,45 @@ for supply in /sys/class/power_supply/*; do
     type="$(< "$supply/type")"
     online="$(< "$supply/online")"
     if [[ "$type" != "Battery" && "$online" = "1" ]]; then
-        expected=3000000
+        expected=3400000
         break
     fi
 done
 
 for file in "${files[@]}"; do
     read -r value < "$file"
-    (( value <= expected )) || exit 1
+    (( value == expected )) || exit 1
+done
+'
+check_cmd "CPU boost policy active" bash -c '
+expected=0
+for supply in /sys/class/power_supply/*; do
+    [[ -r "$supply/type" && -r "$supply/online" ]] || continue
+    if [[ "$(< "$supply/type")" != "Battery" && "$(< "$supply/online")" == "1" ]]; then
+        expected=1
+        break
+    fi
+done
+[[ "$(< /sys/devices/system/cpu/cpufreq/boost)" == "$expected" ]]
+'
+check_cmd "ASUS platform profile and EPP active" bash -c '
+expected_profile=quiet
+expected_epp=power
+for supply in /sys/class/power_supply/*; do
+    [[ -r "$supply/type" && -r "$supply/online" ]] || continue
+    if [[ "$(< "$supply/type")" != "Battery" && "$(< "$supply/online")" == "1" ]]; then
+        expected_profile=balanced
+        expected_epp=balance_power
+        break
+    fi
+done
+
+[[ "$(< /sys/firmware/acpi/platform_profile)" == "$expected_profile" ]] || exit 1
+shopt -s nullglob
+files=(/sys/devices/system/cpu/cpu[0-9]*/cpufreq/energy_performance_preference)
+(( ${#files[@]} > 0 )) || exit 1
+for file in "${files[@]}"; do
+    [[ "$(< "$file")" == "$expected_epp" ]] || exit 1
 done
 '
 check_cmd "zram0 present" bash -c 'zramctl 2>/dev/null | grep -q zram0'

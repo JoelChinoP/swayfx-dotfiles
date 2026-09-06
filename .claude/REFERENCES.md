@@ -4,7 +4,7 @@
 > and [PLAN.md](PLAN.md). When upstream behavior changes, update this
 > file with the new revision date and reflect the change in CONTEXT.
 >
-> Last reviewed: 2026-08-24.
+> Last reviewed: 2026-08-26.
 
 ---
 
@@ -269,7 +269,7 @@ for_window [app_id="com.obsproject.Studio"]      blur disable
 | Pure-black palette (no CP)    | None — original to this repo       | User preference; references trend Catppuccin/Oxocarbon      |
 | TTY1 + `.zprofile` exec sway  | ArchWiki "Sway" autostart section  | Lightest path, no DM RAM cost                               |
 | greetd/ReGreet as **optional**| codex draft + ArchWiki             | Defer DM until session is stable                            |
-| `cpupower` CPU ceilings       | cpupower manual + ArchWiki         | Simple 2 GHz battery / 3 GHz AC frequency cap without PPD/TLP |
+| `cpupower` + `asusd` split    | cpupower manual + asusctl upstream | Helper owns 2.0/3.4 GHz caps and boost; asusd owns profile/EPP and 92% charging |
 | Native refresh switching      | `swaymsg -t get_outputs`, sway-output(5) | Use advertised 60/48 Hz modes only; no forced modelines |
 | `scratchpad_minimize enable`  | (DEVIATION from upstream)          | Required for CSD-button minimize; fallback documented       |
 | `swaylock-effects`            | All references                     | Real lock with screenshot+blur                              |
@@ -304,7 +304,7 @@ Reviewed: 2026-05-18.
 
 - **Eww widgets** for the bar/dock: 4 of 5 references use them, but Eww
   pulls in GTK + custom Lua and easily adds 80–120 MB to idle RAM. Our
-  budget is < 600 MB total (target ~550 MB); spending a quarter on
+  budget is < 600 MB total (target ~560 MB); spending a quarter on
   chrome is not viable.
 - **Catppuccin Mocha** (Mocha or any variant): the pure-black design is
   intentionally neutral. Catppuccin-style purples would clash with the
@@ -354,6 +354,7 @@ Reviewed: 2026-05-18.
 - NetworkManager: <https://wiki.archlinux.org/title/NetworkManager>
 - zram: <https://wiki.archlinux.org/title/Zram>
 - cpupower frequency limits: <https://man.archlinux.org/man/extra/cpupower/cpupower-frequency-set.1.en>
+- asusctl/asusd profiles and charge limit: <https://gitlab.com/asus-linux/asusctl>
 - Sway output modes: `man 5 sway-output`
 - Sway IPC output inspection: `swaymsg -t get_outputs`
 - power-profiles-daemon (rejected for main path): <https://wiki.archlinux.org/title/CPU_frequency_scaling>

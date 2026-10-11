@@ -28,7 +28,7 @@ fi
 THEME_PKGS=(
     adw-gtk-theme papirus-icon-theme
     qt6ct kvantum nwg-look
-    ttf-firacode-nerd ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji inter-font
+    ttf-firacode-nerd ttf-jetbrains-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji inter-font
 )
 pacman_install "${THEME_PKGS[@]}"
 

@@ -19,3 +19,9 @@ esac
 
 # Tell starship where its config lives.
 export STARSHIP_CONFIG="$XDG_CONFIG_HOME/starship.toml"
+
+# opencode-dotfiles-v2: nivel inicial de Ponytail
+export PONYTAIL_DEFAULT_MODE=lite
+
+# opencode-dotfiles-v2: herramientas administradas
+export PATH="${XDG_DATA_HOME:-$HOME/.local/share}/opencode-dotfiles-v2/bin:$PATH"

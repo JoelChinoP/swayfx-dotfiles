@@ -172,3 +172,14 @@ export PATH="$HOME/.local/bin:$PATH"
 
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$PATH:$HOME/go/bin"
+
+alias oc='command opencode'
+
+alias oc-last='command opencode --continue'
+
+# >>> gentle-dotfiles >>>
+case ":$PATH:" in
+  *":$HOME/.local/bin:"*) ;;
+  *) export PATH="$HOME/.local/bin:$PATH" ;;
+esac
+# <<< gentle-dotfiles <<<

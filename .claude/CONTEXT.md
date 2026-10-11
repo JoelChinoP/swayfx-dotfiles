@@ -198,6 +198,8 @@ Full package list lives in [STACK.md](STACK.md). Top-level choices:
 - **Terminal font**: FiraCode Nerd Font Mono 12. The Nerd Font variant is
   required so Starship's folder/git icons render correctly. Waybar keeps
   JetBrainsMono Nerd Font for compact status icons.
+- **Fallback fonts**: `noto-fonts`, `noto-fonts-cjk`, and `noto-fonts-emoji`
+  provide multilingual, CJK, and emoji coverage in stage 08.
 - **Launcher**: fuzzel.
 - **Notifications**: mako.
 - **Bars**: two waybar instances (top: status; bottom: pinned + taskbar).
@@ -573,6 +575,7 @@ Grouped so a failure points to the responsible stage.
 - [ ] zsh autosuggestions and syntax-highlighting active.
 - [ ] `fc-match 'FiraCode Nerd Font'`, `fc-match 'JetBrainsMono Nerd Font'`,
       and `fc-match 'Inter'` → fonts registered.
+- [ ] `pacman -Q noto-fonts noto-fonts-cjk noto-fonts-emoji` → all installed.
 
 ### 10.5. Resources (stage 09 / 10)
 
